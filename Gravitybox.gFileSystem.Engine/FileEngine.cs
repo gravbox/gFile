@@ -69,12 +69,6 @@ namespace Gravitybox.gFileSystem.Engine
         public string WorkingFolder { get; set; }
 
         /// <summary>
-        /// The folder that holds all encrypted files in the system
-        /// When files are retrieved they come from this folder
-        /// </summary>
-        public string StorageFolder { get; set; }
-
-        /// <summary>
         /// Given a file, this will encrypt it and put it in storage
         /// </summary>
         public string SaveFile(string fileName)
