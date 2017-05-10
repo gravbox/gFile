@@ -38,6 +38,7 @@ namespace EnvelopeEncryption
                 var b = FileUtilities.FilesAreEqual(plainFile, plainFile2);
                 Debug.Assert(b);
 
+                //Clean up the files we just created
                 FileUtilities.WipeFile(cryptFile);
                 FileUtilities.WipeFile(plainFile2);
             }

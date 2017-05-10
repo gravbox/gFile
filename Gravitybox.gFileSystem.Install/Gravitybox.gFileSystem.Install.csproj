@@ -116,6 +116,7 @@
     <Content Include="1_UserDefinedInitialization\NewDatabase\ReadMe.txt" />
     <Content Include="1_UserDefinedInitialization\ReadMe.txt" />
     <Content Include="1_UserDefinedInitialization\UnVersioned\ReadMe.txt" />
+    <Content Include="README.txt" />
     <EmbeddedResource Include="3_GeneratedTablesAndData\CreateSchemaAuditTriggers.sql" />
     <EmbeddedResource Include="1_UserDefinedInitialization\UnVersioned\UnversionedUpgradeScript.sql" />
     <Content Include="1_UserDefinedInitialization\Versioned\ReadMe.txt" />
