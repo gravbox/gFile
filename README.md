@@ -27,25 +27,32 @@ using (var fe = new FileEngine(MasterKey, TenantKey))
 The engine is very simple and does not provide the necessary key management facilities. There is an additional FileManager component that provide the key and file management abilities for a working file storage system. It uses SQL Server to manage keys, tenants, containers, and files. There is a database installer included that will create a SQL database. The FileManager library can be included in your project to save and retieve encrytped files.
 
 ```csharp
-//Get/create tenant
-const string TenantName = "Test1";
-var tenantId = fm.GetOrAddTenant(TenantName);
+//Create the manager object
+using (var fm = new FileManager(MasterKey, ConnectionString))
+{
+    //Get/create tenant
+    const string TenantName = "Test1";
+    var tenantId = fm.GetOrAddTenant(TenantName);
+    
+    //A container is just a group for files
+    var Container = "SomeName";
 
-//This is the plain text file to test
-var plainFile = @"c:\temp\test.txt";
+    //This is the plain text file to test
+    var plainFile = @"c:\temp\test.txt";
 
-//Save the file
-var wasSaved = fm.SaveFile(tenantId, Container, plainFile);
+    //Save the file
+    var wasSaved = fm.SaveFile(tenantId, Container, plainFile);
 
-//Get the save file by name
-var newFile = fm.GetFile(tenantId, Container, plainFile);
+    //Get the save file by name
+    var newFile = fm.GetFile(tenantId, Container, plainFile);
 
-//Remove the file from storage
-fm.RemoveFile(tenantId, Container, plainFile);
+    //Remove the file from storage
+    fm.RemoveFile(tenantId, Container, plainFile);
 
-//Compare the 2 plain text files
-Debug.Assert(FileUtilities.FilesAreEqual(plainFile, newFile));
+    //Compare the 2 plain text files
+    Debug.Assert(FileUtilities.FilesAreEqual(plainFile, newFile));
 
-//Remove the retrieved file
-FileUtilities.WipeFile(newFile);
+    //Remove the retrieved file
+    FileUtilities.WipeFile(newFile);
+}
 ````
