@@ -1,5 +1,5 @@
 # gFile Envelope Encryption System
-This is an  encrypted fie system. The engine implements **Envelope Encryption**. This is a multi-tenant file storage system. Each tenant stores files in a container. A container is essentially a virtual file system. Each file is stored a unique data key. The data key is prepended to the file encrypted with a tenant key. Every file for a tenant has its data key encrypted with the tenant key. This allows the re-keying of the whole tenant very quickly, as there is no need to re-encrypt the whole file. Only the data key header is re-encrypted.
+This is an  encrypted file system. The engine implements **Envelope Encryption**. This is a multi-tenant file storage system. Each tenant stores files in a container. A container is essentially a virtual file system. Each file is stored a unique data key. The data key is prepended to the file encrypted with a tenant key. Every file for a tenant has its unique data key encrypted with its tenant key. This allows the re-keying of the whole tenant very quickly, as there is no need to re-encrypt whole files. Only the data key header is re-encrypted.
 
 ```csharp
 //Create engine
@@ -24,7 +24,7 @@ using (var fe = new FileEngine(MasterKey, TenantKey))
 }
 ```
 ## File Management Library
-The engine is very simple and does not provide the necessary key management facilities. There is an additional FileManager component that provide the key and file management abilities for a working file storage system. It uses SQL Server to manage keys, tenants, containers, and files. There is a database installer included that will create a SQL database. The FileManager library can be included in your project to save and retrieve encrypted files.
+The engine is very simple and does not provide the necessary key and file management facilities. There is an additional **FileManager** component that provides the key and file management abilities for a working file storage system. It uses SQL Server to manage keys, tenants, containers, and files. There is a database installer included that will create a SQL database. The FileManager library can be included in your project to save and retrieve encrypted files.
 
 ```csharp
 //Create the manager object
