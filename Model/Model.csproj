@@ -51,6 +51,7 @@
     <None Include="FileSystem.nhydrate.diagram">
       <DependentUpon>FileSystem.nhydrate</DependentUpon>
     </None>
+    <None Include="README.md" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
