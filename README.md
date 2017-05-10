@@ -65,3 +65,8 @@ The storage is a disk folder that holds all files managed by the database. All f
 
 ## Key Management
 No keys are ever un-encrypted in storage, either in the database or on disk. All data keys are encrypted with the relevant tenant key. All tenant keys are encrypted with the master key. The master key is never stored. You supply the master key on object creation. You should manage the master key with the security you find appropriate.
+
+## More Reading
+<http://docs.aws.amazon.com/kms/latest/developerguide/workflow.html>
+
+<https://www.cloudreach.com/blog/aws-kms-envelope-encryption/>
