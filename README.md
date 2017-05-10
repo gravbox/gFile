@@ -18,7 +18,7 @@ using (var fe = new FileEngine(MasterKey, TenantKey))
     var b = FileUtilities.FilesAreEqual(plainFile, plainFile2);
     Debug.Assert(b);
 
-    //Clean up the files we just created
+    //Clean up the files from temp folder
     FileUtilities.WipeFile(cryptFile);
     FileUtilities.WipeFile(plainFile2);
 }
@@ -52,7 +52,7 @@ using (var fm = new FileManager(MasterKey, ConnectionString))
     //Compare the 2 plain text files
     Debug.Assert(FileUtilities.FilesAreEqual(plainFile, newFile));
 
-    //Remove the retrieved file
+    //Remove the retrieved file from temp folder
     FileUtilities.WipeFile(newFile);
 }
 ````
