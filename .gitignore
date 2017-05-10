@@ -1,0 +1,32 @@
+bin/
+obj/
+packages/
+output/
+.metadata/
+logs/
+.vs/
+
+
+*.suo
+*.user
+*.css.map
+*.js.map
+
+# npm
+npm-debug.log
+node_modules/
+
+# MSTest test Results
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+
+/WE-browsers.xml
+
+# Microsoft.Fakes generated files
+
+*.Fakes.messages
+*.fakesconfig
+*.Fakes.xml
+*.Fakes.dll
+
+project.lock.json

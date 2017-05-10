@@ -1,0 +1,213 @@
+<?xml version="1.0"?>
+<modelRoot guid="d570da75-dc5a-443f-83e7-b964165ae8e7" type="nHydrate.Generator.nHydrateGeneratorProject" assembly="nHydrate.Generator.dll">
+		<ModelRoot key="d570da75-dc5a-443f-83e7-b964165ae8e7" projectName="gFileSystem" transformNames="0" enableCustomChangeEvents="1" supportLegacySearchObject="0" useUTCTime="False" version="0.0.0.0" companyName="Gravitybox" emitSafetyScripts="1" tenantColumnName="__tenant_user" tenantPrefix="__vw_tenant" allowMocks="0" companyAbbreviation="" defaultNamespace="" storedProcedurePrefix="gen" sqlType="SQL2008" efversion="EF6" frameworkVersion="v35">
+				<copyright><![CDATA[]]></copyright>
+				<database key="d570da75-dc5a-443f-83e7-b964165ae8e7" createdByColumnName="CreatedBy" createdDateColumnName="CreatedDate" modifiedByColumnName="ModifiedBy" modifiedDateColumnName="ModifiedDate" timestampColumnName="Timestamp" fullIndexSearchColumnName="full_index_text" grantExecUser="" useGeneratedCRUD="False" tablePrefix="" collate="" databaseName="">
+						<columns key="00000000-0000-0000-0000-000000000000">
+								<c key="4425f8c9-9985-451c-926c-1ee3c76be9ef" name="ContainerName" dataFieldSortOrder="7" length="100" isIndexed="1" id="648261888" type="12" allowNull="0">
+										<pt key="022f13a6-4ad6-46be-8f15-26cb9c2c1719" ref="107254513" refType="1" />
+								</c>
+								<c key="94a49039-d177-44ef-bf6a-ba8876dce601" name="CrcPlain" dataFieldSortOrder="8" length="32" id="1574876720" type="22" allowNull="0">
+										<pt key="022f13a6-4ad6-46be-8f15-26cb9c2c1719" ref="107254513" refType="1" />
+								</c>
+								<c key="67411304-477c-430b-86df-6609e6a0422d" primaryKey="1" identity="1" name="FileStashID" dataFieldSortOrder="1" isIndexed="1" isUnique="1" id="1663610803" type="0" allowNull="0">
+										<pt key="022f13a6-4ad6-46be-8f15-26cb9c2c1719" ref="107254513" refType="1" />
+								</c>
+								<c key="fc56904d-a820-4c6c-bab4-1493a8a64ce2" name="Hash" dataFieldSortOrder="4" isIndexed="1" id="979695610" type="0" allowNull="0">
+										<pt key="706c3712-9889-4983-ab78-fd32fecc6132" ref="2007042574" refType="1" />
+								</c>
+								<c key="55e0a4f9-8765-4451-8554-4ad23729021d" primaryKey="1" identity="1" name="ID" dataFieldSortOrder="1" isIndexed="1" isUnique="1" id="116087062" type="8" allowNull="0">
+										<pt key="99b0893c-a8bc-4f13-9641-2e61bebaf3c3" ref="1751809136" refType="1" />
+								</c>
+								<c key="62fd209b-4afb-473c-833b-8762579c4fd9" primaryKey="1" identity="1" name="ID" dataFieldSortOrder="1" isIndexed="1" isUnique="1" id="866895374" type="0" allowNull="0">
+										<pt key="706c3712-9889-4983-ab78-fd32fecc6132" ref="2007042574" refType="1" />
+								</c>
+								<c key="b357f133-0972-40e7-9c20-fbe20c3dbda6" name="IsWrite" dataFieldSortOrder="2" default="0" isIndexed="1" id="897984394" type="2" allowNull="0">
+										<pt key="706c3712-9889-4983-ab78-fd32fecc6132" ref="2007042574" refType="1" />
+								</c>
+								<c key="a4acb221-2b57-48a3-a313-025315bf5554" name="Key" dataFieldSortOrder="3" length="48" id="1506297558" type="21" allowNull="0">
+										<pt key="93ac4c5c-a946-4708-ba78-1f2b36fa3e16" ref="301332758" refType="1" />
+								</c>
+								<c key="e5fdbb02-9cd3-4598-8db2-72274104ea10" name="Key" dataFieldSortOrder="3" isIndexed="1" id="404433622" type="22" allowNull="0">
+										<pt key="706c3712-9889-4983-ab78-fd32fecc6132" ref="2007042574" refType="1" />
+								</c>
+								<c key="7280b979-4727-4b25-9ec9-dffc75453dc4" name="Name" dataFieldSortOrder="2" id="1345733934" type="22" allowNull="0">
+										<pt key="99b0893c-a8bc-4f13-9641-2e61bebaf3c3" ref="1751809136" refType="1" />
+								</c>
+								<c key="441b22d6-2c6b-4e6c-8821-d01e16b78a04" name="Name" dataFieldSortOrder="2" isIndexed="1" id="1026900807" type="12" allowNull="0">
+										<pt key="93ac4c5c-a946-4708-ba78-1f2b36fa3e16" ref="301332758" refType="1" />
+								</c>
+								<c key="d939d1b0-8dcb-413e-9325-aa96f4bda915" name="Path" dataFieldSortOrder="2" length="450" isIndexed="1" id="553948656" type="12" allowNull="0">
+										<pt key="022f13a6-4ad6-46be-8f15-26cb9c2c1719" ref="107254513" refType="1" />
+								</c>
+								<c key="6281ea46-4f70-4e92-856d-d13556d667d7" name="Size" dataFieldSortOrder="6" id="26656032" type="0" allowNull="0">
+										<pt key="022f13a6-4ad6-46be-8f15-26cb9c2c1719" ref="107254513" refType="1" />
+								</c>
+								<c key="a8dbc34a-8359-4bb4-a2a9-ca3519f22ee0" name="TenantID" dataFieldSortOrder="5" isIndexed="1" id="893367982" type="0" allowNull="0">
+										<pt key="022f13a6-4ad6-46be-8f15-26cb9c2c1719" ref="107254513" refType="1" />
+								</c>
+								<c key="a47253c5-8a24-4162-bbed-3d70791a1492" primaryKey="1" identity="1" name="TenantID" dataFieldSortOrder="1" isIndexed="1" isUnique="1" id="1924145956" type="0" allowNull="0">
+										<pt key="93ac4c5c-a946-4708-ba78-1f2b36fa3e16" ref="301332758" refType="1" />
+								</c>
+								<c key="e08f2a71-69e1-442e-b443-db2eb9320df8" name="UniqueKey" dataFieldSortOrder="4" default="newid" isIndexed="1" id="1527426664" type="14" allowNull="0">
+										<pt key="022f13a6-4ad6-46be-8f15-26cb9c2c1719" ref="107254513" refType="1" />
+								</c>
+								<c key="95b61ed7-97d4-42b2-91bf-6595c3806d3f" name="UniqueKey" dataFieldSortOrder="4" default="newid" isIndexed="1" id="1714284010" type="14" allowNull="0">
+										<pt key="93ac4c5c-a946-4708-ba78-1f2b36fa3e16" ref="301332758" refType="1" />
+								</c>
+								<c key="aadfe0a9-953a-48de-870c-837d44b546e1" name="Value" dataFieldSortOrder="3" length="500" id="1773418735" type="22">
+										<pt key="99b0893c-a8bc-4f13-9641-2e61bebaf3c3" ref="1751809136" refType="1" />
+								</c>
+						</columns>
+						<customviewcolumns key="00000000-0000-0000-0000-000000000000" />
+						<customaggregatecolumns key="00000000-0000-0000-0000-000000000000" />
+						<customstoredprocedurecolumns key="00000000-0000-0000-0000-000000000000" />
+						<functioncolumns key="00000000-0000-0000-0000-000000000000" />
+						<customretrieverules key="00000000-0000-0000-0000-000000000000" />
+						<customretrieveruleparameters key="00000000-0000-0000-0000-000000000000" />
+						<functionparameters key="00000000-0000-0000-0000-000000000000" />
+						<relations key="00000000-0000-0000-0000-000000000000">
+								<r key="f4adb9e2-7c4c-4bab-b9ba-8d40624a8466" enforce="1" id="870160195">
+										<crl>
+												<cr>
+														<pt key="a47253c5-8a24-4162-bbed-3d70791a1492" ref="1924145956" refType="0" />
+														<ct key="a8dbc34a-8359-4bb4-a2a9-ca3519f22ee0" ref="893367982" refType="0" />
+												</cr>
+										</crl>
+										<ct key="022f13a6-4ad6-46be-8f15-26cb9c2c1719" ref="107254513" refType="1" />
+										<pt key="93ac4c5c-a946-4708-ba78-1f2b36fa3e16" ref="301332758" refType="1" />
+								</r>
+						</relations>
+						<viewrelations key="00000000-0000-0000-0000-000000000000" />
+						<tables key="00000000-0000-0000-0000-000000000000">
+								<t key="99b0893c-a8bc-4f13-9641-2e61bebaf3c3" name="ConfigSetting" dbschema="" id="1751809136">
+										<til>
+												<ti key="f3caee4d-4c54-4036-9ff7-52bf2a4474ec" isUnique="1" primaryKey="1" clustered="1" description="" importedName="" id="1907896574">
+														<ticl>
+																<tic ascending="1" fieldID="55e0a4f9-8765-4451-8554-4ad23729021d" id="1" />
+														</ticl>
+												</ti>
+										</til>
+										<c key="00000000-0000-0000-0000-000000000000">
+												<f key="55e0a4f9-8765-4451-8554-4ad23729021d" ref="116087062" refType="0" />
+												<f key="7280b979-4727-4b25-9ec9-dffc75453dc4" ref="1345733934" refType="0" />
+												<f key="aadfe0a9-953a-48de-870c-837d44b546e1" ref="1773418735" refType="0" />
+										</c>
+										<security key="00000000-0000-0000-0000-000000000000" sql="">
+												<parameters key="00000000-0000-0000-0000-000000000000" />
+										</security>
+								</t>
+								<t key="022f13a6-4ad6-46be-8f15-26cb9c2c1719" name="FileStash" dbschema="" id="107254513">
+										<til>
+												<ti key="128413ce-7766-4cee-aca6-a8644de0f958" isUnique="1" primaryKey="1" clustered="1" description="" importedName="" id="1845013924">
+														<ticl>
+																<tic ascending="1" fieldID="67411304-477c-430b-86df-6609e6a0422d" id="1" />
+														</ticl>
+												</ti>
+												<ti key="8cc16a56-669b-4e7c-ba0c-d1badb8a5128" isUnique="0" primaryKey="0" clustered="0" description="" importedName="" id="1579145295">
+														<ticl>
+																<tic ascending="1" fieldID="e08f2a71-69e1-442e-b443-db2eb9320df8" id="1" />
+														</ticl>
+												</ti>
+												<ti key="0a244fc3-a3d0-43b3-b629-c7ccb16511d5" isUnique="0" primaryKey="0" clustered="0" description="" importedName="" id="402466101">
+														<ticl>
+																<tic ascending="1" fieldID="a8dbc34a-8359-4bb4-a2a9-ca3519f22ee0" id="1" />
+														</ticl>
+												</ti>
+												<ti key="b0f0d9f4-a9e1-4109-b2a3-b6432633ea62" isUnique="0" primaryKey="0" clustered="0" description="" importedName="" id="1963303425">
+														<ticl>
+																<tic ascending="1" fieldID="d939d1b0-8dcb-413e-9325-aa96f4bda915" id="1" />
+														</ticl>
+												</ti>
+												<ti key="f1eab836-5a42-4d1b-90e0-9482f200993d" isUnique="0" primaryKey="0" clustered="0" description="" importedName="" id="1117673496">
+														<ticl>
+																<tic ascending="1" fieldID="4425f8c9-9985-451c-926c-1ee3c76be9ef" id="1" />
+														</ticl>
+												</ti>
+										</til>
+										<c key="00000000-0000-0000-0000-000000000000">
+												<f key="67411304-477c-430b-86df-6609e6a0422d" ref="1663610803" refType="0" />
+												<f key="d939d1b0-8dcb-413e-9325-aa96f4bda915" ref="553948656" refType="0" />
+												<f key="e08f2a71-69e1-442e-b443-db2eb9320df8" ref="1527426664" refType="0" />
+												<f key="a8dbc34a-8359-4bb4-a2a9-ca3519f22ee0" ref="893367982" refType="0" />
+												<f key="6281ea46-4f70-4e92-856d-d13556d667d7" ref="26656032" refType="0" />
+												<f key="4425f8c9-9985-451c-926c-1ee3c76be9ef" ref="648261888" refType="0" />
+												<f key="94a49039-d177-44ef-bf6a-ba8876dce601" ref="1574876720" refType="0" />
+										</c>
+										<security key="00000000-0000-0000-0000-000000000000" sql="">
+												<parameters key="00000000-0000-0000-0000-000000000000" />
+										</security>
+								</t>
+								<t key="93ac4c5c-a946-4708-ba78-1f2b36fa3e16" name="Tenant" dbschema="" id="301332758">
+										<r key="00000000-0000-0000-0000-000000000000">
+												<f key="f4adb9e2-7c4c-4bab-b9ba-8d40624a8466" ref="870160195" refType="2" />
+										</r>
+										<til>
+												<ti key="7a5cb239-c7b4-481c-b0ec-f85137ef8d7d" isUnique="1" primaryKey="1" clustered="1" description="" importedName="" id="1265379863">
+														<ticl>
+																<tic ascending="1" fieldID="a47253c5-8a24-4162-bbed-3d70791a1492" id="1" />
+														</ticl>
+												</ti>
+												<ti key="8f4f934e-a5d5-4446-934c-603c183521e6" isUnique="0" primaryKey="0" clustered="0" description="" importedName="" id="1118075424">
+														<ticl>
+																<tic ascending="1" fieldID="95b61ed7-97d4-42b2-91bf-6595c3806d3f" id="1" />
+														</ticl>
+												</ti>
+												<ti key="b353c1b6-6e58-4313-bdc4-0bb4236d101d" isUnique="0" primaryKey="0" clustered="0" description="" importedName="" id="1527156617">
+														<ticl>
+																<tic ascending="1" fieldID="441b22d6-2c6b-4e6c-8821-d01e16b78a04" id="1" />
+														</ticl>
+												</ti>
+										</til>
+										<c key="00000000-0000-0000-0000-000000000000">
+												<f key="a47253c5-8a24-4162-bbed-3d70791a1492" ref="1924145956" refType="0" />
+												<f key="441b22d6-2c6b-4e6c-8821-d01e16b78a04" ref="1026900807" refType="0" />
+												<f key="a4acb221-2b57-48a3-a313-025315bf5554" ref="1506297558" refType="0" />
+												<f key="95b61ed7-97d4-42b2-91bf-6595c3806d3f" ref="1714284010" refType="0" />
+										</c>
+										<security key="00000000-0000-0000-0000-000000000000" sql="">
+												<parameters key="00000000-0000-0000-0000-000000000000" />
+										</security>
+								</t>
+								<t key="706c3712-9889-4983-ab78-fd32fecc6132" name="ThreadLock" dbschema="" id="2007042574">
+										<til>
+												<ti key="80293181-e3b7-47f2-934e-1c6779ecdca4" isUnique="1" primaryKey="1" clustered="1" description="" importedName="" id="1895692093">
+														<ticl>
+																<tic ascending="1" fieldID="62fd209b-4afb-473c-833b-8762579c4fd9" id="1" />
+														</ticl>
+												</ti>
+												<ti key="10923351-a8b1-46eb-b269-701819813142" isUnique="0" primaryKey="0" clustered="0" description="" importedName="" id="477288607">
+														<ticl>
+																<tic ascending="1" fieldID="b357f133-0972-40e7-9c20-fbe20c3dbda6" id="1" />
+														</ticl>
+												</ti>
+												<ti key="4e82588f-96cb-4c44-aaf0-c3b9783113da" isUnique="0" primaryKey="0" clustered="0" description="" importedName="" id="983330828">
+														<ticl>
+																<tic ascending="1" fieldID="e5fdbb02-9cd3-4598-8db2-72274104ea10" id="1" />
+														</ticl>
+												</ti>
+												<ti key="e5404fcc-6895-449b-8b64-c6d7f4968697" isUnique="0" primaryKey="0" clustered="0" description="" importedName="" id="1659360560">
+														<ticl>
+																<tic ascending="1" fieldID="fc56904d-a820-4c6c-bab4-1493a8a64ce2" id="1" />
+														</ticl>
+												</ti>
+										</til>
+										<c key="00000000-0000-0000-0000-000000000000">
+												<f key="62fd209b-4afb-473c-833b-8762579c4fd9" ref="866895374" refType="0" />
+												<f key="b357f133-0972-40e7-9c20-fbe20c3dbda6" ref="897984394" refType="0" />
+												<f key="e5fdbb02-9cd3-4598-8db2-72274104ea10" ref="404433622" refType="0" />
+												<f key="fc56904d-a820-4c6c-bab4-1493a8a64ce2" ref="979695610" refType="0" />
+										</c>
+										<security key="00000000-0000-0000-0000-000000000000" sql="">
+												<parameters key="00000000-0000-0000-0000-000000000000" />
+										</security>
+								</t>
+						</tables>
+						<functions key="00000000-0000-0000-0000-000000000000" />
+						<customviews key="00000000-0000-0000-0000-000000000000" />
+						<customaggregates key="00000000-0000-0000-0000-000000000000" />
+						<customstoredprocedures key="00000000-0000-0000-0000-000000000000" />
+				</database>
+				<versionHistoryList />
+		</ModelRoot>
+</modelRoot>

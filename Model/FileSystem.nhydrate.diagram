@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<nHydrateDiagram dslVersion="6.0.0.203" Id="8b8a597b-68e6-41c7-82fa-5fedce52f86d" absoluteBounds="0, 0, 11, 8.5" name="FileCrypt" displayType="true">
+  <nHydrateModelMoniker Id="d570da75-dc5a-443f-83e7-b964165ae8e7" />
+  <nestedChildShapes>
+    <entityShape Id="72df6eb6-b483-4401-a20d-fd7c2b4586eb" absoluteBounds="7.125, 4.75, 3.375, 2.0054996744791662" fillColor="0, 122, 204" textColor="White" outlineColor="Gray" outlineDashStyle="Solid">
+      <entityMoniker name="/d570da75-dc5a-443f-83e7-b964165ae8e7/FileStash" />
+      <nestedChildShapes>
+        <elementListCompartment Id="b57aeb94-634c-45bd-ac87-556cadb817b3" absoluteBounds="7.14, 5.06, 3.3449999999999998, 1.5954996744791665" name="EntityFieldCompartment" />
+      </nestedChildShapes>
+    </entityShape>
+    <entityShape Id="240939c1-320e-43f6-ad55-7b2be5e8ec4f" absoluteBounds="4.375, 1.25, 2.5, 1.2362939453125001" fillColor="0, 122, 204" textColor="White" outlineColor="Gray" outlineDashStyle="Solid">
+      <entityMoniker name="/d570da75-dc5a-443f-83e7-b964165ae8e7/ConfigSetting" />
+      <nestedChildShapes>
+        <elementListCompartment Id="433542fb-be51-43d3-88fd-6c0ffeb22094" absoluteBounds="4.39, 1.56, 2.4699999999999998, 0.8262939453125" name="EntityFieldCompartment" />
+      </nestedChildShapes>
+    </entityShape>
+    <entityShape Id="a10d88e7-a8b1-42aa-a00b-f3397e099652" absoluteBounds="2.25, 3.125, 3, 1.4285953776041662" fillColor="0, 122, 204" textColor="White" outlineColor="Gray" outlineDashStyle="Solid">
+      <entityMoniker name="/d570da75-dc5a-443f-83e7-b964165ae8e7/Tenant" />
+      <nestedChildShapes>
+        <elementListCompartment Id="3eee65ca-e945-484b-a8e5-fdf7ec075f0c" absoluteBounds="2.2649999999999997, 3.4349999999999996, 2.9699999999999998, 1.0185953776041665" name="EntityFieldCompartment" />
+      </nestedChildShapes>
+    </entityShape>
+    <entityAssociationConnector Id="2c67d457-9a0a-4cfd-9eb6-30d2b7768ebd" edgePoints="[(5.25 : 3.83929768880208); (8.8125 : 3.83929768880208); (8.8125 : 4.75)]" fixedFrom="NotFixed" fixedTo="NotFixed">
+      <entityHasEntitiesMoniker Id="e72d60fc-8a33-4229-bbc5-b9b9191c8a57" />
+      <relativeChildShapes />
+      <nodes>
+        <entityShapeMoniker Id="a10d88e7-a8b1-42aa-a00b-f3397e099652" />
+        <entityShapeMoniker Id="72df6eb6-b483-4401-a20d-fd7c2b4586eb" />
+      </nodes>
+    </entityAssociationConnector>
+    <entityShape Id="813d94a4-9bfc-40fe-9d7b-de779f2d1209" absoluteBounds="1.875, 5.5, 2.625, 1.4285953776041662" fillColor="0, 122, 204" textColor="White" outlineColor="Gray" outlineDashStyle="Solid">
+      <entityMoniker name="/d570da75-dc5a-443f-83e7-b964165ae8e7/ThreadLock" />
+      <nestedChildShapes>
+        <elementListCompartment Id="b407a98b-3a52-40d8-8789-b0804df9bd62" absoluteBounds="1.89, 5.81, 2.5949999999999998, 1.0185953776041665" name="EntityFieldCompartment" />
+      </nestedChildShapes>
+    </entityShape>
+  </nestedChildShapes>
+</nHydrateDiagram>
