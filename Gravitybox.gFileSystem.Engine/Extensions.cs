@@ -14,7 +14,7 @@ namespace Gravitybox.gFileSystem.Engine
         {
             try
             {
-                var aes = CryptoProvider(masterKey, iv);
+                var aes = FileUtilities.CryptoProvider(masterKey, iv);
                 using (ICryptoTransform encrypt = aes.CreateEncryptor())
                 {
                     byte[] dest = encrypt.TransformFinalBlock(src, 0, src.Length);
@@ -31,7 +31,7 @@ namespace Gravitybox.gFileSystem.Engine
         {
             try
             {
-                var aes = CryptoProvider(masterKey, iv);
+                var aes = FileUtilities.CryptoProvider(masterKey, iv);
                 using (ICryptoTransform decrypt = aes.CreateDecryptor())
                 {
                     byte[] dest = decrypt.TransformFinalBlock(src, 0, src.Length);
@@ -43,74 +43,6 @@ namespace Gravitybox.gFileSystem.Engine
             {
                 return null;
             }
-        }
-
-        internal static void EncryptStream(this System.IO.Stream stream, string targetFile,
-            byte[] masterKey, byte[] iv, byte[] tenantKey)
-        {
-            try
-            {
-                var aes = CryptoProvider(FileUtilities.GetNewKey(32), iv);
-
-                //Encrypt the data key
-                byte[] padBytes = aes.Key.Encrypt(tenantKey, iv);
-                using (ICryptoTransform encryptor = aes.CreateEncryptor())
-                {
-                    using (var newFile = File.Create(targetFile))
-                    {
-                        //Write encrypted data key to front of file
-                        newFile.Write(padBytes, 0, padBytes.Length);
-
-                        //Write encrypted data
-                        using (var cryptoStream = new CryptoStream(newFile, encryptor, CryptoStreamMode.Write))
-                        {
-                            stream.CopyTo(cryptoStream);
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
-        }
-
-        internal static void DecryptStream(this System.IO.Stream stream, string targetFile,
-            byte[] masterKey, byte[] iv, byte[] tenantKey)
-        {
-            try
-            {
-                //Get the data key
-                var vv = new byte[48];
-                stream.Read(vv, 0, vv.Length);
-                var dataKey = vv.Decrypt(tenantKey, iv);
-                var aes = CryptoProvider(dataKey, iv);
-                using (ICryptoTransform encryptor = aes.CreateDecryptor())
-                {
-                    using (var newFile = File.OpenWrite(targetFile))
-                    {
-                        stream.Seek(48, SeekOrigin.Begin);
-                        using (var cryptoStream = new CryptoStream(stream, encryptor, CryptoStreamMode.Read))
-                        {
-                            cryptoStream.CopyTo(newFile);
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
-        }
-
-        private static AesCryptoServiceProvider CryptoProvider(byte[] key, byte[] iv)
-        {
-            var aes = new AesCryptoServiceProvider();
-            aes.IV = iv;
-            aes.Key = key;
-            aes.Mode = CipherMode.CBC;
-            aes.Padding = PaddingMode.PKCS7;
-            return aes;
         }
 
     }

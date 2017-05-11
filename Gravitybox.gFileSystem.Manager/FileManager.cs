@@ -196,7 +196,6 @@ namespace Gravitybox.gFileSystem.Manager
                     using (var fe = new FileEngine(_masterKey, tenantKey, _iv))
                     {
                         fe.WorkingFolder = ConfigHelper.WorkFolder;
-                        fe.StorageFolder = ConfigHelper.StorageFolder;
 
                         using (var context = new gFileSystemEntities(_connectionString))
                         {
@@ -258,7 +257,6 @@ namespace Gravitybox.gFileSystem.Manager
                     var tenantKey = tenant.Key.Decrypt(_masterKey, _iv);
                     var fe = new FileEngine(_masterKey, tenantKey, _iv);
                     fe.WorkingFolder = ConfigHelper.WorkFolder;
-                    fe.StorageFolder = ConfigHelper.StorageFolder;
 
                     using (var context = new gFileSystemEntities(_connectionString))
                     {
@@ -346,7 +344,6 @@ namespace Gravitybox.gFileSystem.Manager
                     var tenantKey = tenant.Key.Decrypt(_masterKey, _iv);
                     var fe = new FileEngine(_masterKey, tenantKey, _iv);
                     fe.WorkingFolder = ConfigHelper.WorkFolder;
-                    fe.StorageFolder = ConfigHelper.StorageFolder;
 
                     var cipherFile = Path.Combine(ConfigHelper.StorageFolder, stash.UniqueKey.ToString());
                     var plainText = fe.GetFile(cipherFile);
