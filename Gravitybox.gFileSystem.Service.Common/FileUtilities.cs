@@ -171,5 +171,49 @@ namespace Gravitybox.gFileSystem.Service.Common
             return (long)hashedValue;
         }
 
+        public static bool ZipFile(string fileName, string outFile)
+        {
+            try
+            {
+                using (var fs = File.Open(fileName, FileMode.Open, FileAccess.Read))
+                {
+                    using (var cs = File.Create(outFile))
+                    {
+                        using (var compressionStream = new System.IO.Compression.GZipStream(cs, System.IO.Compression.CompressionMode.Compress))
+                        {
+                            fs.CopyTo(compressionStream);
+                        }
+                    }
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
+        public static bool UnzipFile(string fileName, string outFile)
+        {
+            try
+            {
+                using (var fs = File.Open(fileName, FileMode.Open, FileAccess.Read))
+                {
+                    using (var decompressedFileStream = File.Create(outFile))
+                    {
+                        using (var decompressionStream = new System.IO.Compression.GZipStream(fs, System.IO.Compression.CompressionMode.Decompress))
+                        {
+                            decompressionStream.CopyTo(decompressedFileStream);
+                        }
+                    }
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
     }
 }

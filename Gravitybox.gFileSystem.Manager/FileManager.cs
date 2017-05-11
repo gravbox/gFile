@@ -280,6 +280,7 @@ namespace Gravitybox.gFileSystem.Manager
                         //Encrypt/save file
                         if (string.IsNullOrEmpty(dataFile))
                             dataFile = fileName;
+
                         var cipherFile = fe.SaveFile(dataFile);
 
                         var fi = new FileInfo(fileName);
