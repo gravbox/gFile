@@ -138,5 +138,38 @@ namespace Gravitybox.gFileSystem.Service.Common
             return true;
         }
 
+        /// <summary>
+        /// Create a new encryption key with the specified key size
+        /// </summary>
+        public static byte[] GetNewKey(int keyByteSize)
+        {
+            var aes = new System.Security.Cryptography.AesManaged();
+            aes.KeySize = keyByteSize * 8;
+            aes.GenerateKey();
+            return aes.Key;
+        }
+
+        /// <summary>
+        /// Given a byte array generate a Int64 hash
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        public static long Hash(byte[] data)
+        {
+            if (data == null || data.Length == 0)
+                return 0;
+
+            UInt64 hashedValue = 3074457345618258791ul;
+            for (int i = 0; i < data.Length; i++)
+            {
+                hashedValue += data[i];
+                hashedValue *= 3074457345618258799ul;
+            }
+
+            //Convert to long as it is just a hash.
+            //We do not care what the actual value is as long as it is unique
+            return (long)hashedValue;
+        }
+
     }
 }

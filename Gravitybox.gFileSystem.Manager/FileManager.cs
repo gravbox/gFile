@@ -9,6 +9,7 @@ using System.IO;
 using Gravitybox.gFileSystem.Engine;
 using System.Data.SqlClient;
 using System.Data;
+using Gravitybox.gFileSystem.Service.Common;
 
 namespace Gravitybox.gFileSystem.Manager
 {

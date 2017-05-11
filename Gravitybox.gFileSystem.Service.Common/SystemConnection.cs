@@ -16,9 +16,9 @@ namespace Gravitybox.gFileSystem.Service.Common
         private ChannelFactory<ISystemCore> _factory = null;
         private ISystemCore _service = null;
 
-        public SystemConnection(string server = "localhost")
+        public SystemConnection(string server = "localhost", int port = 1900)
         {
-            _factory = GetFactory(server);
+            _factory = GetFactory(server, port);
             _service = _factory.CreateChannel();
         }
 

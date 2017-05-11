@@ -51,6 +51,10 @@
       <Project>{b67c448b-9ae4-44ea-a7dd-f750a452228c}</Project>
       <Name>Gravitybox.gFileSystem.Engine</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Gravitybox.gFileSystem.Service.Common\Gravitybox.gFileSystem.Service.Common.csproj">
+      <Project>{a1fc2bb9-bb98-44e5-8b6a-f286ef60a1ad}</Project>
+      <Name>Gravitybox.gFileSystem.Service.Common</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
