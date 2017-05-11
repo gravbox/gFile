@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Gravitybox.gFileSystem.Manager
 {
-    internal static class ConfigHelper
+    public static class ConfigHelper
     {
         private static DateTime _lastUpdate = DateTime.MinValue;
         private static Dictionary<string, string> _settings = new Dictionary<string, string>();
@@ -86,7 +86,7 @@ namespace Gravitybox.gFileSystem.Manager
 
         #region Setting Methods
 
-        public static Dictionary<string, string> AllSettings
+        internal static Dictionary<string, string> AllSettings
         {
             get
             {
@@ -153,6 +153,8 @@ namespace Gravitybox.gFileSystem.Manager
         {
             get { return GetValue("LockTimeout", 60); }
         }
+
+        public static int Port => GetValue("Port", 1900);
 
         #endregion
 

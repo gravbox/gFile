@@ -236,11 +236,12 @@ namespace Gravitybox.gFileSystem.Manager
         /// The filename is used as the lookup key. It is unique.
         /// If a file for the filename key exists, it is overwritten.
         /// </summary>
-        /// <param name="tenantID"></param>
-        /// <param name="container"></param>
-        /// <param name="fileName"></param>
+        /// <param name="tenantID">The tenant account under which to store this file</param>
+        /// <param name="container">The container name under which to store this file</param>
+        /// <param name="fileName">The file name to store</param>
+        /// <param name="dataFile">If the data is in a different file then specify it here</param>
         /// <returns></returns>
-        public bool SaveFile(Guid tenantID, string container, string fileName)
+        public bool SaveFile(Guid tenantID, string container, string fileName, string dataFile = null)
         {
             if (string.IsNullOrEmpty(container))
                 throw new Exception("The container must be set");
@@ -276,7 +277,9 @@ namespace Gravitybox.gFileSystem.Manager
                         }
 
                         //Encrypt/save file
-                        var cipherFile = fe.SaveFile(fileName);
+                        if (string.IsNullOrEmpty(dataFile))
+                            dataFile = fileName;
+                        var cipherFile = fe.SaveFile(dataFile);
 
                         var fi = new FileInfo(fileName);
                         var newStash = new FileStash
@@ -285,7 +288,7 @@ namespace Gravitybox.gFileSystem.Manager
                             TenantID = tenant.TenantID,
                             Size = fi.Length,
                             ContainerName = container,
-                            CrcPlain = FileUtilities.FileCRC(fileName),
+                            CrcPlain = FileUtilities.FileCRC(dataFile),
                         };
                         context.AddItem(newStash);
                         context.SaveChanges();

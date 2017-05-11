@@ -20,7 +20,7 @@ namespace Gravitybox.gFileSystem.Engine
 
         int RekeyTenant(Guid tenantID);
 
-        bool SaveFile(Guid tenantID, string container, string fileName);
+        bool SaveFile(Guid tenantID, string container, string fileName, string dataFile = null);
 
         string GetFile(Guid tenantID, string container, string fileName);
 
