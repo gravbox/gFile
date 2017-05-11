@@ -242,6 +242,22 @@ namespace Gravitybox.gFileSystem.Service
             }
         }
 
+        public List<string> GetFileList(Guid tenantID, string startPattern = null)
+        {
+            try
+            {
+                using (var fm = new FileManager(MasterKey16, GetConnectionString()))
+                {
+                    return fm.GetFileList(tenantID, startPattern);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex);
+                throw;
+            }
+        }
+
         private void CombineAndWipe(string folder, string outFile)
         {
             try

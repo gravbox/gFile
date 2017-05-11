@@ -121,6 +121,11 @@ namespace Gravitybox.gFileSystem.Service.Common
             return _service.RemoveFile(tenantId, container, fileName);
         }
 
+        public List<string> GetFileList(Guid tenantID, string startPattern = null)
+        {
+            return _service.GetFileList(tenantID, startPattern);
+        }
+
         void IDisposable.Dispose()
         {
             try

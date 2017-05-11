@@ -17,7 +17,10 @@ namespace EnvelopeEncryption
 
         static void Main(string[] args)
         {
+            var testFolder = @"C:\Program Files (x86)\Notepad++";
+
             Test1();
+            Test2(testFolder);
 
             Console.WriteLine("Complete...");
             Console.ReadLine();
@@ -52,6 +55,34 @@ namespace EnvelopeEncryption
 
                 //Remove the retrieved file
                 FileUtilities.WipeFile(newFile);
+            }
+        }
+
+        private static void Test2(string folderName)
+        {
+            //Create the manager object
+            using (var service = new SystemConnection())
+            {
+                //Get/create tenant
+                const string TenantName = "Test1";
+                var tenantId = service.GetOrAddTenant(TenantName);
+
+                //Encrypt all files in Notepad++ folder
+                var allFiles = Directory.GetFiles(folderName, "*.*", SearchOption.AllDirectories);
+                var timer = Stopwatch.StartNew();
+                var index = 0;
+                foreach (var file in allFiles)
+                {
+                    service.SaveFile(tenantId, Container, file);
+                    index++;
+                    Console.WriteLine(string.Format("Saved file {0} / {1}", index, allFiles.Length));
+                }
+                timer.Stop();
+                Console.WriteLine(string.Format("Load {0} files in {1} ms", allFiles.Length, timer.ElapsedMilliseconds));
+
+                //Compare total count of disk vs storage
+                var arr = service.GetFileList(tenantId, folderName);
+                Debug.Assert(allFiles.Length == arr.Count);
             }
         }
 
