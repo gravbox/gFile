@@ -28,6 +28,9 @@ namespace Gravitybox.gFileSystem.Service.Common
             _service = _factory.CreateChannel();
         }
 
+        /// <summary>
+        /// The folder where temp operations are performed
+        /// </summary>
         public string WorkingFolder { get; set; } = Path.GetTempPath();
 
         private ChannelFactory<ISystemCore> GetFactory(string serverName)
@@ -49,6 +52,9 @@ namespace Gravitybox.gFileSystem.Service.Common
             return new ChannelFactory<ISystemCore>(myBinding, myEndpoint);
         }
 
+        /// <summary>
+        /// Adds the tenant if not exists and returns its unqiue ID
+        /// </summary>
         public Guid GetOrAddTenant(string name)
         {
             Guid retval = Guid.Empty;
@@ -60,6 +66,9 @@ namespace Gravitybox.gFileSystem.Service.Common
             return retval;
         }
 
+        /// <summary>
+        /// Saves a file to storage for a tenant in the specified container
+        /// </summary>
         public bool SaveFile(Guid tenantId, string container, string fileName)
         {
             try
@@ -160,6 +169,9 @@ namespace Gravitybox.gFileSystem.Service.Common
             }
         }
 
+        /// <summary>
+        /// Removes a file from storage
+        /// </summary>
         public int RemoveFile(Guid tenantId, string container, string fileName)
         {
             var retval = 0;
@@ -171,6 +183,9 @@ namespace Gravitybox.gFileSystem.Service.Common
             return retval;
         }
 
+        /// <summary>
+        /// Removes all files for a tenant and container
+        /// </summary>
         public int RemoveAll(Guid tenantId, string container)
         {
             var retval = 0;
@@ -182,6 +197,9 @@ namespace Gravitybox.gFileSystem.Service.Common
             return retval;
         }
 
+        /// <summary>
+        /// Gets a list of existing files in storage for a tenant
+        /// </summary>
         public List<string> GetFileList(byte[] _masterKey, Guid tenantID, string startPattern = null)
         {
             List<string> retval = null;
@@ -193,6 +211,9 @@ namespace Gravitybox.gFileSystem.Service.Common
             return retval;
         }
 
+        /// <summary>
+        /// Resets a tenant key and resets all files for the tenant
+        /// </summary>
         public int RekeyTenant(Guid tenantID)
         {
             var retval = 0;

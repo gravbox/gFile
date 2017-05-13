@@ -21,6 +21,9 @@ namespace Gravitybox.gFileSystem.Service
         private static HashSet<string> _fileUploadCache = new HashSet<string>();
         private static Dictionary<Guid, FilePartCache> _fileDownloadCache = new Dictionary<Guid, FilePartCache>();
 
+        /// <summary>
+        /// Adds the tenant if not exists and returns its unqiue ID
+        /// </summary>
         public Guid GetOrAddTenant(byte[] _masterKey, string name)
         {
             //Create the manager object
@@ -391,7 +394,7 @@ namespace Gravitybox.gFileSystem.Service
         }
 
         /// <summary>
-        /// Resets a tenant key and reset all files for the tenant
+        /// Resets a tenant key and resets all files for the tenant
         /// </summary>
         public int RekeyTenant(byte[] _masterKey, Guid tenantID)
         {
