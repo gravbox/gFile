@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Gravitybox.gFileSystem.EFDAL;
 using Gravitybox.gFileSystem.EFDAL.Entity;
 using System.IO;
-using Gravitybox.gFileSystem.Engine;
 using System.Data.SqlClient;
 using System.Data;
 using Gravitybox.gFileSystem.Service.Common;
@@ -17,7 +16,7 @@ namespace Gravitybox.gFileSystem.Manager
     /// This manager add a concurrency layer on top of the FileEngine.
     /// It uses SQL Server to manage encryption keys.
     /// </summary>
-    public class FileManager : IFileManager, IDisposable
+    public class FileManager : IDisposable
     {
         private byte[] _masterKey = null;
         private byte[] _iv = null;

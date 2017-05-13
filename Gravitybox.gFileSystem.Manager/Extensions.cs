@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Gravitybox.gFileSystem.Service.Common;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -6,19 +7,53 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Gravitybox.gFileSystem.Engine
+namespace Gravitybox.gFileSystem.Manager
 {
-    internal static class FileUtilities
+    internal static class Extensions
     {
-        /// <summary>
-        /// Create a new encryption key with the specified key size
-        /// </summary>
-        internal static byte[] GetNewKey(int keyByteSize)
+        public static byte[] Encrypt(this byte[] src, byte[] masterKey, byte[] iv)
         {
-            var aes = new System.Security.Cryptography.AesManaged();
-            aes.KeySize = keyByteSize * 8;
-            aes.GenerateKey();
-            return aes.Key;
+            try
+            {
+                var aes = CryptoProvider(masterKey, iv);
+                using (ICryptoTransform encrypt = aes.CreateEncryptor())
+                {
+                    byte[] dest = encrypt.TransformFinalBlock(src, 0, src.Length);
+                    return dest;
+                }
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+
+        public static byte[] Decrypt(this byte[] src, byte[] masterKey, byte[] iv)
+        {
+            try
+            {
+                var aes = CryptoProvider(masterKey, iv);
+                using (ICryptoTransform decrypt = aes.CreateDecryptor())
+                {
+                    byte[] dest = decrypt.TransformFinalBlock(src, 0, src.Length);
+                    return dest;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+
+        private static AesCryptoServiceProvider CryptoProvider(byte[] key, byte[] iv)
+        {
+            var aes = new AesCryptoServiceProvider();
+            aes.IV = iv;
+            aes.Key = key;
+            aes.Mode = CipherMode.CBC;
+            aes.Padding = PaddingMode.PKCS7;
+            return aes;
         }
 
         internal static void EncryptStream(this System.IO.Stream stream, string targetFile, byte[] iv, FileHeader header)
@@ -76,16 +111,6 @@ namespace Gravitybox.gFileSystem.Engine
             }
         }
 
-        internal static AesCryptoServiceProvider CryptoProvider(byte[] key, byte[] iv)
-        {
-            var aes = new AesCryptoServiceProvider();
-            aes.IV = iv;
-            aes.Key = key;
-            aes.Mode = CipherMode.CBC;
-            aes.Padding = PaddingMode.PKCS7;
-            return aes;
-        }
-
         internal static void WriteFileHeader(string cryptFileName, FileHeader header)
         {
             try
@@ -103,5 +128,7 @@ namespace Gravitybox.gFileSystem.Engine
                 throw;
             }
         }
+
     }
+
 }

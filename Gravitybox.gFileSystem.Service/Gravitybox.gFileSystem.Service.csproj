@@ -86,10 +86,6 @@
       <Project>{587ddb55-1317-4c44-9c50-89457377ba56}</Project>
       <Name>Gravitybox.gFileSystem.EFDAL</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Gravitybox.gFileSystem.Engine\Gravitybox.gFileSystem.Engine.csproj">
-      <Project>{b67c448b-9ae4-44ea-a7dd-f750a452228c}</Project>
-      <Name>Gravitybox.gFileSystem.Engine</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Gravitybox.gFileSystem.Install\Gravitybox.gFileSystem.Install.csproj">
       <Project>{eb0720d1-a6da-48b3-9cbc-2b3766110d47}</Project>
       <Name>Gravitybox.gFileSystem.Install</Name>

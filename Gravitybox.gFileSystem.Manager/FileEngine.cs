@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Gravitybox.gFileSystem.Service.Common;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -6,7 +7,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Gravitybox.gFileSystem.Engine
+namespace Gravitybox.gFileSystem.Manager
 {
     /// <summary>
     /// This class is NOT thread safe. You can add and remove the same file 
@@ -206,7 +207,7 @@ namespace Gravitybox.gFileSystem.Engine
                     header.DataKey = dataKey;
                     header.EncryptedDataKey = dataKey.Encrypt(newTenantKey, _iv);
                 }
-                FileUtilities.WriteFileHeader(cryptFileName, header);
+                Extensions.WriteFileHeader(cryptFileName, header);
 
                 return true;
             }

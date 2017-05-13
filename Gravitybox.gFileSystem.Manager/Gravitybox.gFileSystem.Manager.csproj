@@ -50,6 +50,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConfigHelper.cs" />
+    <Compile Include="Extensions.cs" />
+    <Compile Include="FileEngine.cs" />
+    <Compile Include="FileHeader.cs" />
     <Compile Include="FileManager.cs" />
     <Compile Include="Locking.cs" />
     <Compile Include="Logger.cs" />
@@ -61,17 +64,12 @@
       <Project>{587ddb55-1317-4c44-9c50-89457377ba56}</Project>
       <Name>Gravitybox.gFileSystem.EFDAL</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Gravitybox.gFileSystem.Engine\Gravitybox.gFileSystem.Engine.csproj">
-      <Project>{b67c448b-9ae4-44ea-a7dd-f750a452228c}</Project>
-      <Name>Gravitybox.gFileSystem.Engine</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Gravitybox.gFileSystem.Service.Common\Gravitybox.gFileSystem.Service.Common.csproj">
       <Project>{a1fc2bb9-bb98-44e5-8b6a-f286ef60a1ad}</Project>
       <Name>Gravitybox.gFileSystem.Service.Common</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
     <None Include="NLog.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
