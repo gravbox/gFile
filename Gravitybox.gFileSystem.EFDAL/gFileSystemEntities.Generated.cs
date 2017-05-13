@@ -86,7 +86,7 @@ namespace Gravitybox.gFileSystem.EFDAL
 		private static Dictionary<string, SequentialIdGenerator> _sequentialIdGeneratorCache = new Dictionary<string, SequentialIdGenerator>();
 		private static object _seqCacheLock = new object();
 
-		private const string _version = "0.0.0.0.20";
+		private const string _version = "0.0.0.0.21";
 		private const string _modelKey = "d570da75-dc5a-443f-83e7-b964165ae8e7";
 
 		/// <summary />
@@ -268,6 +268,7 @@ namespace Gravitybox.gFileSystem.EFDAL
 			modelBuilder.Entity<Gravitybox.gFileSystem.EFDAL.Entity.Container>().Property(d => d.ContainerId).IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
 			modelBuilder.Entity<Gravitybox.gFileSystem.EFDAL.Entity.Container>().Property(d => d.Name).IsRequired().HasMaxLength(450);
 			modelBuilder.Entity<Gravitybox.gFileSystem.EFDAL.Entity.Container>().Property(d => d.TenantId).IsRequired();
+			modelBuilder.Entity<Gravitybox.gFileSystem.EFDAL.Entity.Container>().Property(d => d.UniqueKey).IsRequired();
 			modelBuilder.Entity<Gravitybox.gFileSystem.EFDAL.Entity.Container>().Property(d => d.Timestamp).IsConcurrencyToken(true);
 
 			//Field setup for FileStash entity

@@ -62,6 +62,11 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 			[System.ComponentModel.Description("Field mapping for the 'TenantId' property")]
 			TenantId,
 			/// <summary>
+			/// Field mapping for the 'UniqueKey' property
+			/// </summary>
+			[System.ComponentModel.Description("Field mapping for the 'UniqueKey' property")]
+			UniqueKey,
+			/// <summary>
 			/// Field mapping for the 'CreatedBy' property
 			/// </summary>
 			[System.ComponentModel.Description("Field mapping for the 'CreatedBy' property")]
@@ -91,6 +96,7 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 		/// </summary>
 		public Container()
 		{
+			this._uniqueKey = Guid.NewGuid();
 
 		}
 
@@ -166,6 +172,29 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 				if (eventArg.Cancel) return;
 				_tenantId = eventArg.Value;
 				this.OnPropertyChanged(new PropertyChangedEventArgs("TenantId"));
+			}
+		}
+
+		/// <summary>
+		/// The property that maps back to the database 'Container.UniqueKey' field.
+		/// </summary>
+		/// <remarks>Field: [Container].[UniqueKey], Not Nullable, Indexed, Default Value: newid</remarks>
+		[DataMember]
+		[System.ComponentModel.Browsable(true)]
+		[System.ComponentModel.DisplayName("UniqueKey")]
+		[System.ComponentModel.DataAnnotations.Schema.Index()]
+		[System.Diagnostics.DebuggerNonUserCode()]
+		public virtual System.Guid UniqueKey
+		{
+			get { return _uniqueKey; }
+			set
+			{
+				if (value == _uniqueKey) return;
+				var eventArg = new Gravitybox.gFileSystem.EFDAL.EventArguments.ChangingEventArgs<System.Guid>(value, "UniqueKey");
+				this.OnPropertyChanging(eventArg);
+				if (eventArg.Cancel) return;
+				_uniqueKey = eventArg.Value;
+				this.OnPropertyChanged(new PropertyChangedEventArgs("UniqueKey"));
 			}
 		}
 
@@ -379,6 +408,38 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 				this.TenantIdChanged(this, e);
 		}
 
+		/// <summary />
+		protected System.Guid _uniqueKey;
+		/// <summary>
+		/// Occurs when the 'UniqueKey' property value change is a pending.
+		/// </summary>
+		[field:NonSerialized]
+		public event EventHandler<Gravitybox.gFileSystem.EFDAL.EventArguments.ChangingEventArgs<System.Guid>> UniqueKeyChanging;
+
+		/// <summary>
+		/// Raises the OnUniqueKeyChanging event.
+		/// </summary>
+		protected virtual void OnUniqueKeyChanging(Gravitybox.gFileSystem.EFDAL.EventArguments.ChangingEventArgs<System.Guid> e)
+		{
+			if (this.UniqueKeyChanging != null)
+				this.UniqueKeyChanging(this, e);
+		}
+
+		/// <summary>
+		/// Occurs when the 'UniqueKey' property value has changed.
+		/// </summary>
+		[field:NonSerialized]
+		public event EventHandler<ChangedEventArgs<System.Guid>> UniqueKeyChanged;
+
+		/// <summary>
+		/// Raises the OnUniqueKeyChanged event.
+		/// </summary>
+		protected virtual void OnUniqueKeyChanged(ChangedEventArgs<System.Guid> e)
+		{
+			if (this.UniqueKeyChanged != null)
+				this.UniqueKeyChanged(this, e);
+		}
+
 		/// <summary>
 		/// Occurs when the 'CreatedBy' property value change is a pending.
 		/// </summary>
@@ -547,6 +608,8 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 					return 450;
 				case Gravitybox.gFileSystem.EFDAL.Entity.Container.FieldNameConstants.TenantId:
 					return 0;
+				case Gravitybox.gFileSystem.EFDAL.Entity.Container.FieldNameConstants.UniqueKey:
+					return 0;
 			}
 			return 0;
 		}
@@ -582,6 +645,7 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 				case Gravitybox.gFileSystem.EFDAL.Entity.Container.FieldNameConstants.ContainerId: return typeof(long);
 				case Gravitybox.gFileSystem.EFDAL.Entity.Container.FieldNameConstants.Name: return typeof(string);
 				case Gravitybox.gFileSystem.EFDAL.Entity.Container.FieldNameConstants.TenantId: return typeof(long);
+				case Gravitybox.gFileSystem.EFDAL.Entity.Container.FieldNameConstants.UniqueKey: return typeof(System.Guid);
 			}
 			return null;
 		}
@@ -655,6 +719,7 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 		{
 			var item = Gravitybox.gFileSystem.EFDAL.Entity.Container.Clone(this);
 			item._containerId = 0;
+			item._uniqueKey = Guid.NewGuid();
 			return item;
 		}
 
@@ -667,6 +732,7 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 			newItem.ContainerId = item.ContainerId;
 			newItem.Name = item.Name;
 			newItem.TenantId = item.TenantId;
+			newItem.UniqueKey = item.UniqueKey;
 			newItem.CreatedDate = item.CreatedDate;
 			newItem.CreatedBy = item.CreatedBy;
 			newItem.ModifiedDate = item.ModifiedDate;
@@ -697,6 +763,8 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 				return this.Name;
 			if (field == Gravitybox.gFileSystem.EFDAL.Entity.Container.FieldNameConstants.TenantId)
 				return this.TenantId;
+			if (field == Gravitybox.gFileSystem.EFDAL.Entity.Container.FieldNameConstants.UniqueKey)
+				return this.UniqueKey;
 			if (field == Gravitybox.gFileSystem.EFDAL.Entity.Container.FieldNameConstants.CreatedBy)
 				return ((this.CreatedBy == null) ? defaultValue : this.CreatedBy);
 			if (field == Gravitybox.gFileSystem.EFDAL.Entity.Container.FieldNameConstants.CreatedDate)
@@ -742,6 +810,17 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 			{
 				this.TenantId = GlobalValues.SetValueHelperLongNotNullableInternal(newValue, "Field 'TenantId' does not allow null values!");
 			}
+			else if (field == Gravitybox.gFileSystem.EFDAL.Entity.Container.FieldNameConstants.UniqueKey)
+			{
+				if (newValue == null)
+				{
+					throw new Exception("Field 'UniqueKey' does not allow null values!");
+				}
+				else
+				{
+					this.UniqueKey = (System.Guid)newValue;
+				}
+			}
 			else
 				throw new Exception("Field '" + field.ToString() + "' not found!");
 		}
@@ -786,6 +865,7 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 				case "containerid": return "containerid";
 				case "name": return "name";
 				case "tenantid": return "tenantid";
+				case "uniquekey": return "uniquekey";
 				case "createddate": return "createddate";
 				case "createdby": return "createdby";
 				case "modifieddate": return "modifieddate";
@@ -802,6 +882,7 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 				case "containerid": return "Container";
 				case "name": return "Container";
 				case "tenantid": return "Container";
+				case "uniquekey": return "Container";
 				case "createdby": return "Container";
 				case "createddate": return "Container";
 				case "modifiedby": return "Container";
@@ -818,6 +899,7 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 				case "containerid": return "Container";
 				case "name": return "Container";
 				case "tenantid": return "Container";
+				case "uniquekey": return "Container";
 				case "createdby": return "Container";
 				case "createddate": return "Container";
 				case "modifiedby": return "Container";
@@ -832,6 +914,7 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 			sql = System.Text.RegularExpressions.Regex.Replace(sql, "\\[" + parentAlias + "\\]\\.\\[containerid\\]", "[" + childTables.GetBaseAliasTable(parentAlias, "Container") + "].[containerid]", RegexOptions.IgnoreCase);
 			sql = System.Text.RegularExpressions.Regex.Replace(sql, "\\[" + parentAlias + "\\]\\.\\[name\\]", "[" + childTables.GetBaseAliasTable(parentAlias, "Container") + "].[name]", RegexOptions.IgnoreCase);
 			sql = System.Text.RegularExpressions.Regex.Replace(sql, "\\[" + parentAlias + "\\]\\.\\[tenantid\\]", "[" + childTables.GetBaseAliasTable(parentAlias, "Container") + "].[tenantid]", RegexOptions.IgnoreCase);
+			sql = System.Text.RegularExpressions.Regex.Replace(sql, "\\[" + parentAlias + "\\]\\.\\[uniquekey\\]", "[" + childTables.GetBaseAliasTable(parentAlias, "Container") + "].[uniquekey]", RegexOptions.IgnoreCase);
 			sql = System.Text.RegularExpressions.Regex.Replace(sql, "\\[" + parentAlias + "\\]\\.\\[createdby\\]", "[" + childTables.GetBaseAliasTable(parentAlias, "Container") + "].[createdby]", RegexOptions.IgnoreCase);
 			sql = System.Text.RegularExpressions.Regex.Replace(sql, "\\[" + parentAlias + "\\]\\.\\[createddate\\]", "[" + childTables.GetBaseAliasTable(parentAlias, "Container") + "].[createddate]", RegexOptions.IgnoreCase);
 			sql = System.Text.RegularExpressions.Regex.Replace(sql, "\\[" + parentAlias + "\\]\\.\\[modifiedby\\]", "[" + childTables.GetBaseAliasTable(parentAlias, "Container") + "].[modifiedby]", RegexOptions.IgnoreCase);
@@ -1041,6 +1124,7 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 				case "ContainerId": return "ContainerId";
 				case "Name": return "Name";
 				case "TenantId": return "TenantId";
+				case "UniqueKey": return "UniqueKey";
 				case "CreatedBy": return "CreatedBy";
 				case "CreatedDate": return "CreatedDate";
 				case "ModifiedBy": return "ModifiedBy";
@@ -1143,7 +1227,8 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 			return (
 				other.ContainerId == this.ContainerId &&
 				other.Name == this.Name &&
-				other.TenantId == this.TenantId
+				other.TenantId == this.TenantId &&
+				other.UniqueKey == this.UniqueKey
 				);
 		}
 
@@ -1195,6 +1280,13 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity.Metadata
 		[System.ComponentModel.DataAnnotations.Required(ErrorMessage = "'TenantId' is required.", AllowEmptyStrings = true)]
 		[System.ComponentModel.DataAnnotations.Display(Description = "", Name = "TenantId", AutoGenerateField = true)]
 		public object TenantId;
+
+		/// <summary>
+		/// Metadata information for the 'UniqueKey' parameter
+		/// </summary>
+		[System.ComponentModel.DataAnnotations.Required(ErrorMessage = "'UniqueKey' is required.", AllowEmptyStrings = true)]
+		[System.ComponentModel.DataAnnotations.Display(Description = "", Name = "UniqueKey", AutoGenerateField = true)]
+		public object UniqueKey;
 
 		/// <summary>
 		/// Metadata information for the 'CreatedBy' parameter
@@ -1250,6 +1342,7 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity.Metadata
 			retval.Add("ContainerId");
 			retval.Add("Name");
 			retval.Add("TenantId");
+			retval.Add("UniqueKey");
 			return retval;
 		}
 
@@ -1279,6 +1372,7 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity.Metadata
 				case "ContainerId": return "ContainerId";
 				case "Name": return "Name";
 				case "TenantId": return "TenantId";
+				case "UniqueKey": return "UniqueKey";
 				case "CreatedBy": return "CreatedBy";
 				case "CreatedDate": return "CreatedDate";
 				case "ModifiedBy": return "ModifiedBy";

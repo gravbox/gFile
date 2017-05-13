@@ -1181,18 +1181,18 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 		#region Navigation Properties
 
 		/// <summary>
-		/// The navigation definition for walking Tenant->FileStash
-		/// </summary>
-		[DataMember]
-		[XmlIgnore]
-		public virtual Tenant Tenant { get; set; }
-
-		/// <summary>
 		/// The navigation definition for walking Container->FileStash
 		/// </summary>
 		[DataMember]
 		[XmlIgnore]
 		public virtual Container Container { get; set; }
+
+		/// <summary>
+		/// The navigation definition for walking Tenant->FileStash
+		/// </summary>
+		[DataMember]
+		[XmlIgnore]
+		public virtual Tenant Tenant { get; set; }
 
 		#endregion
 

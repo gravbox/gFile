@@ -114,6 +114,12 @@ namespace Gravitybox.gFileSystem.EFDAL
 		[System.Diagnostics.DebuggerNonUserCode()]
 		public virtual long TenantId { get; set; }
 		/// <summary>
+		/// (Maps to the 'Container.UniqueKey' database field)
+		/// </summary>
+		[Column(Name = "UniqueKey", DbType = "UniqueIdentifier", CanBeNull = false, IsPrimaryKey = false)]
+		[System.Diagnostics.DebuggerNonUserCode()]
+		public virtual System.Guid UniqueKey { get; set; }
+		/// <summary>
 		/// The date of creation
 		/// </summary>
 		[Column(Name = "CreatedDate", DbType = "DateTime", CanBeNull = true)]
@@ -250,16 +256,16 @@ namespace Gravitybox.gFileSystem.EFDAL
 		[System.Diagnostics.DebuggerNonUserCode()]
 		public virtual byte[] Timestamp { get; set; }
 		/// <summary>
-		/// This is a mapping of the relationship with the Tenant entity.
-		/// </summary>
-		[Association(ThisKey = "TenantID", OtherKey = "TenantID")]
-		public Gravitybox.gFileSystem.EFDAL.TenantQuery Tenant { get; private set; }
-
-		/// <summary>
 		/// This is a mapping of the relationship with the Container entity.
 		/// </summary>
 		[Association(ThisKey = "ContainerId", OtherKey = "ContainerId")]
 		public Gravitybox.gFileSystem.EFDAL.ContainerQuery Container { get; private set; }
+
+		/// <summary>
+		/// This is a mapping of the relationship with the Tenant entity.
+		/// </summary>
+		[Association(ThisKey = "TenantID", OtherKey = "TenantID")]
+		public Gravitybox.gFileSystem.EFDAL.TenantQuery Tenant { get; private set; }
 
 
 		#endregion

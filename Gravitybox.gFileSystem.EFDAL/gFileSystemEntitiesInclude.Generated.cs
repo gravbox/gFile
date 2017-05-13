@@ -65,16 +65,16 @@ namespace Gravitybox.gFileSystem.EFDAL
 	public partial class FileStashInclude : Gravitybox.gFileSystem.EFDAL.IContextInclude
 	{
 		/// <summary>
-		/// This is a mapping of the relationship with the Tenant entity.
-		/// </summary>
-		[Association(ThisKey = "TenantID", OtherKey = "TenantID")]
-		public Gravitybox.gFileSystem.EFDAL.TenantInclude Tenant { get; private set; }
-
-		/// <summary>
 		/// This is a mapping of the relationship with the Container entity.
 		/// </summary>
 		[Association(ThisKey = "ContainerId", OtherKey = "ContainerId")]
 		public Gravitybox.gFileSystem.EFDAL.ContainerInclude Container { get; private set; }
+
+		/// <summary>
+		/// This is a mapping of the relationship with the Tenant entity.
+		/// </summary>
+		[Association(ThisKey = "TenantID", OtherKey = "TenantID")]
+		public Gravitybox.gFileSystem.EFDAL.TenantInclude Tenant { get; private set; }
 
 	}
 

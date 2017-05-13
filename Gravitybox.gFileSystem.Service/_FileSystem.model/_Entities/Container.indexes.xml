@@ -18,4 +18,10 @@
 						<column id="578b69ca-89c8-49b4-86e0-6d9c3abde927" ascending="1" fieldid="c2b42202-4767-41d3-9155-5ec21ac7fc0e" sortorder="1" />
 				</indexcolumnset>
 		</index>
+		<index id="89a07bae-d2da-4ef8-bba4-513e1f5bbbbf" clustered="0" importedname="" indextype="1" isunique="0">
+				<summary><![CDATA[]]></summary>
+				<indexcolumnset>
+						<column id="b6e45910-54be-4e8e-b0e7-9b6d2e7feb69" ascending="1" fieldid="f6ed9fca-56e9-4e8f-8cbd-ddce8e3cc0c1" sortorder="1" />
+				</indexcolumnset>
+		</index>
 </configuration>
