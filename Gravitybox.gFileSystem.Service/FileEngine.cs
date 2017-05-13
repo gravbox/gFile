@@ -21,51 +21,35 @@ namespace Gravitybox.gFileSystem.Service
         private byte[] _masterKey = null;
         private byte[] _iv = null;
         private byte[] _tenantKey = null;
-        public static readonly byte[] DefaultIV16 = Encoding.UTF8.GetBytes("@2CdcëD45F6%d7H");
-        public static readonly byte[] DefaultIV32 = Encoding.UTF8.GetBytes("@2CdcëD45F6%d7Hz[(25Vo(q:'30(d8");
+        public static readonly byte[] DefaultIVector = Encoding.UTF8.GetBytes("@2CdcëD45F6%d7H");
         #endregion
 
         public FileEngine(byte[] masterKey, byte[] tenantKey, Guid tenantId)
-            : this(masterKey, tenantKey, tenantId, GetDefaultIV(masterKey.Length))
+            : this(masterKey, tenantKey, tenantId, DefaultIVector)
         {
         }
 
         public FileEngine(byte[] masterKey, byte[] tenantKey, Guid tenantId, byte[] iv)
         {
-            if (masterKey == null || (masterKey.Length != 16 && masterKey.Length != 32))
-                throw new Exception("The master key must be a 128/256 bit value.");
-            if (tenantKey == null || (tenantKey.Length != 16 && tenantKey.Length != 32))
-                throw new Exception("The tenant key must be a 128/256 bit value.");
-            if (iv == null || (iv.Length != 16 && iv.Length != 32))
-                throw new Exception("The IV must be a 128/256 bit value.");
+            if (masterKey == null || masterKey.Length != 32)
+                throw new Exception("The master key must be a 256 bit (32 byte) value.");
+            if (tenantKey == null || tenantKey.Length != 32)
+                throw new Exception("The tenant key must be a 256 bit (32 byte) value.");
+            if (iv == null || iv.Length != 16)
+                throw new Exception("The IV must be a 128 bit (16 byte) value.");
             if (tenantId == Guid.Empty)
                 throw new Exception("The TenantId must be set.");
 
-            if (masterKey.Length != tenantKey.Length || tenantKey.Length != iv.Length)
-                throw new Exception("The master key, tenant key, and IV must be the same size.");
+            if (masterKey.Length != tenantKey.Length)
+                throw new Exception("The master key and tenant key must be the same size.");
 
             this.TenantID = tenantId;
-            this.KeySize = tenantKey.Length * 8;
 
             _masterKey = masterKey;
             _iv = iv;
             _tenantKey = tenantKey;
             this.WorkingFolder = Path.GetTempPath();
         }
-
-        public static byte[] GetDefaultIV(int length)
-        {
-            if (length == 16)
-                return DefaultIV16;
-            else
-                return DefaultIV32;
-        }
-
-        /// <summary>
-        /// Determines the key size based on the used keys
-        /// The master and tenant keys must be the same size
-        /// </summary>
-        public int KeySize { get; private set; } = 32;
 
         /// <summary>
         /// The folder where files will be copied temporarily when encrypting and decrypting
@@ -82,7 +66,7 @@ namespace Gravitybox.gFileSystem.Service
             try
             {
                 var newFile = Path.Combine(this.WorkingFolder, Guid.NewGuid().ToString() + ".crypt");
-                var header = new FileHeader { DataKey = FileUtilities.GetNewKey(32) };
+                var header = new FileHeader { DataKey = FileUtilities.GetNewKey() };
                 header.EncryptedDataKey = header.DataKey.Encrypt(_tenantKey, _iv);
                 header.TenantKey = _tenantKey;
 
@@ -107,7 +91,7 @@ namespace Gravitybox.gFileSystem.Service
             try
             {
                 var newFile = Path.Combine(this.WorkingFolder, Guid.NewGuid().ToString() + ".crypt");
-                var header = new FileHeader { DataKey = FileUtilities.GetNewKey(32) };
+                var header = new FileHeader { DataKey = FileUtilities.GetNewKey() };
                 header.EncryptedDataKey = header.DataKey.Encrypt(_tenantKey, _iv);
                 header.TenantKey = _tenantKey;
 

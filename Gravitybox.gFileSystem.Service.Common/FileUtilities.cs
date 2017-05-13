@@ -161,13 +161,10 @@ namespace Gravitybox.gFileSystem.Service.Common
         /// <summary>
         /// Create a new encryption key with the specified key size
         /// </summary>
-        public static byte[] GetNewKey(int keyByteSize)
+        public static byte[] GetNewKey()
         {
-            if (keyByteSize != 16 && keyByteSize != 32)
-                throw new Exception("The key size must be 16 or 32.");
-
             var aes = new System.Security.Cryptography.AesManaged();
-            aes.KeySize = keyByteSize * 8;
+            aes.KeySize = 256;
             aes.GenerateKey();
             return aes.Key;
         }

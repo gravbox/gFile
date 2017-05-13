@@ -28,7 +28,7 @@ namespace Gravitybox.gFileSystem.Service
         };
 
         public FileManager(byte[] masterKey)
-            : this(masterKey, FileEngine.GetDefaultIV(masterKey.Length))
+            : this(masterKey, FileEngine.DefaultIVector)
         {
         }
 
@@ -59,7 +59,7 @@ namespace Gravitybox.gFileSystem.Service
                     //Add/get a tenant in a transaction
                     var parameters = new List<SqlParameter>();
                     parameters.Add(new SqlParameter { DbType = DbType.String, IsNullable = false, ParameterName = "@name", Value = name });
-                    parameters.Add(new SqlParameter { DbType = DbType.Binary, IsNullable = false, ParameterName = "@key", Value = FileUtilities.GetNewKey(_masterKey.Length).Encrypt(_masterKey, _iv) });
+                    parameters.Add(new SqlParameter { DbType = DbType.Binary, IsNullable = false, ParameterName = "@key", Value = FileUtilities.GetNewKey().Encrypt(_masterKey, _iv) });
                     var tenantID = (Guid)SqlHelper.ExecuteWithReturn(ConfigHelper.ConnectionString, "[AddOrUpdateTenant] @name, @key", parameters);
 
                     //Create the tenant storage folder
@@ -200,7 +200,7 @@ namespace Gravitybox.gFileSystem.Service
 
                     //Create engine
                     var tenantKey = tenant.Key.Decrypt(_masterKey, _iv);
-                    var newKey = FileUtilities.GetNewKey(_masterKey.Length);
+                    var newKey = FileUtilities.GetNewKey();
                     using (var fe = new FileEngine(_masterKey, tenantKey, tenantID, _iv))
                     {
                         fe.WorkingFolder = ConfigHelper.WorkFolder;

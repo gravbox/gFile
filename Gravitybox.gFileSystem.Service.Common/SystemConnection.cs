@@ -20,9 +20,7 @@ namespace Gravitybox.gFileSystem.Service.Common
 
         public SystemConnection(byte[] masterKey, string server = "localhost", int port = 1900)
         {
-            if (masterKey == null)
-                throw new Exception("Invalid master key");
-            if (masterKey.Length != 16 && masterKey.Length != 32)
+            if (masterKey == null || masterKey.Length != 32)
                 throw new Exception("Invalid master key");
 
             _masterKey = masterKey;

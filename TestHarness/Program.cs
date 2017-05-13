@@ -196,6 +196,6 @@ namespace TestHarness
         /// <summary>
         /// DO A MUCH BETTER JOB OF STORING YOUR MASTER KEY THAN THIS EXAMPLE!!!
         /// </summary>
-        private static byte[] MasterKey => System.Text.Encoding.UTF8.GetBytes("MY 16 BYTE KEY!!");
+        private static byte[] MasterKey => System.Text.Encoding.UTF8.GetBytes("MY 16 BYTE KEY!!MY 16 BYTE KEY!!");
     }
 }
