@@ -2,7 +2,7 @@
 This is an  encrypted file system using **Envelope Encryption**. This is a multi-tenant file storage system. Each tenant can have any number of containers. Each container stores files. A container can be thought of as a virtual file system independent of other containers. Each stored file uses a unique, encryption key. This data key is prepended to the file encrypted with a tenant key. Every file for a tenant has its unique data key encrypted with its tenant key. This allows the re-keying of the whole tenant very quickly, as there is no need to re-encrypt entire files. Only the data key header is re-encrypted.
 
 ```csharp
-using (var service = new SystemConnection())
+using (var service = new SystemConnection(MyMasterKey))
 {
     //Get/create tenant
     const string TenantName = "Test1";
