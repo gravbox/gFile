@@ -38,7 +38,6 @@ namespace Gravitybox.gFileSystem.Service
                     byte[] dest = decrypt.TransformFinalBlock(src, 0, src.Length);
                     return dest;
                 }
-
             }
             catch (Exception ex)
             {

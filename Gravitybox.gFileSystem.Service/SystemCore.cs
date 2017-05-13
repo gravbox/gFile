@@ -114,7 +114,7 @@ namespace Gravitybox.gFileSystem.Service
 
                 if (cache.InMem)
                 {
-                    cache.Data = CombineArrays(cache.Data, data);
+                    cache.Data = ConcatArrays(cache.Data, data);
                 }
                 else
                 {
@@ -122,9 +122,15 @@ namespace Gravitybox.gFileSystem.Service
                     var tempFile = Path.Combine(cache.DataFolder, cache.Index.ToString("0000000000"));
 
                     //Write part
-                    using (var fs = File.OpenWrite(tempFile))
+                    using (var ms = new MemoryStream(data))
                     {
-                        fs.Write(data, 0, data.Length);
+                        var header = new FileHeader
+                        {
+                            DataKey = cache.OneTimeKey,
+                            EncryptedDataKey = cache.OneTimeKey.Encrypt(cache.OneTimeKey, FileEngine.DefaultIVector),
+                            TenantKey = cache.OneTimeKey,
+                        };
+                        ms.EncryptStream(tempFile, FileEngine.DefaultIVector, header);
                     }
                 }
 
@@ -176,7 +182,7 @@ namespace Gravitybox.gFileSystem.Service
                     var partFolder = Path.Combine(ConfigHelper.WorkFolder, cache.ID.ToString());
 
                     var outFile = Path.Combine(cache.DataFolder, "out");
-                    this.CombineAndWipe(cache.DataFolder, outFile);
+                    this.CombineAndWipe(cache.DataFolder, outFile, cache.OneTimeKey);
 
                     var crc = Common.FileUtilities.FileCRC(outFile);
                     if (crc == cache.CRC)
@@ -412,7 +418,10 @@ namespace Gravitybox.gFileSystem.Service
             }
         }
 
-        private void CombineAndWipe(string folder, string outFile)
+        /// <summary>
+        /// Combine many temp files into one complete file
+        /// </summary>
+        private void CombineAndWipe(string folder, string outFile, byte[] key)
         {
             try
             {
@@ -426,7 +435,20 @@ namespace Gravitybox.gFileSystem.Service
                     {
                         using (var inputStream = File.OpenRead(inputFilePath))
                         {
-                            inputStream.CopyTo(outputStream);
+                            using (var ms = new MemoryStream())
+                            {
+                                var header = new FileHeader
+                                {
+                                    DataKey = key,
+                                    EncryptedDataKey = key.Encrypt(key, FileEngine.DefaultIVector),
+                                    TenantKey = key,
+                                };
+
+                                //TODO: make the out file encrypted: It is plain text now!
+                                inputStream.DecryptStream(ms, FileEngine.DefaultIVector, header);
+                                ms.Seek(0, SeekOrigin.Begin);
+                                ms.CopyTo(outputStream);
+                            }
                         }
                         Common.FileUtilities.WipeFile(inputFilePath);
                     }
@@ -439,7 +461,7 @@ namespace Gravitybox.gFileSystem.Service
             }
         }
 
-        public static byte[] CombineArrays(byte[] first, byte[] second)
+        public static byte[] ConcatArrays(byte[] first, byte[] second)
         {
             byte[] ret = new byte[first.Length + second.Length];
             Buffer.BlockCopy(first, 0, ret, 0, first.Length);
@@ -456,16 +478,55 @@ namespace Gravitybox.gFileSystem.Service
 
     internal class FilePartCache
     {
+        /// <summary>
+        /// The unique token used in multi-part file upload/download to identify the file
+        /// </summary>
         public Guid ID { get; set; } = Guid.NewGuid();
+        /// <summary>
+        /// The tenant user which this owns this file
+        /// </summary>
         public Guid TenantID { get; set; }
+        /// <summary>
+        /// The tenant container name where the file is stored
+        /// </summary>
         public string Container { get; set; }
+        /// <summary>
+        /// The actual file name used as the key for unique lookup of this file
+        /// </summary>
         public string FileName { get; set; }
+        /// <summary>
+        /// The CRC hash of the plain text file
+        /// </summary>
         public string CRC { get; set; }
+        /// <summary>
+        /// The total plain text file size
+        /// </summary>
         public long Size { get; set; }
+        /// <summary>
+        /// The current index of the file part being uploaded/downloaded
+        /// </summary>
         public int Index { get; set; } = 1;
+        /// <summary>
+        /// The temp data folder in the working area used to store the file contents while in transit
+        /// </summary>
         public string DataFolder { get; set; }
+        /// <summary>
+        /// Locking key used for synchronization
+        /// </summary>
         public string Key => (this.TenantID + "|" + this.Container + "|" + this.FileName).ToLower();
+        /// <summary>
+        /// Determine if this operation stores the data in memory or on disk
+        /// </summary>
         public bool InMem { get; set; }
+        /// <summary>
+        /// When using memory for smaller files and not using the working area
+        /// This is the data block used to store the file contents
+        /// </summary>
         public byte[] Data { get; set; }
+        /// <summary>
+        /// This is a one time key used to encrypt files parts as they are uploaded/downloaded.
+        /// File parts are stored on disk in the working area encrypted while the file is in transit
+        /// </summary>
+        public byte[] OneTimeKey = FileUtilities.GetNewKey();
     }
 }

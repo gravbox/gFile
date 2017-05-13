@@ -156,17 +156,6 @@ namespace Gravitybox.gFileSystem.Service
 
         public static int Port => GetValue("Port", 1900);
 
-        //public static byte[] MasterKey
-        //{
-        //    get
-        //    {
-        //        var key = GetValue("MasterKey", "");
-        //        if (string.IsNullOrEmpty(key))
-        //            return null;
-        //        return Encoding.UTF8.GetBytes(key);
-        //    }
-        //}
-
         /// <summary>
         /// This is the max file size on which we will do all operations in memory and never touch disk
         /// </summary>
