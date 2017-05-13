@@ -15,6 +15,19 @@ if exists(select * from sys.objects where name = 'gen_ConfigSetting_Update' and 
 	drop procedure [dbo].[gen_ConfigSetting_Update]
 GO
 
+--This SQL is generated for internal stored procedures for table [Container]
+if exists(select * from sys.objects where name = 'gen_Container_Delete' and type = 'P' and type_desc = 'SQL_STORED_PROCEDURE')
+	drop procedure [dbo].[gen_Container_Delete]
+GO
+
+if exists(select * from sys.objects where name = 'gen_Container_Insert' and type = 'P' and type_desc = 'SQL_STORED_PROCEDURE')
+	drop procedure [dbo].[gen_Container_Insert]
+GO
+
+if exists(select * from sys.objects where name = 'gen_Container_Update' and type = 'P' and type_desc = 'SQL_STORED_PROCEDURE')
+	drop procedure [dbo].[gen_Container_Update]
+GO
+
 --This SQL is generated for internal stored procedures for table [FileStash]
 if exists(select * from sys.objects where name = 'gen_FileStash_Delete' and type = 'P' and type_desc = 'SQL_STORED_PROCEDURE')
 	drop procedure [dbo].[gen_FileStash_Delete]

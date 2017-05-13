@@ -27,45 +27,40 @@ using System.ComponentModel.DataAnnotations;
 namespace Gravitybox.gFileSystem.EFDAL.Entity
 {
 	/// <summary>
-	/// The 'Tenant' entity
+	/// The 'Container' entity
 	/// </summary>
 	[DataContract]
 	[Serializable]
 	[System.CodeDom.Compiler.GeneratedCode("nHydrateModelGenerator", "6.0.0")]
-	[FieldNameConstants(typeof(Gravitybox.gFileSystem.EFDAL.Entity.Tenant.FieldNameConstants))]
-	[System.ComponentModel.DataAnnotations.MetadataType(typeof(Gravitybox.gFileSystem.EFDAL.Entity.Metadata.TenantMetadata))]
-	[EntityMetadata("Tenant", false, true, true, true, "", true, false, false, "dbo")]
-	public partial class Tenant : BaseEntity, Gravitybox.gFileSystem.EFDAL.IBusinessObject, System.ComponentModel.INotifyPropertyChanged, System.ComponentModel.INotifyPropertyChanging, System.ICloneable, Gravitybox.gFileSystem.EFDAL.IAuditable, Gravitybox.gFileSystem.EFDAL.IAuditableSet, Gravitybox.gFileSystem.EFDAL.ICreatable
+	[FieldNameConstants(typeof(Gravitybox.gFileSystem.EFDAL.Entity.Container.FieldNameConstants))]
+	[System.ComponentModel.DataAnnotations.MetadataType(typeof(Gravitybox.gFileSystem.EFDAL.Entity.Metadata.ContainerMetadata))]
+	[EntityMetadata("Container", false, true, true, true, "", true, false, false, "dbo")]
+	public partial class Container : BaseEntity, Gravitybox.gFileSystem.EFDAL.IBusinessObject, System.ComponentModel.INotifyPropertyChanged, System.ComponentModel.INotifyPropertyChanging, System.ICloneable, Gravitybox.gFileSystem.EFDAL.IAuditable, Gravitybox.gFileSystem.EFDAL.IAuditableSet, Gravitybox.gFileSystem.EFDAL.ICreatable
 	{
 		#region FieldNameConstants Enumeration
 
 		/// <summary>
-		/// Enumeration to define each property that maps to a database field for the 'Tenant' table.
+		/// Enumeration to define each property that maps to a database field for the 'Container' table.
 		/// </summary>
 		public enum FieldNameConstants
 		{
 			/// <summary>
-			/// Field mapping for the 'Key' property
+			/// Field mapping for the 'ContainerId' property
 			/// </summary>
-			[System.ComponentModel.Description("Field mapping for the 'Key' property")]
-			Key,
+			[System.ComponentModel.DataAnnotations.Key]
+			[System.ComponentModel.ReadOnly(true)]
+			[System.ComponentModel.Description("Field mapping for the 'ContainerId' property")]
+			ContainerId,
 			/// <summary>
 			/// Field mapping for the 'Name' property
 			/// </summary>
 			[System.ComponentModel.Description("Field mapping for the 'Name' property")]
 			Name,
 			/// <summary>
-			/// Field mapping for the 'TenantID' property
+			/// Field mapping for the 'TenantId' property
 			/// </summary>
-			[System.ComponentModel.DataAnnotations.Key]
-			[System.ComponentModel.ReadOnly(true)]
-			[System.ComponentModel.Description("Field mapping for the 'TenantID' property")]
-			TenantID,
-			/// <summary>
-			/// Field mapping for the 'UniqueKey' property
-			/// </summary>
-			[System.ComponentModel.Description("Field mapping for the 'UniqueKey' property")]
-			UniqueKey,
+			[System.ComponentModel.Description("Field mapping for the 'TenantId' property")]
+			TenantId,
 			/// <summary>
 			/// Field mapping for the 'CreatedBy' property
 			/// </summary>
@@ -92,11 +87,10 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 		#region Constructors
 
 		/// <summary>
-		/// Initializes a new instance of the Gravitybox.gFileSystem.EFDAL.Entity.Tenant class
+		/// Initializes a new instance of the Gravitybox.gFileSystem.EFDAL.Entity.Container class
 		/// </summary>
-		public Tenant()
+		public Container()
 		{
-			this._uniqueKey = Guid.NewGuid();
 
 		}
 
@@ -105,31 +99,33 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 		#region Properties
 
 		/// <summary>
-		/// The property that maps back to the database 'Tenant.Key' field.
+		/// The property that maps back to the database 'Container.ContainerId' field.
 		/// </summary>
-		/// <remarks>Field: [Tenant].[Key], Field Length: 48, Not Nullable</remarks>
+		/// <remarks>Field: [Container].[ContainerId], Not Nullable, Primary Key, AutoNumber, Unique, Indexed</remarks>
 		[DataMember]
 		[System.ComponentModel.Browsable(true)]
-		[System.ComponentModel.DisplayName("Key")]
+		[System.ComponentModel.DisplayName("ContainerId")]
+		[System.ComponentModel.DataAnnotations.Schema.Index(IsUnique = true)]
+		[System.ComponentModel.DataAnnotations.Key()]
 		[System.Diagnostics.DebuggerNonUserCode()]
-		public virtual System.Byte[] Key
+		public virtual long ContainerId
 		{
-			get { return _key; }
-			set
+			get { return _containerId; }
+			protected internal set
 			{
-				if (value == _key) return;
-				var eventArg = new Gravitybox.gFileSystem.EFDAL.EventArguments.ChangingEventArgs<System.Byte[]>(value, "Key");
+				if (value == _containerId) return;
+				var eventArg = new Gravitybox.gFileSystem.EFDAL.EventArguments.ChangingEventArgs<long>(value, "ContainerId");
 				this.OnPropertyChanging(eventArg);
 				if (eventArg.Cancel) return;
-				_key = eventArg.Value;
-				this.OnPropertyChanged(new PropertyChangedEventArgs("Key"));
+				_containerId = eventArg.Value;
+				this.OnPropertyChanged(new PropertyChangedEventArgs("ContainerId"));
 			}
 		}
 
 		/// <summary>
-		/// The property that maps back to the database 'Tenant.Name' field.
+		/// The property that maps back to the database 'Container.Name' field.
 		/// </summary>
-		/// <remarks>Field: [Tenant].[Name], Field Length: 50, Not Nullable, Indexed</remarks>
+		/// <remarks>Field: [Container].[Name], Field Length: 450, Not Nullable, Indexed</remarks>
 		[DataMember]
 		[System.ComponentModel.Browsable(true)]
 		[System.ComponentModel.DisplayName("Name")]
@@ -140,7 +136,7 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 			get { return _name; }
 			set
 			{
-				if ((value != null) && (value.Length > GetMaxLength(Gravitybox.gFileSystem.EFDAL.Entity.Tenant.FieldNameConstants.Name))) throw new Exception(string.Format(GlobalValues.ERROR_DATA_TOO_BIG, value, "Tenant.Name", GetMaxLength(Gravitybox.gFileSystem.EFDAL.Entity.Tenant.FieldNameConstants.Name)));
+				if ((value != null) && (value.Length > GetMaxLength(Gravitybox.gFileSystem.EFDAL.Entity.Container.FieldNameConstants.Name))) throw new Exception(string.Format(GlobalValues.ERROR_DATA_TOO_BIG, value, "Container.Name", GetMaxLength(Gravitybox.gFileSystem.EFDAL.Entity.Container.FieldNameConstants.Name)));
 				if (value == _name) return;
 				var eventArg = new Gravitybox.gFileSystem.EFDAL.EventArguments.ChangingEventArgs<string>(value, "Name");
 				this.OnPropertyChanging(eventArg);
@@ -151,49 +147,25 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 		}
 
 		/// <summary>
-		/// The property that maps back to the database 'Tenant.TenantID' field.
+		/// The property that maps back to the database 'Container.TenantId' field.
 		/// </summary>
-		/// <remarks>Field: [Tenant].[TenantID], Not Nullable, Primary Key, AutoNumber, Unique, Indexed</remarks>
+		/// <remarks>Field: [Container].[TenantId], Not Nullable, Indexed</remarks>
 		[DataMember]
 		[System.ComponentModel.Browsable(true)]
-		[System.ComponentModel.DisplayName("TenantID")]
-		[System.ComponentModel.DataAnnotations.Schema.Index(IsUnique = true)]
-		[System.ComponentModel.DataAnnotations.Key()]
-		[System.Diagnostics.DebuggerNonUserCode()]
-		public virtual long TenantID
-		{
-			get { return _tenantID; }
-			protected internal set
-			{
-				if (value == _tenantID) return;
-				var eventArg = new Gravitybox.gFileSystem.EFDAL.EventArguments.ChangingEventArgs<long>(value, "TenantID");
-				this.OnPropertyChanging(eventArg);
-				if (eventArg.Cancel) return;
-				_tenantID = eventArg.Value;
-				this.OnPropertyChanged(new PropertyChangedEventArgs("TenantID"));
-			}
-		}
-
-		/// <summary>
-		/// The property that maps back to the database 'Tenant.UniqueKey' field.
-		/// </summary>
-		/// <remarks>Field: [Tenant].[UniqueKey], Not Nullable, Indexed, Default Value: newid</remarks>
-		[DataMember]
-		[System.ComponentModel.Browsable(true)]
-		[System.ComponentModel.DisplayName("UniqueKey")]
+		[System.ComponentModel.DisplayName("TenantId")]
 		[System.ComponentModel.DataAnnotations.Schema.Index()]
 		[System.Diagnostics.DebuggerNonUserCode()]
-		public virtual System.Guid UniqueKey
+		public virtual long TenantId
 		{
-			get { return _uniqueKey; }
+			get { return _tenantId; }
 			set
 			{
-				if (value == _uniqueKey) return;
-				var eventArg = new Gravitybox.gFileSystem.EFDAL.EventArguments.ChangingEventArgs<System.Guid>(value, "UniqueKey");
+				if (value == _tenantId) return;
+				var eventArg = new Gravitybox.gFileSystem.EFDAL.EventArguments.ChangingEventArgs<long>(value, "TenantId");
 				this.OnPropertyChanging(eventArg);
 				if (eventArg.Cancel) return;
-				_uniqueKey = eventArg.Value;
-				this.OnPropertyChanged(new PropertyChangedEventArgs("UniqueKey"));
+				_tenantId = eventArg.Value;
+				this.OnPropertyChanged(new PropertyChangedEventArgs("TenantId"));
 			}
 		}
 
@@ -312,35 +284,35 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 		#region Property Holders
 
 		/// <summary />
-		protected System.Byte[] _key;
+		protected long _containerId;
 		/// <summary>
-		/// Occurs when the 'Key' property value change is a pending.
+		/// Occurs when the 'ContainerId' property value change is a pending.
 		/// </summary>
 		[field:NonSerialized]
-		public event EventHandler<Gravitybox.gFileSystem.EFDAL.EventArguments.ChangingEventArgs<System.Byte[]>> KeyChanging;
+		public event EventHandler<Gravitybox.gFileSystem.EFDAL.EventArguments.ChangingEventArgs<long>> ContainerIdChanging;
 
 		/// <summary>
-		/// Raises the OnKeyChanging event.
+		/// Raises the OnContainerIdChanging event.
 		/// </summary>
-		protected virtual void OnKeyChanging(Gravitybox.gFileSystem.EFDAL.EventArguments.ChangingEventArgs<System.Byte[]> e)
+		protected virtual void OnContainerIdChanging(Gravitybox.gFileSystem.EFDAL.EventArguments.ChangingEventArgs<long> e)
 		{
-			if (this.KeyChanging != null)
-				this.KeyChanging(this, e);
+			if (this.ContainerIdChanging != null)
+				this.ContainerIdChanging(this, e);
 		}
 
 		/// <summary>
-		/// Occurs when the 'Key' property value has changed.
+		/// Occurs when the 'ContainerId' property value has changed.
 		/// </summary>
 		[field:NonSerialized]
-		public event EventHandler<ChangedEventArgs<System.Byte[]>> KeyChanged;
+		public event EventHandler<ChangedEventArgs<long>> ContainerIdChanged;
 
 		/// <summary>
-		/// Raises the OnKeyChanged event.
+		/// Raises the OnContainerIdChanged event.
 		/// </summary>
-		protected virtual void OnKeyChanged(ChangedEventArgs<System.Byte[]> e)
+		protected virtual void OnContainerIdChanged(ChangedEventArgs<long> e)
 		{
-			if (this.KeyChanged != null)
-				this.KeyChanged(this, e);
+			if (this.ContainerIdChanged != null)
+				this.ContainerIdChanged(this, e);
 		}
 
 		/// <summary />
@@ -376,67 +348,35 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 		}
 
 		/// <summary />
-		protected long _tenantID;
+		protected long _tenantId;
 		/// <summary>
-		/// Occurs when the 'TenantID' property value change is a pending.
+		/// Occurs when the 'TenantId' property value change is a pending.
 		/// </summary>
 		[field:NonSerialized]
-		public event EventHandler<Gravitybox.gFileSystem.EFDAL.EventArguments.ChangingEventArgs<long>> TenantIDChanging;
+		public event EventHandler<Gravitybox.gFileSystem.EFDAL.EventArguments.ChangingEventArgs<long>> TenantIdChanging;
 
 		/// <summary>
-		/// Raises the OnTenantIDChanging event.
+		/// Raises the OnTenantIdChanging event.
 		/// </summary>
-		protected virtual void OnTenantIDChanging(Gravitybox.gFileSystem.EFDAL.EventArguments.ChangingEventArgs<long> e)
+		protected virtual void OnTenantIdChanging(Gravitybox.gFileSystem.EFDAL.EventArguments.ChangingEventArgs<long> e)
 		{
-			if (this.TenantIDChanging != null)
-				this.TenantIDChanging(this, e);
+			if (this.TenantIdChanging != null)
+				this.TenantIdChanging(this, e);
 		}
 
 		/// <summary>
-		/// Occurs when the 'TenantID' property value has changed.
+		/// Occurs when the 'TenantId' property value has changed.
 		/// </summary>
 		[field:NonSerialized]
-		public event EventHandler<ChangedEventArgs<long>> TenantIDChanged;
+		public event EventHandler<ChangedEventArgs<long>> TenantIdChanged;
 
 		/// <summary>
-		/// Raises the OnTenantIDChanged event.
+		/// Raises the OnTenantIdChanged event.
 		/// </summary>
-		protected virtual void OnTenantIDChanged(ChangedEventArgs<long> e)
+		protected virtual void OnTenantIdChanged(ChangedEventArgs<long> e)
 		{
-			if (this.TenantIDChanged != null)
-				this.TenantIDChanged(this, e);
-		}
-
-		/// <summary />
-		protected System.Guid _uniqueKey;
-		/// <summary>
-		/// Occurs when the 'UniqueKey' property value change is a pending.
-		/// </summary>
-		[field:NonSerialized]
-		public event EventHandler<Gravitybox.gFileSystem.EFDAL.EventArguments.ChangingEventArgs<System.Guid>> UniqueKeyChanging;
-
-		/// <summary>
-		/// Raises the OnUniqueKeyChanging event.
-		/// </summary>
-		protected virtual void OnUniqueKeyChanging(Gravitybox.gFileSystem.EFDAL.EventArguments.ChangingEventArgs<System.Guid> e)
-		{
-			if (this.UniqueKeyChanging != null)
-				this.UniqueKeyChanging(this, e);
-		}
-
-		/// <summary>
-		/// Occurs when the 'UniqueKey' property value has changed.
-		/// </summary>
-		[field:NonSerialized]
-		public event EventHandler<ChangedEventArgs<System.Guid>> UniqueKeyChanged;
-
-		/// <summary>
-		/// Raises the OnUniqueKeyChanged event.
-		/// </summary>
-		protected virtual void OnUniqueKeyChanged(ChangedEventArgs<System.Guid> e)
-		{
-			if (this.UniqueKeyChanged != null)
-				this.UniqueKeyChanged(this, e);
+			if (this.TenantIdChanged != null)
+				this.TenantIdChanged(this, e);
 		}
 
 		/// <summary>
@@ -597,17 +537,15 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 		/// <summary>
 		/// Gets the maximum size of the field value.
 		/// </summary>
-		public static int GetMaxLength(Gravitybox.gFileSystem.EFDAL.Entity.Tenant.FieldNameConstants field)
+		public static int GetMaxLength(Gravitybox.gFileSystem.EFDAL.Entity.Container.FieldNameConstants field)
 		{
 			switch (field)
 			{
-				case Gravitybox.gFileSystem.EFDAL.Entity.Tenant.FieldNameConstants.Key:
+				case Gravitybox.gFileSystem.EFDAL.Entity.Container.FieldNameConstants.ContainerId:
 					return 0;
-				case Gravitybox.gFileSystem.EFDAL.Entity.Tenant.FieldNameConstants.Name:
-					return 50;
-				case Gravitybox.gFileSystem.EFDAL.Entity.Tenant.FieldNameConstants.TenantID:
-					return 0;
-				case Gravitybox.gFileSystem.EFDAL.Entity.Tenant.FieldNameConstants.UniqueKey:
+				case Gravitybox.gFileSystem.EFDAL.Entity.Container.FieldNameConstants.Name:
+					return 450;
+				case Gravitybox.gFileSystem.EFDAL.Entity.Container.FieldNameConstants.TenantId:
 					return 0;
 			}
 			return 0;
@@ -615,7 +553,7 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 
 		int Gravitybox.gFileSystem.EFDAL.IReadOnlyBusinessObject.GetMaxLength(Enum field)
 		{
-			return GetMaxLength((Gravitybox.gFileSystem.EFDAL.Entity.Tenant.FieldNameConstants)field);
+			return GetMaxLength((Gravitybox.gFileSystem.EFDAL.Entity.Container.FieldNameConstants)field);
 		}
 
 		#endregion
@@ -624,7 +562,7 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 
 		System.Type Gravitybox.gFileSystem.EFDAL.IReadOnlyBusinessObject.GetFieldNameConstants()
 		{
-			return typeof(Gravitybox.gFileSystem.EFDAL.Entity.Tenant.FieldNameConstants);
+			return typeof(Gravitybox.gFileSystem.EFDAL.Entity.Container.FieldNameConstants);
 		}
 
 		#endregion
@@ -634,27 +572,26 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 		/// <summary>
 		/// Gets the system type of a field on this object
 		/// </summary>
-		public static System.Type GetFieldType(Gravitybox.gFileSystem.EFDAL.Entity.Tenant.FieldNameConstants field)
+		public static System.Type GetFieldType(Gravitybox.gFileSystem.EFDAL.Entity.Container.FieldNameConstants field)
 		{
-			if (field.GetType() != typeof(Gravitybox.gFileSystem.EFDAL.Entity.Tenant.FieldNameConstants))
-				throw new Exception("The field parameter must be of type 'Gravitybox.gFileSystem.EFDAL.Entity.Tenant.FieldNameConstants'.");
+			if (field.GetType() != typeof(Gravitybox.gFileSystem.EFDAL.Entity.Container.FieldNameConstants))
+				throw new Exception("The field parameter must be of type 'Gravitybox.gFileSystem.EFDAL.Entity.Container.FieldNameConstants'.");
 
-			switch ((Gravitybox.gFileSystem.EFDAL.Entity.Tenant.FieldNameConstants)field)
+			switch ((Gravitybox.gFileSystem.EFDAL.Entity.Container.FieldNameConstants)field)
 			{
-				case Gravitybox.gFileSystem.EFDAL.Entity.Tenant.FieldNameConstants.Key: return typeof(System.Byte[]);
-				case Gravitybox.gFileSystem.EFDAL.Entity.Tenant.FieldNameConstants.Name: return typeof(string);
-				case Gravitybox.gFileSystem.EFDAL.Entity.Tenant.FieldNameConstants.TenantID: return typeof(long);
-				case Gravitybox.gFileSystem.EFDAL.Entity.Tenant.FieldNameConstants.UniqueKey: return typeof(System.Guid);
+				case Gravitybox.gFileSystem.EFDAL.Entity.Container.FieldNameConstants.ContainerId: return typeof(long);
+				case Gravitybox.gFileSystem.EFDAL.Entity.Container.FieldNameConstants.Name: return typeof(string);
+				case Gravitybox.gFileSystem.EFDAL.Entity.Container.FieldNameConstants.TenantId: return typeof(long);
 			}
 			return null;
 		}
 
 		System.Type Gravitybox.gFileSystem.EFDAL.IReadOnlyBusinessObject.GetFieldType(Enum field)
 		{
-			if (field.GetType() != typeof(Gravitybox.gFileSystem.EFDAL.Entity.Tenant.FieldNameConstants))
-				throw new Exception("The field parameter must be of type 'Gravitybox.gFileSystem.EFDAL.Entity.Tenant.FieldNameConstants'.");
+			if (field.GetType() != typeof(Gravitybox.gFileSystem.EFDAL.Entity.Container.FieldNameConstants))
+				throw new Exception("The field parameter must be of type 'Gravitybox.gFileSystem.EFDAL.Entity.Container.FieldNameConstants'.");
 
-			return GetFieldType((Gravitybox.gFileSystem.EFDAL.Entity.Tenant.FieldNameConstants)field);
+			return GetFieldType((Gravitybox.gFileSystem.EFDAL.Entity.Container.FieldNameConstants)field);
 		}
 
 		#endregion
@@ -668,23 +605,23 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 
 		object Gravitybox.gFileSystem.EFDAL.IReadOnlyBusinessObject.GetValue(System.Enum field, object defaultValue)
 		{
-			if (field.GetType() != typeof(Gravitybox.gFileSystem.EFDAL.Entity.Tenant.FieldNameConstants))
-				throw new Exception("The field parameter must be of type 'Gravitybox.gFileSystem.EFDAL.Entity.Tenant.FieldNameConstants'.");
-			return this.GetValue((Gravitybox.gFileSystem.EFDAL.Entity.Tenant.FieldNameConstants)field, defaultValue);
+			if (field.GetType() != typeof(Gravitybox.gFileSystem.EFDAL.Entity.Container.FieldNameConstants))
+				throw new Exception("The field parameter must be of type 'Gravitybox.gFileSystem.EFDAL.Entity.Container.FieldNameConstants'.");
+			return this.GetValue((Gravitybox.gFileSystem.EFDAL.Entity.Container.FieldNameConstants)field, defaultValue);
 		}
 
 		void Gravitybox.gFileSystem.EFDAL.IBusinessObject.SetValue(System.Enum field, object newValue)
 		{
-			if (field.GetType() != typeof(Gravitybox.gFileSystem.EFDAL.Entity.Tenant.FieldNameConstants))
-				throw new Exception("The field parameter must be of type 'Gravitybox.gFileSystem.EFDAL.Entity.Tenant.FieldNameConstants'.");
-			this.SetValue((Gravitybox.gFileSystem.EFDAL.Entity.Tenant.FieldNameConstants)field, newValue);
+			if (field.GetType() != typeof(Gravitybox.gFileSystem.EFDAL.Entity.Container.FieldNameConstants))
+				throw new Exception("The field parameter must be of type 'Gravitybox.gFileSystem.EFDAL.Entity.Container.FieldNameConstants'.");
+			this.SetValue((Gravitybox.gFileSystem.EFDAL.Entity.Container.FieldNameConstants)field, newValue);
 		}
 
 		void Gravitybox.gFileSystem.EFDAL.IBusinessObject.SetValue(System.Enum field, object newValue, bool fixLength)
 		{
-			if (field.GetType() != typeof(Gravitybox.gFileSystem.EFDAL.Entity.Tenant.FieldNameConstants))
-				throw new Exception("The field parameter must be of type 'Gravitybox.gFileSystem.EFDAL.Entity.Tenant.FieldNameConstants'.");
-			this.SetValue((Gravitybox.gFileSystem.EFDAL.Entity.Tenant.FieldNameConstants)field, newValue, fixLength);
+			if (field.GetType() != typeof(Gravitybox.gFileSystem.EFDAL.Entity.Container.FieldNameConstants))
+				throw new Exception("The field parameter must be of type 'Gravitybox.gFileSystem.EFDAL.Entity.Container.FieldNameConstants'.");
+			this.SetValue((Gravitybox.gFileSystem.EFDAL.Entity.Container.FieldNameConstants)field, newValue, fixLength);
 		}
 
 		#endregion
@@ -696,7 +633,7 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 		/// </summary>
 		Gravitybox.gFileSystem.EFDAL.IPrimaryKey Gravitybox.gFileSystem.EFDAL.IReadOnlyBusinessObject.PrimaryKey
 		{
-			get { return new PrimaryKey(Util.HashPK("Tenant", this.TenantID)); }
+			get { return new PrimaryKey(Util.HashPK("Container", this.ContainerId)); }
 		}
 
 		#endregion
@@ -708,7 +645,7 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 		/// </summary>
 		public virtual object Clone()
 		{
-			return Gravitybox.gFileSystem.EFDAL.Entity.Tenant.Clone(this);
+			return Gravitybox.gFileSystem.EFDAL.Entity.Container.Clone(this);
 		}
 
 		/// <summary>
@@ -716,22 +653,20 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 		/// </summary>
 		public virtual object CloneAsNew()
 		{
-			var item = Gravitybox.gFileSystem.EFDAL.Entity.Tenant.Clone(this);
-			item._tenantID = 0;
-			item._uniqueKey = Guid.NewGuid();
+			var item = Gravitybox.gFileSystem.EFDAL.Entity.Container.Clone(this);
+			item._containerId = 0;
 			return item;
 		}
 
 		/// <summary>
 		/// Creates a shallow copy of this object
 		/// </summary>
-		public static Tenant Clone(Gravitybox.gFileSystem.EFDAL.Entity.Tenant item)
+		public static Container Clone(Gravitybox.gFileSystem.EFDAL.Entity.Container item)
 		{
-			var newItem = new Tenant();
-			newItem.Key = item.Key;
+			var newItem = new Container();
+			newItem.ContainerId = item.ContainerId;
 			newItem.Name = item.Name;
-			newItem.TenantID = item.TenantID;
-			newItem.UniqueKey = item.UniqueKey;
+			newItem.TenantId = item.TenantId;
 			newItem.CreatedDate = item.CreatedDate;
 			newItem.CreatedBy = item.CreatedBy;
 			newItem.ModifiedDate = item.ModifiedDate;
@@ -746,7 +681,7 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 		/// <summary>
 		/// Gets the value of one of this object's properties.
 		/// </summary>
-		public virtual object GetValue(Gravitybox.gFileSystem.EFDAL.Entity.Tenant.FieldNameConstants field)
+		public virtual object GetValue(Gravitybox.gFileSystem.EFDAL.Entity.Container.FieldNameConstants field)
 		{
 			return GetValue(field, null);
 		}
@@ -754,23 +689,21 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 		/// <summary>
 		/// Gets the value of one of this object's properties.
 		/// </summary>
-		public virtual object GetValue(Gravitybox.gFileSystem.EFDAL.Entity.Tenant.FieldNameConstants field, object defaultValue)
+		public virtual object GetValue(Gravitybox.gFileSystem.EFDAL.Entity.Container.FieldNameConstants field, object defaultValue)
 		{
-			if (field == Gravitybox.gFileSystem.EFDAL.Entity.Tenant.FieldNameConstants.Key)
-				return this.Key;
-			if (field == Gravitybox.gFileSystem.EFDAL.Entity.Tenant.FieldNameConstants.Name)
+			if (field == Gravitybox.gFileSystem.EFDAL.Entity.Container.FieldNameConstants.ContainerId)
+				return this.ContainerId;
+			if (field == Gravitybox.gFileSystem.EFDAL.Entity.Container.FieldNameConstants.Name)
 				return this.Name;
-			if (field == Gravitybox.gFileSystem.EFDAL.Entity.Tenant.FieldNameConstants.TenantID)
-				return this.TenantID;
-			if (field == Gravitybox.gFileSystem.EFDAL.Entity.Tenant.FieldNameConstants.UniqueKey)
-				return this.UniqueKey;
-			if (field == Gravitybox.gFileSystem.EFDAL.Entity.Tenant.FieldNameConstants.CreatedBy)
+			if (field == Gravitybox.gFileSystem.EFDAL.Entity.Container.FieldNameConstants.TenantId)
+				return this.TenantId;
+			if (field == Gravitybox.gFileSystem.EFDAL.Entity.Container.FieldNameConstants.CreatedBy)
 				return ((this.CreatedBy == null) ? defaultValue : this.CreatedBy);
-			if (field == Gravitybox.gFileSystem.EFDAL.Entity.Tenant.FieldNameConstants.CreatedDate)
+			if (field == Gravitybox.gFileSystem.EFDAL.Entity.Container.FieldNameConstants.CreatedDate)
 				return ((this.CreatedDate == null) ? defaultValue : this.CreatedDate);
-			if (field == Gravitybox.gFileSystem.EFDAL.Entity.Tenant.FieldNameConstants.ModifiedBy)
+			if (field == Gravitybox.gFileSystem.EFDAL.Entity.Container.FieldNameConstants.ModifiedBy)
 				return ((this.ModifiedBy == null) ? defaultValue : this.ModifiedBy);
-			if (field == Gravitybox.gFileSystem.EFDAL.Entity.Tenant.FieldNameConstants.ModifiedDate)
+			if (field == Gravitybox.gFileSystem.EFDAL.Entity.Container.FieldNameConstants.ModifiedDate)
 				return ((this.ModifiedDate == null) ? defaultValue : this.ModifiedDate);
 			throw new Exception("Field '" + field.ToString() + "' not found!");
 		}
@@ -784,7 +717,7 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 		/// </summary>
 		/// <param name="field">The field to set</param>
 		/// <param name="newValue">The new value to assign to the field</param>
-		public virtual void SetValue(Gravitybox.gFileSystem.EFDAL.Entity.Tenant.FieldNameConstants field, object newValue)
+		public virtual void SetValue(Gravitybox.gFileSystem.EFDAL.Entity.Container.FieldNameConstants field, object newValue)
 		{
 			SetValue(field, newValue, false);
 		}
@@ -795,37 +728,19 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 		/// <param name="field">The field to set</param>
 		/// <param name="newValue">The new value to assign to the field</param>
 		/// <param name="fixLength">Determines if the length should be truncated if too long. When false, an error will be raised if data is too large to be assigned to the field.</param>
-		public virtual void SetValue(Gravitybox.gFileSystem.EFDAL.Entity.Tenant.FieldNameConstants field, object newValue, bool fixLength)
+		public virtual void SetValue(Gravitybox.gFileSystem.EFDAL.Entity.Container.FieldNameConstants field, object newValue, bool fixLength)
 		{
-			if (field == Gravitybox.gFileSystem.EFDAL.Entity.Tenant.FieldNameConstants.Key)
-			{
-				if (newValue == null)
-				{
-					throw new Exception("Field 'Key' does not allow null values!");
-				}
-				else
-				{
-					this.Key = (System.Byte[])newValue;
-				}
-			}
-			else if (field == Gravitybox.gFileSystem.EFDAL.Entity.Tenant.FieldNameConstants.Name)
-			{
-				this.Name = GlobalValues.SetValueHelperInternal((string)newValue, fixLength, GetMaxLength(field));
-			}
-			else if (field == Gravitybox.gFileSystem.EFDAL.Entity.Tenant.FieldNameConstants.TenantID)
+			if (field == Gravitybox.gFileSystem.EFDAL.Entity.Container.FieldNameConstants.ContainerId)
 			{
 				throw new Exception("Field '" + field.ToString() + "' is a primary key and cannot be set!");
 			}
-			else if (field == Gravitybox.gFileSystem.EFDAL.Entity.Tenant.FieldNameConstants.UniqueKey)
+			else if (field == Gravitybox.gFileSystem.EFDAL.Entity.Container.FieldNameConstants.Name)
 			{
-				if (newValue == null)
-				{
-					throw new Exception("Field 'UniqueKey' does not allow null values!");
-				}
-				else
-				{
-					this.UniqueKey = (System.Guid)newValue;
-				}
+				this.Name = GlobalValues.SetValueHelperInternal((string)newValue, fixLength, GetMaxLength(field));
+			}
+			else if (field == Gravitybox.gFileSystem.EFDAL.Entity.Container.FieldNameConstants.TenantId)
+			{
+				this.TenantId = GlobalValues.SetValueHelperLongNotNullableInternal(newValue, "Field 'TenantId' does not allow null values!");
 			}
 			else
 				throw new Exception("Field '" + field.ToString() + "' not found!");
@@ -836,7 +751,7 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 		#region Navigation Properties
 
 		/// <summary>
-		/// The navigation definition for walking Tenant->FileStash
+		/// The navigation definition for walking Container->FileStash
 		/// </summary>
 		[DataMember]
 		[XmlIgnore]
@@ -857,17 +772,7 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 		/// </summary>
 		[DataMember]
 		[XmlIgnore]
-		public virtual ICollection<Gravitybox.gFileSystem.EFDAL.Entity.Container> ContainerList
-		{
-			get
-			{
-				if (_ContainerList == null) _ContainerList = new List<Gravitybox.gFileSystem.EFDAL.Entity.Container>();
-				return _ContainerList;
-			}
-			set { _ContainerList = value; }
-		}
-		/// <summary />
-		protected virtual ICollection<Gravitybox.gFileSystem.EFDAL.Entity.Container> _ContainerList { get; set; }
+		public virtual Tenant Tenant { get; set; }
 
 		#endregion
 
@@ -878,10 +783,9 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 			alias = alias.Replace("[", string.Empty).Replace("]", string.Empty);
 			switch (alias.ToLower())
 			{
-				case "key": return "key";
+				case "containerid": return "containerid";
 				case "name": return "name";
 				case "tenantid": return "tenantid";
-				case "uniquekey": return "uniquekey";
 				case "createddate": return "createddate";
 				case "createdby": return "createdby";
 				case "modifieddate": return "modifieddate";
@@ -895,15 +799,14 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 		{
 			switch (alias.ToLower())
 			{
-				case "key": return "Tenant";
-				case "name": return "Tenant";
-				case "tenantid": return "Tenant";
-				case "uniquekey": return "Tenant";
-				case "createdby": return "Tenant";
-				case "createddate": return "Tenant";
-				case "modifiedby": return "Tenant";
-				case "modifieddate": return "Tenant";
-				case "timestamp": return "Tenant";
+				case "containerid": return "Container";
+				case "name": return "Container";
+				case "tenantid": return "Container";
+				case "createdby": return "Container";
+				case "createddate": return "Container";
+				case "modifiedby": return "Container";
+				case "modifieddate": return "Container";
+				case "timestamp": return "Container";
 				default: throw new Exception("The select clause is not valid.");
 			}
 		}
@@ -912,30 +815,28 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 		{
 			switch (field.ToLower())
 			{
-				case "key": return "Tenant";
-				case "name": return "Tenant";
-				case "tenantid": return "Tenant";
-				case "uniquekey": return "Tenant";
-				case "createdby": return "Tenant";
-				case "createddate": return "Tenant";
-				case "modifiedby": return "Tenant";
-				case "modifieddate": return "Tenant";
-				case "timestamp": return "Tenant";
+				case "containerid": return "Container";
+				case "name": return "Container";
+				case "tenantid": return "Container";
+				case "createdby": return "Container";
+				case "createddate": return "Container";
+				case "modifiedby": return "Container";
+				case "modifieddate": return "Container";
+				case "timestamp": return "Container";
 				default: throw new Exception("The select clause is not valid.");
 			}
 		}
 
 		internal static string GetRemappedLinqSql(string sql, string parentAlias, LinqSQLFromClauseCollection childTables)
 		{
-			sql = System.Text.RegularExpressions.Regex.Replace(sql, "\\[" + parentAlias + "\\]\\.\\[key\\]", "[" + childTables.GetBaseAliasTable(parentAlias, "Tenant") + "].[key]", RegexOptions.IgnoreCase);
-			sql = System.Text.RegularExpressions.Regex.Replace(sql, "\\[" + parentAlias + "\\]\\.\\[name\\]", "[" + childTables.GetBaseAliasTable(parentAlias, "Tenant") + "].[name]", RegexOptions.IgnoreCase);
-			sql = System.Text.RegularExpressions.Regex.Replace(sql, "\\[" + parentAlias + "\\]\\.\\[tenantid\\]", "[" + childTables.GetBaseAliasTable(parentAlias, "Tenant") + "].[tenantid]", RegexOptions.IgnoreCase);
-			sql = System.Text.RegularExpressions.Regex.Replace(sql, "\\[" + parentAlias + "\\]\\.\\[uniquekey\\]", "[" + childTables.GetBaseAliasTable(parentAlias, "Tenant") + "].[uniquekey]", RegexOptions.IgnoreCase);
-			sql = System.Text.RegularExpressions.Regex.Replace(sql, "\\[" + parentAlias + "\\]\\.\\[createdby\\]", "[" + childTables.GetBaseAliasTable(parentAlias, "Tenant") + "].[createdby]", RegexOptions.IgnoreCase);
-			sql = System.Text.RegularExpressions.Regex.Replace(sql, "\\[" + parentAlias + "\\]\\.\\[createddate\\]", "[" + childTables.GetBaseAliasTable(parentAlias, "Tenant") + "].[createddate]", RegexOptions.IgnoreCase);
-			sql = System.Text.RegularExpressions.Regex.Replace(sql, "\\[" + parentAlias + "\\]\\.\\[modifiedby\\]", "[" + childTables.GetBaseAliasTable(parentAlias, "Tenant") + "].[modifiedby]", RegexOptions.IgnoreCase);
-			sql = System.Text.RegularExpressions.Regex.Replace(sql, "\\[" + parentAlias + "\\]\\.\\[modifieddate\\]", "[" + childTables.GetBaseAliasTable(parentAlias, "Tenant") + "].[modifieddate]", RegexOptions.IgnoreCase);
-			sql = System.Text.RegularExpressions.Regex.Replace(sql, "\\[" + parentAlias + "\\]\\.\\[timestamp\\]", "[" + childTables.GetBaseAliasTable(parentAlias, "Tenant") + "].[timestamp]", RegexOptions.IgnoreCase);
+			sql = System.Text.RegularExpressions.Regex.Replace(sql, "\\[" + parentAlias + "\\]\\.\\[containerid\\]", "[" + childTables.GetBaseAliasTable(parentAlias, "Container") + "].[containerid]", RegexOptions.IgnoreCase);
+			sql = System.Text.RegularExpressions.Regex.Replace(sql, "\\[" + parentAlias + "\\]\\.\\[name\\]", "[" + childTables.GetBaseAliasTable(parentAlias, "Container") + "].[name]", RegexOptions.IgnoreCase);
+			sql = System.Text.RegularExpressions.Regex.Replace(sql, "\\[" + parentAlias + "\\]\\.\\[tenantid\\]", "[" + childTables.GetBaseAliasTable(parentAlias, "Container") + "].[tenantid]", RegexOptions.IgnoreCase);
+			sql = System.Text.RegularExpressions.Regex.Replace(sql, "\\[" + parentAlias + "\\]\\.\\[createdby\\]", "[" + childTables.GetBaseAliasTable(parentAlias, "Container") + "].[createdby]", RegexOptions.IgnoreCase);
+			sql = System.Text.RegularExpressions.Regex.Replace(sql, "\\[" + parentAlias + "\\]\\.\\[createddate\\]", "[" + childTables.GetBaseAliasTable(parentAlias, "Container") + "].[createddate]", RegexOptions.IgnoreCase);
+			sql = System.Text.RegularExpressions.Regex.Replace(sql, "\\[" + parentAlias + "\\]\\.\\[modifiedby\\]", "[" + childTables.GetBaseAliasTable(parentAlias, "Container") + "].[modifiedby]", RegexOptions.IgnoreCase);
+			sql = System.Text.RegularExpressions.Regex.Replace(sql, "\\[" + parentAlias + "\\]\\.\\[modifieddate\\]", "[" + childTables.GetBaseAliasTable(parentAlias, "Container") + "].[modifieddate]", RegexOptions.IgnoreCase);
+			sql = System.Text.RegularExpressions.Regex.Replace(sql, "\\[" + parentAlias + "\\]\\.\\[timestamp\\]", "[" + childTables.GetBaseAliasTable(parentAlias, "Container") + "].[timestamp]", RegexOptions.IgnoreCase);
 			return sql;
 		}
 
@@ -948,7 +849,7 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 		/// </summary>
 		/// <param name="where">The expression that determines the records deleted</param>
 		/// <returns>The number of rows deleted</returns>
-		public static int DeleteData(Expression<Func<Gravitybox.gFileSystem.EFDAL.TenantQuery, bool>> where)
+		public static int DeleteData(Expression<Func<Gravitybox.gFileSystem.EFDAL.ContainerQuery, bool>> where)
 		{
 			return DeleteData(where: where, optimizer: new QueryOptimizer(), startup: new ContextStartup(null), connectionString: Gravitybox.gFileSystem.EFDAL.gFileSystemEntities.GetConnectionString());
 		}
@@ -959,7 +860,7 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 		/// <param name="where">The expression that determines the records deleted</param>
 		/// <param name="optimizer">The optimization object to use for running queries</param>
 		/// <returns>The number of rows deleted</returns>
-		public static int DeleteData(Expression<Func<Gravitybox.gFileSystem.EFDAL.TenantQuery, bool>> where, QueryOptimizer optimizer)
+		public static int DeleteData(Expression<Func<Gravitybox.gFileSystem.EFDAL.ContainerQuery, bool>> where, QueryOptimizer optimizer)
 		{
 			return DeleteData(where: where, optimizer: optimizer, startup: new ContextStartup(null), connectionString: Gravitybox.gFileSystem.EFDAL.gFileSystemEntities.GetConnectionString());
 		}
@@ -970,7 +871,7 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 		/// <param name="where">The expression that determines the records deleted</param>
 		/// <param name="connectionString">The database connection string to use for this access</param>
 		/// <returns>The number of rows deleted</returns>
-		public static int DeleteData(Expression<Func<Gravitybox.gFileSystem.EFDAL.TenantQuery, bool>> where, string connectionString)
+		public static int DeleteData(Expression<Func<Gravitybox.gFileSystem.EFDAL.ContainerQuery, bool>> where, string connectionString)
 		{
 			return DeleteData(where: where, optimizer: new QueryOptimizer(), startup: new ContextStartup(null), connectionString: connectionString);
 		}
@@ -983,7 +884,7 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 		/// <param name="startup">The startup options</param>
 		/// <param name="connectionString">The database connection string to use for this access</param>
 		/// <returns>The number of rows deleted</returns>
-		public static int DeleteData(Expression<Func<Gravitybox.gFileSystem.EFDAL.TenantQuery, bool>> where, QueryOptimizer optimizer, ContextStartup startup, string connectionString)
+		public static int DeleteData(Expression<Func<Gravitybox.gFileSystem.EFDAL.ContainerQuery, bool>> where, QueryOptimizer optimizer, ContextStartup startup, string connectionString)
 		{
 			if (optimizer == null)
 				optimizer = new QueryOptimizer();
@@ -993,8 +894,8 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 			{
 				using (var dc = new DataContext(connection))
 				{
-					var template = dc.GetTable<Gravitybox.gFileSystem.EFDAL.TenantQuery>();
-					using (var cmd = BusinessEntityQuery.GetCommand<Gravitybox.gFileSystem.EFDAL.TenantQuery>(dc, template, where))
+					var template = dc.GetTable<Gravitybox.gFileSystem.EFDAL.ContainerQuery>();
+					using (var cmd = BusinessEntityQuery.GetCommand<Gravitybox.gFileSystem.EFDAL.ContainerQuery>(dc, template, where))
 					{
 						if (!startup.DefaultTimeout && startup.CommandTimeout > 0) cmd.CommandTimeout = startup.CommandTimeout;
 						else
@@ -1004,17 +905,17 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 						}
 
 						var parser = LinqSQLParser.Create(cmd.CommandText, LinqSQLParser.ObjectTypeConstants.Table);
-						var sql = "CREATE TABLE #t ([TenantID] [BigInt])";
+						var sql = "CREATE TABLE #t ([ContainerId] [BigInt])";
 						sql += "set rowcount " + optimizer.ChunkSize + ";";
-						sql += "INSERT INTO #t ([TenantID])";
-						sql += "SELECT [t0].[TenantID] #t\r\n";
+						sql += "INSERT INTO #t ([ContainerId])";
+						sql += "SELECT [t0].[ContainerId] #t\r\n";
 						sql += parser.GetFromClause(optimizer) + "\r\n";
 						sql += parser.GetWhereClause();
 						sql += "\r\n";
 
 						var noLock = string.Empty;
 						noLock = (optimizer.NoLocking ? "WITH (READUNCOMMITTED) " : string.Empty);
-						sql += "DELETE [Tenant] FROM [dbo].[Tenant] " + noLock + "INNER JOIN #t ON [dbo].[Tenant].[TenantID] = #t.[TenantID]\r\n";
+						sql += "DELETE [Container] FROM [dbo].[Container] " + noLock + "INNER JOIN #t ON [dbo].[Container].[ContainerId] = #t.[ContainerId]\r\n";
 						sql += ";select @@rowcount";
 						sql = "set ansi_nulls off;" + sql + ";drop table #t;";
 						cmd.CommandText = sql;
@@ -1047,9 +948,9 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 		/// <param name="where">The expression that determines the records selected</param>
 		/// <param name="newValue">The new value to set the specified field in all matching records</param>
 		/// <returns>The number of records affected</returns>
-		public static int UpdateData<TSource>(Expression<Func<Gravitybox.gFileSystem.EFDAL.TenantQuery, TSource>> select, Expression<Func<Gravitybox.gFileSystem.EFDAL.TenantQuery, bool>> where, TSource newValue)
+		public static int UpdateData<TSource>(Expression<Func<Gravitybox.gFileSystem.EFDAL.ContainerQuery, TSource>> select, Expression<Func<Gravitybox.gFileSystem.EFDAL.ContainerQuery, bool>> where, TSource newValue)
 		{
-			return BusinessObjectQuery<Gravitybox.gFileSystem.EFDAL.Entity.Tenant, Gravitybox.gFileSystem.EFDAL.TenantQuery, TSource>.UpdateData(select: select, where: where, newValue: newValue, leafTable: "Tenant", getField: GetDatabaseFieldName, hasModifyAudit: true);
+			return BusinessObjectQuery<Gravitybox.gFileSystem.EFDAL.Entity.Container, Gravitybox.gFileSystem.EFDAL.ContainerQuery, TSource>.UpdateData(select: select, where: where, newValue: newValue, leafTable: "Container", getField: GetDatabaseFieldName, hasModifyAudit: true);
 		}
 
 		/// <summary>
@@ -1061,9 +962,9 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 		/// <param name="connection">An open database connection</param>
 		/// <param name="transaction">The database connection transaction</param>
 		/// <returns>The number of records affected</returns>
-		public static int UpdateData<TSource>(Expression<Func<Gravitybox.gFileSystem.EFDAL.TenantQuery, TSource>> select, Expression<Func<Gravitybox.gFileSystem.EFDAL.TenantQuery, bool>> where, TSource newValue, System.Data.IDbConnection connection, System.Data.Common.DbTransaction transaction)
+		public static int UpdateData<TSource>(Expression<Func<Gravitybox.gFileSystem.EFDAL.ContainerQuery, TSource>> select, Expression<Func<Gravitybox.gFileSystem.EFDAL.ContainerQuery, bool>> where, TSource newValue, System.Data.IDbConnection connection, System.Data.Common.DbTransaction transaction)
 		{
-			return BusinessObjectQuery<Gravitybox.gFileSystem.EFDAL.Entity.Tenant, Gravitybox.gFileSystem.EFDAL.TenantQuery, TSource>.UpdateData(select: select, where: where, newValue: newValue, leafTable: "Tenant", getField: GetDatabaseFieldName, hasModifyAudit: true, startup: null, connection: connection, transaction: transaction);
+			return BusinessObjectQuery<Gravitybox.gFileSystem.EFDAL.Entity.Container, Gravitybox.gFileSystem.EFDAL.ContainerQuery, TSource>.UpdateData(select: select, where: where, newValue: newValue, leafTable: "Container", getField: GetDatabaseFieldName, hasModifyAudit: true, startup: null, connection: connection, transaction: transaction);
 		}
 
 		/// <summary>
@@ -1075,9 +976,9 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 		/// <param name="startup">A configuration object</param>
 		/// <param name="connectionString">The database connection string</param>
 		/// <returns>The number of records affected</returns>
-		public static int UpdateData<TSource>(Expression<Func<Gravitybox.gFileSystem.EFDAL.TenantQuery, TSource>> select, Expression<Func<Gravitybox.gFileSystem.EFDAL.TenantQuery, bool>> where, TSource newValue, ContextStartup startup, string connectionString)
+		public static int UpdateData<TSource>(Expression<Func<Gravitybox.gFileSystem.EFDAL.ContainerQuery, TSource>> select, Expression<Func<Gravitybox.gFileSystem.EFDAL.ContainerQuery, bool>> where, TSource newValue, ContextStartup startup, string connectionString)
 		{
-			return BusinessObjectQuery<Gravitybox.gFileSystem.EFDAL.Entity.Tenant, Gravitybox.gFileSystem.EFDAL.TenantQuery, TSource>.UpdateData(select: select, where: where, newValue: newValue, leafTable: "Tenant", getField: GetDatabaseFieldName, hasModifyAudit: true, startup: startup, connectionString: connectionString);
+			return BusinessObjectQuery<Gravitybox.gFileSystem.EFDAL.Entity.Container, Gravitybox.gFileSystem.EFDAL.ContainerQuery, TSource>.UpdateData(select: select, where: where, newValue: newValue, leafTable: "Container", getField: GetDatabaseFieldName, hasModifyAudit: true, startup: startup, connectionString: connectionString);
 		}
 
 		/// <summary>
@@ -1088,9 +989,9 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 		/// <param name="newValue">The new value to set the specified field in all matching records</param>
 		/// <param name="connectionString">The database connection string</param>
 		/// <returns>The number of records affected</returns>
-		public static int UpdateData<TSource>(Expression<Func<Gravitybox.gFileSystem.EFDAL.TenantQuery, TSource>> select, Expression<Func<Gravitybox.gFileSystem.EFDAL.TenantQuery, bool>> where, TSource newValue, string connectionString)
+		public static int UpdateData<TSource>(Expression<Func<Gravitybox.gFileSystem.EFDAL.ContainerQuery, TSource>> select, Expression<Func<Gravitybox.gFileSystem.EFDAL.ContainerQuery, bool>> where, TSource newValue, string connectionString)
 		{
-			return BusinessObjectQuery<Gravitybox.gFileSystem.EFDAL.Entity.Tenant, Gravitybox.gFileSystem.EFDAL.TenantQuery, TSource>.UpdateData(select: select, where: where, newValue: newValue, leafTable: "Tenant", getField: GetDatabaseFieldName, hasModifyAudit: true, connectionString: connectionString);
+			return BusinessObjectQuery<Gravitybox.gFileSystem.EFDAL.Entity.Container, Gravitybox.gFileSystem.EFDAL.ContainerQuery, TSource>.UpdateData(select: select, where: where, newValue: newValue, leafTable: "Container", getField: GetDatabaseFieldName, hasModifyAudit: true, connectionString: connectionString);
 		}
 
 		/// <summary>
@@ -1100,9 +1001,9 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 		/// <param name="where">The expression that determines the records selected</param>
 		/// <param name="newValue">The new value to set the specified field in all matching records</param>
 		/// <returns>The number of records affected</returns>
-		public static int UpdateData<TSource>(Expression<Func<Gravitybox.gFileSystem.EFDAL.TenantQuery, TSource>> select, Expression<Func<Gravitybox.gFileSystem.EFDAL.TenantQuery, bool>> where, Gravitybox.gFileSystem.EFDAL.Entity.Tenant newValue)
+		public static int UpdateData<TSource>(Expression<Func<Gravitybox.gFileSystem.EFDAL.ContainerQuery, TSource>> select, Expression<Func<Gravitybox.gFileSystem.EFDAL.ContainerQuery, bool>> where, Gravitybox.gFileSystem.EFDAL.Entity.Container newValue)
 		{
-			return BusinessObjectQuery<Gravitybox.gFileSystem.EFDAL.Entity.Tenant, Gravitybox.gFileSystem.EFDAL.TenantQuery, TSource>.UpdateData(select: select, where: where, newValue: newValue, leafTable: "Tenant", getField: GetDatabaseFieldName, hasModifyAudit: true);
+			return BusinessObjectQuery<Gravitybox.gFileSystem.EFDAL.Entity.Container, Gravitybox.gFileSystem.EFDAL.ContainerQuery, TSource>.UpdateData(select: select, where: where, newValue: newValue, leafTable: "Container", getField: GetDatabaseFieldName, hasModifyAudit: true);
 		}
 
 		/// <summary>
@@ -1113,9 +1014,9 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 		/// <param name="newValue">The new value to set the specified field in all matching records</param>
 		/// <param name="connectionString">The database connection string</param>
 		/// <returns>The number of records affected</returns>
-		public static int UpdateData<TSource>(Expression<Func<Gravitybox.gFileSystem.EFDAL.TenantQuery, TSource>> select, Expression<Func<Gravitybox.gFileSystem.EFDAL.TenantQuery, bool>> where, Gravitybox.gFileSystem.EFDAL.Entity.Tenant newValue, string connectionString)
+		public static int UpdateData<TSource>(Expression<Func<Gravitybox.gFileSystem.EFDAL.ContainerQuery, TSource>> select, Expression<Func<Gravitybox.gFileSystem.EFDAL.ContainerQuery, bool>> where, Gravitybox.gFileSystem.EFDAL.Entity.Container newValue, string connectionString)
 		{
-			return BusinessObjectQuery<Gravitybox.gFileSystem.EFDAL.Entity.Tenant, Gravitybox.gFileSystem.EFDAL.TenantQuery, TSource>.UpdateData(select: select, where: where, newValue: newValue, leafTable: "Tenant", getField: GetDatabaseFieldName, hasModifyAudit: true, connectionString: connectionString);
+			return BusinessObjectQuery<Gravitybox.gFileSystem.EFDAL.Entity.Container, Gravitybox.gFileSystem.EFDAL.ContainerQuery, TSource>.UpdateData(select: select, where: where, newValue: newValue, leafTable: "Container", getField: GetDatabaseFieldName, hasModifyAudit: true, connectionString: connectionString);
 		}
 
 		#endregion
@@ -1125,7 +1026,7 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 		/// <summary>
 		/// Returns the actual database name of the specified field.
 		/// </summary>
-		internal static string GetDatabaseFieldName(Gravitybox.gFileSystem.EFDAL.Entity.Tenant.FieldNameConstants field)
+		internal static string GetDatabaseFieldName(Gravitybox.gFileSystem.EFDAL.Entity.Container.FieldNameConstants field)
 		{
 			return GetDatabaseFieldName(field.ToString());
 		}
@@ -1137,10 +1038,9 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 		{
 			switch (field)
 			{
-				case "Key": return "Key";
+				case "ContainerId": return "ContainerId";
 				case "Name": return "Name";
-				case "TenantID": return "TenantID";
-				case "UniqueKey": return "UniqueKey";
+				case "TenantId": return "TenantId";
 				case "CreatedBy": return "CreatedBy";
 				case "CreatedDate": return "CreatedDate";
 				case "ModifiedBy": return "ModifiedBy";
@@ -1233,18 +1133,17 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 
 		#region Equals
 		/// <summary>
-		/// Compares two objects of 'Tenant' type and determines if all properties match
+		/// Compares two objects of 'Container' type and determines if all properties match
 		/// </summary>
 		/// <returns>True if all properties match, false otherwise</returns>
 		public override bool Equals(object obj)
 		{
-			var other = obj as Gravitybox.gFileSystem.EFDAL.Entity.Tenant;
+			var other = obj as Gravitybox.gFileSystem.EFDAL.Entity.Container;
 			if (other == null) return false;
 			return (
-				other.Key == this.Key &&
+				other.ContainerId == this.ContainerId &&
 				other.Name == this.Name &&
-				other.TenantID == this.TenantID &&
-				other.UniqueKey == this.UniqueKey
+				other.TenantId == this.TenantId
 				);
 		}
 
@@ -1266,43 +1165,36 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 namespace Gravitybox.gFileSystem.EFDAL.Entity.Metadata
 {
 	/// <summary>
-	/// Metadata class for the 'Tenant' entity
+	/// Metadata class for the 'Container' entity
 	/// </summary>
 	[System.CodeDom.Compiler.GeneratedCode("nHydrateModelGenerator", "6.0.0")]
-	public partial class TenantMetadata : Gravitybox.gFileSystem.EFDAL.IMetadata
+	public partial class ContainerMetadata : Gravitybox.gFileSystem.EFDAL.IMetadata
 	{
 		#region Properties
 
 		/// <summary>
-		/// Metadata information for the 'Key' parameter
+		/// Metadata information for the 'ContainerId' parameter
 		/// </summary>
-		[System.ComponentModel.DataAnnotations.Required(ErrorMessage = "'Key' is required.", AllowEmptyStrings = true)]
-		[System.ComponentModel.DataAnnotations.Display(Description = "", Name = "Key", AutoGenerateField = true)]
-		public object Key;
+		[System.ComponentModel.DataAnnotations.Required(ErrorMessage = "'ContainerId' is required.", AllowEmptyStrings = true)]
+		[System.ComponentModel.DataAnnotations.Key()]
+		[System.ComponentModel.ReadOnly(true)]
+		[System.ComponentModel.DataAnnotations.Display(Description = "", Name = "ContainerId", AutoGenerateField = true)]
+		public object ContainerId;
 
 		/// <summary>
 		/// Metadata information for the 'Name' parameter
 		/// </summary>
 		[System.ComponentModel.DataAnnotations.Required(ErrorMessage = "'Name' is required.", AllowEmptyStrings = true)]
-		[System.ComponentModel.DataAnnotations.StringLength(50, ErrorMessage = "The property 'Name' has a maximum length of 50")]
+		[System.ComponentModel.DataAnnotations.StringLength(450, ErrorMessage = "The property 'Name' has a maximum length of 450")]
 		[System.ComponentModel.DataAnnotations.Display(Description = "", Name = "Name", AutoGenerateField = true)]
 		public object Name;
 
 		/// <summary>
-		/// Metadata information for the 'TenantID' parameter
+		/// Metadata information for the 'TenantId' parameter
 		/// </summary>
-		[System.ComponentModel.DataAnnotations.Required(ErrorMessage = "'TenantID' is required.", AllowEmptyStrings = true)]
-		[System.ComponentModel.DataAnnotations.Key()]
-		[System.ComponentModel.ReadOnly(true)]
-		[System.ComponentModel.DataAnnotations.Display(Description = "", Name = "TenantID", AutoGenerateField = true)]
-		public object TenantID;
-
-		/// <summary>
-		/// Metadata information for the 'UniqueKey' parameter
-		/// </summary>
-		[System.ComponentModel.DataAnnotations.Required(ErrorMessage = "'UniqueKey' is required.", AllowEmptyStrings = true)]
-		[System.ComponentModel.DataAnnotations.Display(Description = "", Name = "UniqueKey", AutoGenerateField = true)]
-		public object UniqueKey;
+		[System.ComponentModel.DataAnnotations.Required(ErrorMessage = "'TenantId' is required.", AllowEmptyStrings = true)]
+		[System.ComponentModel.DataAnnotations.Display(Description = "", Name = "TenantId", AutoGenerateField = true)]
+		public object TenantId;
 
 		/// <summary>
 		/// Metadata information for the 'CreatedBy' parameter
@@ -1346,7 +1238,7 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity.Metadata
 		/// </summary>
 		public virtual string GetTableName()
 		{
-			return "Tenant";
+			return "Container";
 		}
 
 		/// <summary>
@@ -1355,10 +1247,9 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity.Metadata
 		public virtual List<string> GetFields()
 		{
 			var retval = new List<string>();
-			retval.Add("Key");
+			retval.Add("ContainerId");
 			retval.Add("Name");
-			retval.Add("TenantID");
-			retval.Add("UniqueKey");
+			retval.Add("TenantId");
 			return retval;
 		}
 
@@ -1385,10 +1276,9 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity.Metadata
 		{
 			switch (field)
 			{
-				case "Key": return "Key";
+				case "ContainerId": return "ContainerId";
 				case "Name": return "Name";
-				case "TenantID": return "TenantID";
-				case "UniqueKey": return "UniqueKey";
+				case "TenantId": return "TenantId";
 				case "CreatedBy": return "CreatedBy";
 				case "CreatedDate": return "CreatedDate";
 				case "ModifiedBy": return "ModifiedBy";

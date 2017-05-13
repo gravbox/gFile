@@ -14,6 +14,17 @@ if exists(select * from sysobjects where name = '__TR_ConfigSetting__DELETE' AND
 DROP TRIGGER [dbo].[__TR_ConfigSetting__DELETE]
 GO
 
+--DROP ANY AUDIT TRIGGERS FOR [dbo].[Container]
+if exists(select * from sysobjects where name = '__TR_Container__INSERT' AND xtype = 'TR')
+DROP TRIGGER [dbo].[__TR_Container__INSERT]
+GO
+if exists(select * from sysobjects where name = '__TR_Container__UPDATE' AND xtype = 'TR')
+DROP TRIGGER [dbo].[__TR_Container__UPDATE]
+GO
+if exists(select * from sysobjects where name = '__TR_Container__DELETE' AND xtype = 'TR')
+DROP TRIGGER [dbo].[__TR_Container__DELETE]
+GO
+
 --DROP ANY AUDIT TRIGGERS FOR [dbo].[FileStash]
 if exists(select * from sysobjects where name = '__TR_FileStash__INSERT' AND xtype = 'TR')
 DROP TRIGGER [dbo].[__TR_FileStash__INSERT]

@@ -45,10 +45,10 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 		public enum FieldNameConstants
 		{
 			/// <summary>
-			/// Field mapping for the 'ContainerName' property
+			/// Field mapping for the 'ContainerId' property
 			/// </summary>
-			[System.ComponentModel.Description("Field mapping for the 'ContainerName' property")]
-			ContainerName,
+			[System.ComponentModel.Description("Field mapping for the 'ContainerId' property")]
+			ContainerId,
 			/// <summary>
 			/// Field mapping for the 'CrcPlain' property
 			/// </summary>
@@ -132,26 +132,25 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 		#region Properties
 
 		/// <summary>
-		/// The property that maps back to the database 'FileStash.ContainerName' field.
+		/// The property that maps back to the database 'FileStash.ContainerId' field.
 		/// </summary>
-		/// <remarks>Field: [FileStash].[ContainerName], Field Length: 100, Not Nullable, Indexed</remarks>
+		/// <remarks>Field: [FileStash].[ContainerId], Nullable, Indexed</remarks>
 		[DataMember]
 		[System.ComponentModel.Browsable(true)]
-		[System.ComponentModel.DisplayName("ContainerName")]
+		[System.ComponentModel.DisplayName("ContainerId")]
 		[System.ComponentModel.DataAnnotations.Schema.Index()]
 		[System.Diagnostics.DebuggerNonUserCode()]
-		public virtual string ContainerName
+		public virtual long? ContainerId
 		{
-			get { return _containerName; }
+			get { return _containerId; }
 			set
 			{
-				if ((value != null) && (value.Length > GetMaxLength(Gravitybox.gFileSystem.EFDAL.Entity.FileStash.FieldNameConstants.ContainerName))) throw new Exception(string.Format(GlobalValues.ERROR_DATA_TOO_BIG, value, "FileStash.ContainerName", GetMaxLength(Gravitybox.gFileSystem.EFDAL.Entity.FileStash.FieldNameConstants.ContainerName)));
-				if (value == _containerName) return;
-				var eventArg = new Gravitybox.gFileSystem.EFDAL.EventArguments.ChangingEventArgs<string>(value, "ContainerName");
+				if (value == _containerId) return;
+				var eventArg = new Gravitybox.gFileSystem.EFDAL.EventArguments.ChangingEventArgs<long?>(value, "ContainerId");
 				this.OnPropertyChanging(eventArg);
 				if (eventArg.Cancel) return;
-				_containerName = eventArg.Value;
-				this.OnPropertyChanged(new PropertyChangedEventArgs("ContainerName"));
+				_containerId = eventArg.Value;
+				this.OnPropertyChanged(new PropertyChangedEventArgs("ContainerId"));
 			}
 		}
 
@@ -453,35 +452,35 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 		#region Property Holders
 
 		/// <summary />
-		protected string _containerName;
+		protected long? _containerId;
 		/// <summary>
-		/// Occurs when the 'ContainerName' property value change is a pending.
+		/// Occurs when the 'ContainerId' property value change is a pending.
 		/// </summary>
 		[field:NonSerialized]
-		public event EventHandler<Gravitybox.gFileSystem.EFDAL.EventArguments.ChangingEventArgs<string>> ContainerNameChanging;
+		public event EventHandler<Gravitybox.gFileSystem.EFDAL.EventArguments.ChangingEventArgs<long?>> ContainerIdChanging;
 
 		/// <summary>
-		/// Raises the OnContainerNameChanging event.
+		/// Raises the OnContainerIdChanging event.
 		/// </summary>
-		protected virtual void OnContainerNameChanging(Gravitybox.gFileSystem.EFDAL.EventArguments.ChangingEventArgs<string> e)
+		protected virtual void OnContainerIdChanging(Gravitybox.gFileSystem.EFDAL.EventArguments.ChangingEventArgs<long?> e)
 		{
-			if (this.ContainerNameChanging != null)
-				this.ContainerNameChanging(this, e);
+			if (this.ContainerIdChanging != null)
+				this.ContainerIdChanging(this, e);
 		}
 
 		/// <summary>
-		/// Occurs when the 'ContainerName' property value has changed.
+		/// Occurs when the 'ContainerId' property value has changed.
 		/// </summary>
 		[field:NonSerialized]
-		public event EventHandler<ChangedEventArgs<string>> ContainerNameChanged;
+		public event EventHandler<ChangedEventArgs<long?>> ContainerIdChanged;
 
 		/// <summary>
-		/// Raises the OnContainerNameChanged event.
+		/// Raises the OnContainerIdChanged event.
 		/// </summary>
-		protected virtual void OnContainerNameChanged(ChangedEventArgs<string> e)
+		protected virtual void OnContainerIdChanged(ChangedEventArgs<long?> e)
 		{
-			if (this.ContainerNameChanged != null)
-				this.ContainerNameChanged(this, e);
+			if (this.ContainerIdChanged != null)
+				this.ContainerIdChanged(this, e);
 		}
 
 		/// <summary />
@@ -902,8 +901,8 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 		{
 			switch (field)
 			{
-				case Gravitybox.gFileSystem.EFDAL.Entity.FileStash.FieldNameConstants.ContainerName:
-					return 100;
+				case Gravitybox.gFileSystem.EFDAL.Entity.FileStash.FieldNameConstants.ContainerId:
+					return 0;
 				case Gravitybox.gFileSystem.EFDAL.Entity.FileStash.FieldNameConstants.CrcPlain:
 					return 32;
 				case Gravitybox.gFileSystem.EFDAL.Entity.FileStash.FieldNameConstants.FileStashID:
@@ -952,7 +951,7 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 
 			switch ((Gravitybox.gFileSystem.EFDAL.Entity.FileStash.FieldNameConstants)field)
 			{
-				case Gravitybox.gFileSystem.EFDAL.Entity.FileStash.FieldNameConstants.ContainerName: return typeof(string);
+				case Gravitybox.gFileSystem.EFDAL.Entity.FileStash.FieldNameConstants.ContainerId: return typeof(long?);
 				case Gravitybox.gFileSystem.EFDAL.Entity.FileStash.FieldNameConstants.CrcPlain: return typeof(string);
 				case Gravitybox.gFileSystem.EFDAL.Entity.FileStash.FieldNameConstants.FileStashID: return typeof(long);
 				case Gravitybox.gFileSystem.EFDAL.Entity.FileStash.FieldNameConstants.IsCompressed: return typeof(bool);
@@ -1046,7 +1045,7 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 		public static FileStash Clone(Gravitybox.gFileSystem.EFDAL.Entity.FileStash item)
 		{
 			var newItem = new FileStash();
-			newItem.ContainerName = item.ContainerName;
+			newItem.ContainerId = item.ContainerId;
 			newItem.CrcPlain = item.CrcPlain;
 			newItem.FileStashID = item.FileStashID;
 			newItem.IsCompressed = item.IsCompressed;
@@ -1079,8 +1078,8 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 		/// </summary>
 		public virtual object GetValue(Gravitybox.gFileSystem.EFDAL.Entity.FileStash.FieldNameConstants field, object defaultValue)
 		{
-			if (field == Gravitybox.gFileSystem.EFDAL.Entity.FileStash.FieldNameConstants.ContainerName)
-				return this.ContainerName;
+			if (field == Gravitybox.gFileSystem.EFDAL.Entity.FileStash.FieldNameConstants.ContainerId)
+				return ((this.ContainerId == null) ? defaultValue : this.ContainerId);
 			if (field == Gravitybox.gFileSystem.EFDAL.Entity.FileStash.FieldNameConstants.CrcPlain)
 				return this.CrcPlain;
 			if (field == Gravitybox.gFileSystem.EFDAL.Entity.FileStash.FieldNameConstants.FileStashID)
@@ -1130,9 +1129,9 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 		/// <param name="fixLength">Determines if the length should be truncated if too long. When false, an error will be raised if data is too large to be assigned to the field.</param>
 		public virtual void SetValue(Gravitybox.gFileSystem.EFDAL.Entity.FileStash.FieldNameConstants field, object newValue, bool fixLength)
 		{
-			if (field == Gravitybox.gFileSystem.EFDAL.Entity.FileStash.FieldNameConstants.ContainerName)
+			if (field == Gravitybox.gFileSystem.EFDAL.Entity.FileStash.FieldNameConstants.ContainerId)
 			{
-				this.ContainerName = GlobalValues.SetValueHelperInternal((string)newValue, fixLength, GetMaxLength(field));
+				this.ContainerId = GlobalValues.SetValueHelperLongNullableInternal(newValue);
 			}
 			else if (field == Gravitybox.gFileSystem.EFDAL.Entity.FileStash.FieldNameConstants.CrcPlain)
 			{
@@ -1188,6 +1187,13 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 		[XmlIgnore]
 		public virtual Tenant Tenant { get; set; }
 
+		/// <summary>
+		/// The navigation definition for walking Container->FileStash
+		/// </summary>
+		[DataMember]
+		[XmlIgnore]
+		public virtual Container Container { get; set; }
+
 		#endregion
 
 		#region Static SQL Methods
@@ -1197,7 +1203,7 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 			alias = alias.Replace("[", string.Empty).Replace("]", string.Empty);
 			switch (alias.ToLower())
 			{
-				case "containername": return "containername";
+				case "containerid": return "containerid";
 				case "crcplain": return "crcplain";
 				case "filestashid": return "filestashid";
 				case "iscompressed": return "iscompressed";
@@ -1219,7 +1225,7 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 		{
 			switch (alias.ToLower())
 			{
-				case "containername": return "FileStash";
+				case "containerid": return "FileStash";
 				case "crcplain": return "FileStash";
 				case "filestashid": return "FileStash";
 				case "iscompressed": return "FileStash";
@@ -1241,7 +1247,7 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 		{
 			switch (field.ToLower())
 			{
-				case "containername": return "FileStash";
+				case "containerid": return "FileStash";
 				case "crcplain": return "FileStash";
 				case "filestashid": return "FileStash";
 				case "iscompressed": return "FileStash";
@@ -1261,7 +1267,7 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 
 		internal static string GetRemappedLinqSql(string sql, string parentAlias, LinqSQLFromClauseCollection childTables)
 		{
-			sql = System.Text.RegularExpressions.Regex.Replace(sql, "\\[" + parentAlias + "\\]\\.\\[containername\\]", "[" + childTables.GetBaseAliasTable(parentAlias, "FileStash") + "].[containername]", RegexOptions.IgnoreCase);
+			sql = System.Text.RegularExpressions.Regex.Replace(sql, "\\[" + parentAlias + "\\]\\.\\[containerid\\]", "[" + childTables.GetBaseAliasTable(parentAlias, "FileStash") + "].[containerid]", RegexOptions.IgnoreCase);
 			sql = System.Text.RegularExpressions.Regex.Replace(sql, "\\[" + parentAlias + "\\]\\.\\[crcplain\\]", "[" + childTables.GetBaseAliasTable(parentAlias, "FileStash") + "].[crcplain]", RegexOptions.IgnoreCase);
 			sql = System.Text.RegularExpressions.Regex.Replace(sql, "\\[" + parentAlias + "\\]\\.\\[filestashid\\]", "[" + childTables.GetBaseAliasTable(parentAlias, "FileStash") + "].[filestashid]", RegexOptions.IgnoreCase);
 			sql = System.Text.RegularExpressions.Regex.Replace(sql, "\\[" + parentAlias + "\\]\\.\\[iscompressed\\]", "[" + childTables.GetBaseAliasTable(parentAlias, "FileStash") + "].[iscompressed]", RegexOptions.IgnoreCase);
@@ -1476,7 +1482,7 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 		{
 			switch (field)
 			{
-				case "ContainerName": return "ContainerName";
+				case "ContainerId": return "ContainerId";
 				case "CrcPlain": return "CrcPlain";
 				case "FileStashID": return "FileStashID";
 				case "IsCompressed": return "IsCompressed";
@@ -1585,7 +1591,7 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 			var other = obj as Gravitybox.gFileSystem.EFDAL.Entity.FileStash;
 			if (other == null) return false;
 			return (
-				other.ContainerName == this.ContainerName &&
+				other.ContainerId == this.ContainerId &&
 				other.CrcPlain == this.CrcPlain &&
 				other.FileStashID == this.FileStashID &&
 				other.IsCompressed == this.IsCompressed &&
@@ -1623,12 +1629,10 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity.Metadata
 		#region Properties
 
 		/// <summary>
-		/// Metadata information for the 'ContainerName' parameter
+		/// Metadata information for the 'ContainerId' parameter
 		/// </summary>
-		[System.ComponentModel.DataAnnotations.Required(ErrorMessage = "'ContainerName' is required.", AllowEmptyStrings = true)]
-		[System.ComponentModel.DataAnnotations.StringLength(100, ErrorMessage = "The property 'ContainerName' has a maximum length of 100")]
-		[System.ComponentModel.DataAnnotations.Display(Description = "", Name = "ContainerName", AutoGenerateField = true)]
-		public object ContainerName;
+		[System.ComponentModel.DataAnnotations.Display(Description = "", Name = "ContainerId", AutoGenerateField = true)]
+		public object ContainerId;
 
 		/// <summary>
 		/// Metadata information for the 'CrcPlain' parameter
@@ -1741,7 +1745,7 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity.Metadata
 		public virtual List<string> GetFields()
 		{
 			var retval = new List<string>();
-			retval.Add("ContainerName");
+			retval.Add("ContainerId");
 			retval.Add("CrcPlain");
 			retval.Add("FileStashID");
 			retval.Add("IsCompressed");
@@ -1776,7 +1780,7 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity.Metadata
 		{
 			switch (field)
 			{
-				case "ContainerName": return "ContainerName";
+				case "ContainerId": return "ContainerId";
 				case "CrcPlain": return "CrcPlain";
 				case "FileStashID": return "FileStashID";
 				case "IsCompressed": return "IsCompressed";

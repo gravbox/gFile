@@ -60,6 +60,10 @@
     <Compile Include="Entity\ConfigSetting.Generated.cs">
       <DependentUpon>ConfigSetting.cs</DependentUpon>
     </Compile>
+    <Compile Include="Entity\Container.cs" />
+    <Compile Include="Entity\Container.Generated.cs">
+      <DependentUpon>Container.cs</DependentUpon>
+    </Compile>
     <Compile Include="Entity\FileStash.cs" />
     <Compile Include="Entity\FileStash.Generated.cs">
       <DependentUpon>FileStash.cs</DependentUpon>

@@ -20,6 +20,25 @@ CREATE TABLE [dbo].[ConfigSetting] (
 
 GO
 
+--CREATE TABLE [Container]
+if not exists(select * from sysobjects where name = 'Container' and xtype = 'U')
+CREATE TABLE [dbo].[Container] (
+	[ContainerId] [BigInt] IDENTITY (1, 1) NOT NULL ,
+	[Name] [NVarChar] (450) NOT NULL ,
+	[TenantId] [BigInt] NOT NULL ,
+	[ModifiedBy] [NVarchar] (50) NULL,
+	[ModifiedDate] [DateTime2] CONSTRAINT [DF__CONTAINER_MODIFIEDDATE] DEFAULT sysdatetime() NULL,
+	[CreatedBy] [NVarchar] (50) NULL,
+	[CreatedDate] [DateTime2] CONSTRAINT [DF__CONTAINER_CREATEDDATE] DEFAULT sysdatetime() NULL,
+	[Timestamp] [ROWVERSION] NOT NULL,
+	CONSTRAINT [PK_CONTAINER] PRIMARY KEY CLUSTERED
+	(
+		[ContainerId]
+	)
+)
+
+GO
+
 --CREATE TABLE [FileStash]
 if not exists(select * from sysobjects where name = 'FileStash' and xtype = 'U')
 CREATE TABLE [dbo].[FileStash] (
@@ -28,10 +47,10 @@ CREATE TABLE [dbo].[FileStash] (
 	[UniqueKey] [UniqueIdentifier] NOT NULL CONSTRAINT [DF__FILESTASH_UNIQUEKEY] DEFAULT (newid()),
 	[TenantID] [BigInt] NOT NULL ,
 	[Size] [BigInt] NOT NULL ,
-	[ContainerName] [NVarChar] (100) NOT NULL ,
 	[CrcPlain] [VarChar] (32) NOT NULL ,
 	[IsCompressed] [Bit] NOT NULL CONSTRAINT [DF__FILESTASH_ISCOMPRESSED] DEFAULT (0),
 	[StorageSize] [BigInt] NOT NULL CONSTRAINT [DF__FILESTASH_STORAGESIZE] DEFAULT (0),
+	[ContainerId] [BigInt] NULL ,
 	[ModifiedBy] [NVarchar] (50) NULL,
 	[ModifiedDate] [DateTime2] CONSTRAINT [DF__FILESTASH_MODIFIEDDATE] DEFAULT sysdatetime() NULL,
 	[CreatedBy] [NVarchar] (50) NULL,
@@ -74,6 +93,14 @@ ALTER TABLE [dbo].[ConfigSetting] ADD [Name] [VarChar] (50) NOT NULL
 if exists(select * from sys.objects where name = 'ConfigSetting' and type = 'U') AND not exists (select * from syscolumns c inner join sysobjects o on c.id = o.id where c.name = 'Value' and o.name = 'ConfigSetting')
 ALTER TABLE [dbo].[ConfigSetting] ADD [Value] [VarChar] (500) NULL 
 GO
+--TABLE [Container] ADD FIELDS
+if exists(select * from sys.objects where name = 'Container' and type = 'U') AND not exists (select * from syscolumns c inner join sysobjects o on c.id = o.id where c.name = 'ContainerId' and o.name = 'Container')
+ALTER TABLE [dbo].[Container] ADD [ContainerId] [BigInt] IDENTITY (1, 1) NOT NULL 
+if exists(select * from sys.objects where name = 'Container' and type = 'U') AND not exists (select * from syscolumns c inner join sysobjects o on c.id = o.id where c.name = 'Name' and o.name = 'Container')
+ALTER TABLE [dbo].[Container] ADD [Name] [NVarChar] (450) NOT NULL 
+if exists(select * from sys.objects where name = 'Container' and type = 'U') AND not exists (select * from syscolumns c inner join sysobjects o on c.id = o.id where c.name = 'TenantId' and o.name = 'Container')
+ALTER TABLE [dbo].[Container] ADD [TenantId] [BigInt] NOT NULL 
+GO
 --TABLE [FileStash] ADD FIELDS
 if exists(select * from sys.objects where name = 'FileStash' and type = 'U') AND not exists (select * from syscolumns c inner join sysobjects o on c.id = o.id where c.name = 'FileStashID' and o.name = 'FileStash')
 ALTER TABLE [dbo].[FileStash] ADD [FileStashID] [BigInt] IDENTITY (1, 1) NOT NULL 
@@ -85,14 +112,14 @@ if exists(select * from sys.objects where name = 'FileStash' and type = 'U') AND
 ALTER TABLE [dbo].[FileStash] ADD [TenantID] [BigInt] NOT NULL 
 if exists(select * from sys.objects where name = 'FileStash' and type = 'U') AND not exists (select * from syscolumns c inner join sysobjects o on c.id = o.id where c.name = 'Size' and o.name = 'FileStash')
 ALTER TABLE [dbo].[FileStash] ADD [Size] [BigInt] NOT NULL 
-if exists(select * from sys.objects where name = 'FileStash' and type = 'U') AND not exists (select * from syscolumns c inner join sysobjects o on c.id = o.id where c.name = 'ContainerName' and o.name = 'FileStash')
-ALTER TABLE [dbo].[FileStash] ADD [ContainerName] [NVarChar] (100) NOT NULL 
 if exists(select * from sys.objects where name = 'FileStash' and type = 'U') AND not exists (select * from syscolumns c inner join sysobjects o on c.id = o.id where c.name = 'CrcPlain' and o.name = 'FileStash')
 ALTER TABLE [dbo].[FileStash] ADD [CrcPlain] [VarChar] (32) NOT NULL 
 if exists(select * from sys.objects where name = 'FileStash' and type = 'U') AND not exists (select * from syscolumns c inner join sysobjects o on c.id = o.id where c.name = 'IsCompressed' and o.name = 'FileStash')
 ALTER TABLE [dbo].[FileStash] ADD [IsCompressed] [Bit] NOT NULL CONSTRAINT [DF__FILESTASH_ISCOMPRESSED] DEFAULT (0)
 if exists(select * from sys.objects where name = 'FileStash' and type = 'U') AND not exists (select * from syscolumns c inner join sysobjects o on c.id = o.id where c.name = 'StorageSize' and o.name = 'FileStash')
 ALTER TABLE [dbo].[FileStash] ADD [StorageSize] [BigInt] NOT NULL CONSTRAINT [DF__FILESTASH_STORAGESIZE] DEFAULT (0)
+if exists(select * from sys.objects where name = 'FileStash' and type = 'U') AND not exists (select * from syscolumns c inner join sysobjects o on c.id = o.id where c.name = 'ContainerId' and o.name = 'FileStash')
+ALTER TABLE [dbo].[FileStash] ADD [ContainerId] [BigInt] NULL 
 GO
 --TABLE [Tenant] ADD FIELDS
 if exists(select * from sys.objects where name = 'Tenant' and type = 'U') AND not exists (select * from syscolumns c inner join sysobjects o on c.id = o.id where c.name = 'TenantID' and o.name = 'Tenant')
@@ -125,6 +152,27 @@ GO
 --APPEND AUDIT TRAIL TIMESTAMP FOR TABLE [ConfigSetting]
 if exists(select * from sys.objects where name = 'ConfigSetting' and type = 'U') and not exists (select * from syscolumns c inner join sysobjects o on c.id = o.id where c.name = 'Timestamp' and o.name = 'ConfigSetting')
 ALTER TABLE [dbo].[ConfigSetting] ADD [Timestamp] [ROWVERSION] NOT NULL
+GO
+
+GO
+
+--APPEND AUDIT TRAIL CREATE FOR TABLE [Container]
+if exists(select * from sys.objects where name = 'Container' and type = 'U') and not exists (select * from syscolumns c inner join sysobjects o on c.id = o.id where c.name = 'CreatedBy' and o.name = 'Container')
+ALTER TABLE [dbo].[Container] ADD [CreatedBy] [NVarchar] (50) NULL
+if exists(select * from sys.objects where name = 'Container' and type = 'U') and not exists (select * from syscolumns c inner join sysobjects o on c.id = o.id where c.name = 'CreatedDate' and o.name = 'Container')
+ALTER TABLE [dbo].[Container] ADD [CreatedDate] [DateTime2] CONSTRAINT [DF__CONTAINER_CREATEDDATE] DEFAULT sysdatetime() NULL
+GO
+
+--APPEND AUDIT TRAIL MODIFY FOR TABLE [Container]
+if exists(select * from sys.objects where name = 'Container' and type = 'U') and not exists (select * from syscolumns c inner join sysobjects o on c.id = o.id where c.name = 'ModifiedBy' and o.name = 'Container')
+ALTER TABLE [dbo].[Container] ADD [ModifiedBy] [NVarchar] (50) NULL
+if exists(select * from sys.objects where name = 'Container' and type = 'U') and not exists (select * from syscolumns c inner join sysobjects o on c.id = o.id where c.name = 'ModifiedDate' and o.name = 'Container')
+ALTER TABLE [dbo].[Container] ADD [ModifiedDate] [DateTime2] CONSTRAINT [DF__CONTAINER_MODIFIEDDATE] DEFAULT sysdatetime() NULL
+GO
+
+--APPEND AUDIT TRAIL TIMESTAMP FOR TABLE [Container]
+if exists(select * from sys.objects where name = 'Container' and type = 'U') and not exists (select * from syscolumns c inner join sysobjects o on c.id = o.id where c.name = 'Timestamp' and o.name = 'Container')
+ALTER TABLE [dbo].[Container] ADD [Timestamp] [ROWVERSION] NOT NULL
 GO
 
 GO
@@ -183,6 +231,9 @@ GO
 DECLARE @pkfixConfigSetting varchar(500)
 SET @pkfixConfigSetting = (SELECT top 1 i.name AS IndexName FROM sys.indexes AS i WHERE i.is_primary_key = 1 AND OBJECT_NAME(i.OBJECT_ID) = 'ConfigSetting')
 if @pkfixConfigSetting <> '' and (BINARY_CHECKSUM(@pkfixConfigSetting) <> BINARY_CHECKSUM('PK_CONFIGSETTING')) exec('sp_rename '''+@pkfixConfigSetting+''', ''PK_CONFIGSETTING''')
+DECLARE @pkfixContainer varchar(500)
+SET @pkfixContainer = (SELECT top 1 i.name AS IndexName FROM sys.indexes AS i WHERE i.is_primary_key = 1 AND OBJECT_NAME(i.OBJECT_ID) = 'Container')
+if @pkfixContainer <> '' and (BINARY_CHECKSUM(@pkfixContainer) <> BINARY_CHECKSUM('PK_CONTAINER')) exec('sp_rename '''+@pkfixContainer+''', ''PK_CONTAINER''')
 DECLARE @pkfixFileStash varchar(500)
 SET @pkfixFileStash = (SELECT top 1 i.name AS IndexName FROM sys.indexes AS i WHERE i.is_primary_key = 1 AND OBJECT_NAME(i.OBJECT_ID) = 'FileStash')
 if @pkfixFileStash <> '' and (BINARY_CHECKSUM(@pkfixFileStash) <> BINARY_CHECKSUM('PK_FILESTASH')) exec('sp_rename '''+@pkfixFileStash+''', ''PK_FILESTASH''')
@@ -205,6 +256,14 @@ ALTER TABLE [dbo].[ConfigSetting] WITH NOCHECK ADD
 CONSTRAINT [PK_CONFIGSETTING] PRIMARY KEY CLUSTERED
 (
 	[ID]
+)
+GO
+--PRIMARY KEY FOR TABLE [Container]
+if not exists(select * from sysobjects where name = 'PK_CONTAINER' and xtype = 'PK')
+ALTER TABLE [dbo].[Container] WITH NOCHECK ADD 
+CONSTRAINT [PK_CONTAINER] PRIMARY KEY CLUSTERED
+(
+	[ContainerId]
 )
 GO
 --PRIMARY KEY FOR TABLE [FileStash]
@@ -232,6 +291,11 @@ if exists(select * from sys.objects where name = 'PK___AUDIT__CONFIGSETTING' and
 ALTER TABLE [dbo].[__AUDIT__CONFIGSETTING] DROP CONSTRAINT [PK___AUDIT__CONFIGSETTING]
 GO
 
+--DROP PRIMARY KEY FOR TABLE [__AUDIT__CONTAINER]
+if exists(select * from sys.objects where name = 'PK___AUDIT__CONTAINER' and type = 'PK' and type_desc = 'PRIMARY_KEY_CONSTRAINT')
+ALTER TABLE [dbo].[__AUDIT__CONTAINER] DROP CONSTRAINT [PK___AUDIT__CONTAINER]
+GO
+
 --DROP PRIMARY KEY FOR TABLE [__AUDIT__FILESTASH]
 if exists(select * from sys.objects where name = 'PK___AUDIT__FILESTASH' and type = 'PK' and type_desc = 'PRIMARY_KEY_CONSTRAINT')
 ALTER TABLE [dbo].[__AUDIT__FILESTASH] DROP CONSTRAINT [PK___AUDIT__FILESTASH]
@@ -244,6 +308,17 @@ GO
 
 --##SECTION END [AUDIT TABLES PK]
 
+--FOREIGN KEY RELATIONSHIP [Tenant] -> [Container] ([Tenant].[TenantID] -> [Container].[TenantId])
+if not exists(select * from sysobjects where name = 'FK__CONTAINER_TENANT' and xtype = 'F')
+ALTER TABLE [dbo].[Container] ADD 
+CONSTRAINT [FK__CONTAINER_TENANT] FOREIGN KEY 
+(
+	[TenantId]
+) REFERENCES [dbo].[Tenant] (
+	[TenantID]
+)
+GO
+
 --FOREIGN KEY RELATIONSHIP [Tenant] -> [FileStash] ([Tenant].[TenantID] -> [FileStash].[TenantID])
 if not exists(select * from sysobjects where name = 'FK__FILESTASH_TENANT' and xtype = 'F')
 ALTER TABLE [dbo].[FileStash] ADD 
@@ -255,7 +330,38 @@ CONSTRAINT [FK__FILESTASH_TENANT] FOREIGN KEY
 )
 GO
 
+--FOREIGN KEY RELATIONSHIP [Container] -> [FileStash] ([Container].[ContainerId] -> [FileStash].[ContainerId])
+if not exists(select * from sysobjects where name = 'FK__FILESTASH_CONTAINER' and xtype = 'F')
+ALTER TABLE [dbo].[FileStash] ADD 
+CONSTRAINT [FK__FILESTASH_CONTAINER] FOREIGN KEY 
+(
+	[ContainerId]
+) REFERENCES [dbo].[Container] (
+	[ContainerId]
+)
+GO
+
 --##SECTION BEGIN [CREATE INDEXES]
+
+--DELETE INDEX
+if exists(select * from sys.indexes where name = 'IDX_CONTAINER_NAME' and type_desc = 'CLUSTERED')
+DROP INDEX [IDX_CONTAINER_NAME] ON [dbo].[Container]
+GO
+
+--INDEX FOR TABLE [Container] COLUMNS:[Name]
+if not exists(select * from sys.indexes where name = 'IDX_CONTAINER_NAME') and exists (select * from syscolumns c inner join sysobjects o on c.id = o.id where c.name = 'Name' and o.name = 'Container')
+CREATE NONCLUSTERED INDEX [IDX_CONTAINER_NAME] ON [dbo].[Container] ([Name] ASC)
+GO
+
+--DELETE INDEX
+if exists(select * from sys.indexes where name = 'IDX_CONTAINER_TENANTID' and type_desc = 'CLUSTERED')
+DROP INDEX [IDX_CONTAINER_TENANTID] ON [dbo].[Container]
+GO
+
+--INDEX FOR TABLE [Container] COLUMNS:[TenantId]
+if not exists(select * from sys.indexes where name = 'IDX_CONTAINER_TENANTID') and exists (select * from syscolumns c inner join sysobjects o on c.id = o.id where c.name = 'TenantId' and o.name = 'Container')
+CREATE NONCLUSTERED INDEX [IDX_CONTAINER_TENANTID] ON [dbo].[Container] ([TenantId] ASC)
+GO
 
 --DELETE INDEX
 if exists(select * from sys.indexes where name = 'IDX_FILESTASH_UNIQUEKEY' and type_desc = 'CLUSTERED')
@@ -288,13 +394,13 @@ CREATE NONCLUSTERED INDEX [IDX_FILESTASH_PATH] ON [dbo].[FileStash] ([Path] ASC)
 GO
 
 --DELETE INDEX
-if exists(select * from sys.indexes where name = 'IDX_FILESTASH_CONTAINERNAME' and type_desc = 'CLUSTERED')
-DROP INDEX [IDX_FILESTASH_CONTAINERNAME] ON [dbo].[FileStash]
+if exists(select * from sys.indexes where name = 'IDX_FILESTASH_CONTAINERID' and type_desc = 'CLUSTERED')
+DROP INDEX [IDX_FILESTASH_CONTAINERID] ON [dbo].[FileStash]
 GO
 
---INDEX FOR TABLE [FileStash] COLUMNS:[ContainerName]
-if not exists(select * from sys.indexes where name = 'IDX_FILESTASH_CONTAINERNAME') and exists (select * from syscolumns c inner join sysobjects o on c.id = o.id where c.name = 'ContainerName' and o.name = 'FileStash')
-CREATE NONCLUSTERED INDEX [IDX_FILESTASH_CONTAINERNAME] ON [dbo].[FileStash] ([ContainerName] ASC)
+--INDEX FOR TABLE [FileStash] COLUMNS:[ContainerId]
+if not exists(select * from sys.indexes where name = 'IDX_FILESTASH_CONTAINERID') and exists (select * from syscolumns c inner join sysobjects o on c.id = o.id where c.name = 'ContainerId' and o.name = 'FileStash')
+CREATE NONCLUSTERED INDEX [IDX_FILESTASH_CONTAINERID] ON [dbo].[FileStash] ([ContainerId] ASC)
 GO
 
 --DELETE INDEX
@@ -339,9 +445,23 @@ exec('ALTER TABLE [ConfigSetting] DROP CONSTRAINT ' + @defaultName)
 --END DEFAULTS FOR TABLE [ConfigSetting]
 GO
 
+--BEGIN DEFAULTS FOR TABLE [Container]
+DECLARE @defaultName varchar(max)
+SET @defaultName = (SELECT d.name FROM sys.columns c inner join sys.default_constraints d on c.column_id = d.parent_column_id and c.object_id = d.parent_object_id inner join sys.objects o on d.parent_object_id = o.object_id where o.name = 'Container' and c.name = 'ContainerId')
+if @defaultName IS NOT NULL
+exec('ALTER TABLE [Container] DROP CONSTRAINT ' + @defaultName)
+SET @defaultName = (SELECT d.name FROM sys.columns c inner join sys.default_constraints d on c.column_id = d.parent_column_id and c.object_id = d.parent_object_id inner join sys.objects o on d.parent_object_id = o.object_id where o.name = 'Container' and c.name = 'Name')
+if @defaultName IS NOT NULL
+exec('ALTER TABLE [Container] DROP CONSTRAINT ' + @defaultName)
+SET @defaultName = (SELECT d.name FROM sys.columns c inner join sys.default_constraints d on c.column_id = d.parent_column_id and c.object_id = d.parent_object_id inner join sys.objects o on d.parent_object_id = o.object_id where o.name = 'Container' and c.name = 'TenantId')
+if @defaultName IS NOT NULL
+exec('ALTER TABLE [Container] DROP CONSTRAINT ' + @defaultName)
+--END DEFAULTS FOR TABLE [Container]
+GO
+
 --BEGIN DEFAULTS FOR TABLE [FileStash]
 DECLARE @defaultName varchar(max)
-SET @defaultName = (SELECT d.name FROM sys.columns c inner join sys.default_constraints d on c.column_id = d.parent_column_id and c.object_id = d.parent_object_id inner join sys.objects o on d.parent_object_id = o.object_id where o.name = 'FileStash' and c.name = 'ContainerName')
+SET @defaultName = (SELECT d.name FROM sys.columns c inner join sys.default_constraints d on c.column_id = d.parent_column_id and c.object_id = d.parent_object_id inner join sys.objects o on d.parent_object_id = o.object_id where o.name = 'FileStash' and c.name = 'ContainerId')
 if @defaultName IS NOT NULL
 exec('ALTER TABLE [FileStash] DROP CONSTRAINT ' + @defaultName)
 SET @defaultName = (SELECT d.name FROM sys.columns c inner join sys.default_constraints d on c.column_id = d.parent_column_id and c.object_id = d.parent_object_id inner join sys.objects o on d.parent_object_id = o.object_id where o.name = 'FileStash' and c.name = 'CrcPlain')

@@ -34,6 +34,10 @@ namespace Gravitybox.gFileSystem.EFDAL
 		/// </summary>
 		ConfigSetting,
 		/// <summary>
+		/// A mapping for the the Container entity
+		/// </summary>
+		Container,
+		/// <summary>
 		/// A mapping for the the FileStash entity
 		/// </summary>
 		FileStash,
@@ -82,7 +86,7 @@ namespace Gravitybox.gFileSystem.EFDAL
 		private static Dictionary<string, SequentialIdGenerator> _sequentialIdGeneratorCache = new Dictionary<string, SequentialIdGenerator>();
 		private static object _seqCacheLock = new object();
 
-		private const string _version = "0.0.0.0.19";
+		private const string _version = "0.0.0.0.20";
 		private const string _modelKey = "d570da75-dc5a-443f-83e7-b964165ae8e7";
 
 		/// <summary />
@@ -247,6 +251,7 @@ namespace Gravitybox.gFileSystem.EFDAL
 
 			#region Map Tables
 			modelBuilder.Entity<Gravitybox.gFileSystem.EFDAL.Entity.ConfigSetting>().ToTable("ConfigSetting", "dbo");
+			modelBuilder.Entity<Gravitybox.gFileSystem.EFDAL.Entity.Container>().ToTable("Container", "dbo");
 			modelBuilder.Entity<Gravitybox.gFileSystem.EFDAL.Entity.FileStash>().ToTable("FileStash", "dbo");
 			modelBuilder.Entity<Gravitybox.gFileSystem.EFDAL.Entity.Tenant>().ToTable("Tenant", "dbo");
 			#endregion
@@ -259,8 +264,14 @@ namespace Gravitybox.gFileSystem.EFDAL
 			modelBuilder.Entity<Gravitybox.gFileSystem.EFDAL.Entity.ConfigSetting>().Property(d => d.Value).IsOptional().HasMaxLength(500).HasColumnType("VARCHAR");
 			modelBuilder.Entity<Gravitybox.gFileSystem.EFDAL.Entity.ConfigSetting>().Property(d => d.Timestamp).IsConcurrencyToken(true);
 
+			//Field setup for Container entity
+			modelBuilder.Entity<Gravitybox.gFileSystem.EFDAL.Entity.Container>().Property(d => d.ContainerId).IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
+			modelBuilder.Entity<Gravitybox.gFileSystem.EFDAL.Entity.Container>().Property(d => d.Name).IsRequired().HasMaxLength(450);
+			modelBuilder.Entity<Gravitybox.gFileSystem.EFDAL.Entity.Container>().Property(d => d.TenantId).IsRequired();
+			modelBuilder.Entity<Gravitybox.gFileSystem.EFDAL.Entity.Container>().Property(d => d.Timestamp).IsConcurrencyToken(true);
+
 			//Field setup for FileStash entity
-			modelBuilder.Entity<Gravitybox.gFileSystem.EFDAL.Entity.FileStash>().Property(d => d.ContainerName).IsRequired().HasMaxLength(100);
+			modelBuilder.Entity<Gravitybox.gFileSystem.EFDAL.Entity.FileStash>().Property(d => d.ContainerId).IsOptional();
 			modelBuilder.Entity<Gravitybox.gFileSystem.EFDAL.Entity.FileStash>().Property(d => d.CrcPlain).IsRequired().HasMaxLength(32).HasColumnType("VARCHAR");
 			modelBuilder.Entity<Gravitybox.gFileSystem.EFDAL.Entity.FileStash>().Property(d => d.FileStashID).IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
 			modelBuilder.Entity<Gravitybox.gFileSystem.EFDAL.Entity.FileStash>().Property(d => d.IsCompressed).IsRequired();
@@ -287,11 +298,25 @@ namespace Gravitybox.gFileSystem.EFDAL
 
 			#region Relations
 
+			//Relation Container -> FileStash
+			modelBuilder.Entity<Gravitybox.gFileSystem.EFDAL.Entity.FileStash>()
+							 .HasOptional(a => a.Container)
+							 .WithMany(b => b.FileStashList)
+							 .HasForeignKey(u => new { u.ContainerId })
+							 .WillCascadeOnDelete(false);
+
 			//Relation Tenant -> FileStash
 			modelBuilder.Entity<Gravitybox.gFileSystem.EFDAL.Entity.FileStash>()
 							 .HasRequired(a => a.Tenant)
 							 .WithMany(b => b.FileStashList)
 							 .HasForeignKey(u => new { u.TenantID })
+							 .WillCascadeOnDelete(false);
+
+			//Relation Tenant -> Container
+			modelBuilder.Entity<Gravitybox.gFileSystem.EFDAL.Entity.Container>()
+							 .HasRequired(a => a.Tenant)
+							 .WithMany(b => b.ContainerList)
+							 .HasForeignKey(u => new { u.TenantId })
 							 .WillCascadeOnDelete(false);
 
 			#endregion
@@ -304,6 +329,7 @@ namespace Gravitybox.gFileSystem.EFDAL
 			#region Primary Keys
 
 			modelBuilder.Entity<Gravitybox.gFileSystem.EFDAL.Entity.ConfigSetting>().HasKey(x => new { x.ID });
+			modelBuilder.Entity<Gravitybox.gFileSystem.EFDAL.Entity.Container>().HasKey(x => new { x.ContainerId });
 			modelBuilder.Entity<Gravitybox.gFileSystem.EFDAL.Entity.FileStash>().HasKey(x => new { x.FileStashID });
 			modelBuilder.Entity<Gravitybox.gFileSystem.EFDAL.Entity.Tenant>().HasKey(x => new { x.TenantID });
 
@@ -437,6 +463,11 @@ namespace Gravitybox.gFileSystem.EFDAL
 		/// Entity set for ConfigSetting
 		/// </summary>
 		public virtual DbSet<Gravitybox.gFileSystem.EFDAL.Entity.ConfigSetting> ConfigSetting { get; set; }
+
+		/// <summary>
+		/// Entity set for Container
+		/// </summary>
+		public virtual DbSet<Gravitybox.gFileSystem.EFDAL.Entity.Container> Container { get; set; }
 
 		/// <summary>
 		/// Entity set for FileStash
@@ -583,6 +614,10 @@ namespace Gravitybox.gFileSystem.EFDAL
 			{
 				this.ConfigSetting.Add((Gravitybox.gFileSystem.EFDAL.Entity.ConfigSetting)entity);
 			}
+			else if (entity is Gravitybox.gFileSystem.EFDAL.Entity.Container)
+			{
+				this.Container.Add((Gravitybox.gFileSystem.EFDAL.Entity.Container)entity);
+			}
 			else if (entity is Gravitybox.gFileSystem.EFDAL.Entity.FileStash)
 			{
 				this.FileStash.Add((Gravitybox.gFileSystem.EFDAL.Entity.FileStash)entity);
@@ -675,6 +710,12 @@ namespace Gravitybox.gFileSystem.EFDAL
 		}
 
 		/// <summary />
+		IQueryable<Gravitybox.gFileSystem.EFDAL.Entity.Container> Gravitybox.gFileSystem.EFDAL.IgFileSystemEntities.Container
+		{
+			get { return this.Container.AsQueryable(); }
+		}
+
+		/// <summary />
 		IQueryable<Gravitybox.gFileSystem.EFDAL.Entity.FileStash> Gravitybox.gFileSystem.EFDAL.IgFileSystemEntities.FileStash
 		{
 			get { return this.FileStash.AsQueryable(); }
@@ -717,6 +758,7 @@ namespace Gravitybox.gFileSystem.EFDAL
 		public static EntityMappingConstants GetEntityFromField(Enum field)
 		{
 			if (field is Gravitybox.gFileSystem.EFDAL.Entity.ConfigSetting.FieldNameConstants) return Gravitybox.gFileSystem.EFDAL.EntityMappingConstants.ConfigSetting;
+			if (field is Gravitybox.gFileSystem.EFDAL.Entity.Container.FieldNameConstants) return Gravitybox.gFileSystem.EFDAL.EntityMappingConstants.Container;
 			if (field is Gravitybox.gFileSystem.EFDAL.Entity.FileStash.FieldNameConstants) return Gravitybox.gFileSystem.EFDAL.EntityMappingConstants.FileStash;
 			if (field is Gravitybox.gFileSystem.EFDAL.Entity.Tenant.FieldNameConstants) return Gravitybox.gFileSystem.EFDAL.EntityMappingConstants.Tenant;
 			throw new Exception("Unknown field type!");
@@ -734,6 +776,7 @@ namespace Gravitybox.gFileSystem.EFDAL
 			switch (table)
 			{
 				case Gravitybox.gFileSystem.EFDAL.EntityMappingConstants.ConfigSetting: return new Gravitybox.gFileSystem.EFDAL.Entity.Metadata.ConfigSettingMetadata();
+				case Gravitybox.gFileSystem.EFDAL.EntityMappingConstants.Container: return new Gravitybox.gFileSystem.EFDAL.Entity.Metadata.ContainerMetadata();
 				case Gravitybox.gFileSystem.EFDAL.EntityMappingConstants.FileStash: return new Gravitybox.gFileSystem.EFDAL.Entity.Metadata.FileStashMetadata();
 				case Gravitybox.gFileSystem.EFDAL.EntityMappingConstants.Tenant: return new Gravitybox.gFileSystem.EFDAL.Entity.Metadata.TenantMetadata();
 			}

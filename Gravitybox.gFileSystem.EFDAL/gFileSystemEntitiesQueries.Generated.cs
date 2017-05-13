@@ -84,6 +84,77 @@ namespace Gravitybox.gFileSystem.EFDAL
 
 	#endregion
 
+	#region ContainerQuery
+
+	/// <summary>
+	/// This is a helper object for running LINQ queries on the Container collection.
+	/// </summary>
+	[Serializable]
+	[Table(Name = "Container")]
+	[System.CodeDom.Compiler.GeneratedCode("nHydrateModelGenerator", "6.0.0")]
+	public partial class ContainerQuery : IBusinessObjectLINQQuery
+	{
+		#region Properties
+		/// <summary>
+		/// (Maps to the 'Container.ContainerId' database field)
+		/// </summary>
+		[Column(Name = "ContainerId", DbType = "BigInt", CanBeNull = false, IsPrimaryKey = true)]
+		[System.Diagnostics.DebuggerNonUserCode()]
+		public virtual long ContainerId { get; set; }
+		/// <summary>
+		/// (Maps to the 'Container.Name' database field)
+		/// </summary>
+		[Column(Name = "Name", DbType = "NVarChar (450)", CanBeNull = false, IsPrimaryKey = false)]
+		[System.Diagnostics.DebuggerNonUserCode()]
+		public virtual string Name { get; set; }
+		/// <summary>
+		/// (Maps to the 'Container.TenantId' database field)
+		/// </summary>
+		[Column(Name = "TenantId", DbType = "BigInt", CanBeNull = false, IsPrimaryKey = false)]
+		[System.Diagnostics.DebuggerNonUserCode()]
+		public virtual long TenantId { get; set; }
+		/// <summary>
+		/// The date of creation
+		/// </summary>
+		[Column(Name = "CreatedDate", DbType = "DateTime", CanBeNull = true)]
+		[System.Diagnostics.DebuggerNonUserCode()]
+		public virtual DateTime? CreatedDate { get; set; }
+		/// <summary>
+		/// The name of the creating entity
+		/// </summary>
+		[Column(Name = "CreatedBy", DbType = "VarChar(100)", CanBeNull = true)]
+		[System.Diagnostics.DebuggerNonUserCode()]
+		public virtual string CreatedBy { get; set; }
+		/// <summary>
+		/// The date of last modification
+		/// </summary>
+		[Column(Name = "ModifiedDate", DbType = "DateTime", CanBeNull = true)]
+		public virtual DateTime? ModifiedDate { get; set; }
+		/// <summary>
+		/// The name of the last modifing entity
+		/// </summary>
+		[Column(Name = "ModifiedBy", DbType = "VarChar(100)", CanBeNull = true)]
+		[System.Diagnostics.DebuggerNonUserCode()]
+		public virtual string ModifiedBy { get; set; }
+		/// <summary>
+		/// This is an internal field and is not to be used.
+		/// </summary>
+		[Column(Name = "Timestamp", DbType = "Binary", CanBeNull = false)]
+		[System.Diagnostics.DebuggerNonUserCode()]
+		public virtual byte[] Timestamp { get; set; }
+		/// <summary>
+		/// This is a mapping of the relationship with the Tenant entity.
+		/// </summary>
+		[Association(ThisKey = "TenantId", OtherKey = "TenantID")]
+		public Gravitybox.gFileSystem.EFDAL.TenantQuery Tenant { get; private set; }
+
+
+		#endregion
+
+	}
+
+	#endregion
+
 	#region FileStashQuery
 
 	/// <summary>
@@ -96,11 +167,11 @@ namespace Gravitybox.gFileSystem.EFDAL
 	{
 		#region Properties
 		/// <summary>
-		/// (Maps to the 'FileStash.ContainerName' database field)
+		/// (Maps to the 'FileStash.ContainerId' database field)
 		/// </summary>
-		[Column(Name = "ContainerName", DbType = "NVarChar (100)", CanBeNull = false, IsPrimaryKey = false)]
+		[Column(Name = "ContainerId", DbType = "BigInt", CanBeNull = true, IsPrimaryKey = false)]
 		[System.Diagnostics.DebuggerNonUserCode()]
-		public virtual string ContainerName { get; set; }
+		public virtual long? ContainerId { get; set; }
 		/// <summary>
 		/// (Maps to the 'FileStash.CrcPlain' database field)
 		/// </summary>
@@ -183,6 +254,12 @@ namespace Gravitybox.gFileSystem.EFDAL
 		/// </summary>
 		[Association(ThisKey = "TenantID", OtherKey = "TenantID")]
 		public Gravitybox.gFileSystem.EFDAL.TenantQuery Tenant { get; private set; }
+
+		/// <summary>
+		/// This is a mapping of the relationship with the Container entity.
+		/// </summary>
+		[Association(ThisKey = "ContainerId", OtherKey = "ContainerId")]
+		public Gravitybox.gFileSystem.EFDAL.ContainerQuery Container { get; private set; }
 
 
 		#endregion

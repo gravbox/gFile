@@ -6,4 +6,10 @@
 						<field id="b09fdf52-23aa-4478-8d0c-93d4cac03848" sourcefieldid="a47253c5-8a24-4162-bbed-3d70791a1492" targetfieldid="a8dbc34a-8359-4bb4-a2a9-ca3519f22ee0" />
 				</relationfieldset>
 		</relation>
+		<relation id="d187430f-62d0-4151-a1b8-3397cfde4bfe" childid="2a3ae952-9896-4ef5-aa19-071a26d707fe" isenforced="1" isinherited="0" rolename="">
+				<summary><![CDATA[]]></summary>
+				<relationfieldset>
+						<field id="8b7100fb-7a08-4af8-aede-01c03c930368" sourcefieldid="a47253c5-8a24-4162-bbed-3d70791a1492" targetfieldid="c2b42202-4767-41d3-9155-5ec21ac7fc0e" />
+				</relationfieldset>
+		</relation>
 </configuration>

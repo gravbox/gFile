@@ -181,6 +181,7 @@ namespace Gravitybox.gFileSystem.EFDAL
 			field = field.Replace("[", string.Empty).Replace("]", string.Empty);
 			string realTable = string.Empty;
 			if (parentTable == "ConfigSetting") realTable = Gravitybox.gFileSystem.EFDAL.Entity.ConfigSetting.GetTableFromFieldNameSqlMapping(field);
+			else if (parentTable == "Container") realTable = Gravitybox.gFileSystem.EFDAL.Entity.Container.GetTableFromFieldNameSqlMapping(field);
 			else if (parentTable == "FileStash") realTable = Gravitybox.gFileSystem.EFDAL.Entity.FileStash.GetTableFromFieldNameSqlMapping(field);
 			else if (parentTable == "Tenant") realTable = Gravitybox.gFileSystem.EFDAL.Entity.Tenant.GetTableFromFieldNameSqlMapping(field);
 			LinqSQLFromClause sqlFromClause = this.GetByTable(realTable);
@@ -479,6 +480,10 @@ namespace Gravitybox.gFileSystem.EFDAL
 					{
 						childTables.Add(fromClause);
 					}
+					if (fromClause.TableName == "Container")
+					{
+						childTables.Add(fromClause);
+					}
 					if (fromClause.TableName == "FileStash")
 					{
 						childTables.Add(fromClause);
@@ -506,6 +511,7 @@ namespace Gravitybox.gFileSystem.EFDAL
 				if (_type == ObjectTypeConstants.Table)
 				{
 					if (clause.TableName == "ConfigSetting") realTable = Gravitybox.gFileSystem.EFDAL.Entity.ConfigSetting.GetTableFromFieldAliasSqlMapping(field.Alias);
+					else if (clause.TableName == "Container") realTable = Gravitybox.gFileSystem.EFDAL.Entity.Container.GetTableFromFieldAliasSqlMapping(field.Alias);
 					else if (clause.TableName == "FileStash") realTable = Gravitybox.gFileSystem.EFDAL.Entity.FileStash.GetTableFromFieldAliasSqlMapping(field.Alias);
 					else if (clause.TableName == "Tenant") realTable = Gravitybox.gFileSystem.EFDAL.Entity.Tenant.GetTableFromFieldAliasSqlMapping(field.Alias);
 				}
@@ -534,6 +540,7 @@ namespace Gravitybox.gFileSystem.EFDAL
 				switch (tableInfo.TableName)
 				{
 					case "ConfigSetting": return Gravitybox.gFileSystem.EFDAL.Entity.ConfigSetting.GetRemappedLinqSql(whereClause, tableInfo.Alias, fromLinkList);
+					case "Container": return Gravitybox.gFileSystem.EFDAL.Entity.Container.GetRemappedLinqSql(whereClause, tableInfo.Alias, fromLinkList);
 					case "FileStash": return Gravitybox.gFileSystem.EFDAL.Entity.FileStash.GetRemappedLinqSql(whereClause, tableInfo.Alias, fromLinkList);
 					case "Tenant": return Gravitybox.gFileSystem.EFDAL.Entity.Tenant.GetRemappedLinqSql(whereClause, tableInfo.Alias, fromLinkList);
 				}
@@ -616,6 +623,7 @@ namespace Gravitybox.gFileSystem.EFDAL
 					switch (clause.TableName)
 					{
 						case "ConfigSetting": alias = Gravitybox.gFileSystem.EFDAL.Entity.ConfigSetting.GetFieldAliasFromFieldNameSqlMapping(field); break;
+						case "Container": alias = Gravitybox.gFileSystem.EFDAL.Entity.Container.GetFieldAliasFromFieldNameSqlMapping(field); break;
 						case "FileStash": alias = Gravitybox.gFileSystem.EFDAL.Entity.FileStash.GetFieldAliasFromFieldNameSqlMapping(field); break;
 						case "Tenant": alias = Gravitybox.gFileSystem.EFDAL.Entity.Tenant.GetFieldAliasFromFieldNameSqlMapping(field); break;
 					}

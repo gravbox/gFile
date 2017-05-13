@@ -162,15 +162,14 @@ namespace Gravitybox.gFileSystem.Service
                 using (var q = new ReaderLock(tenantID, ""))
                 {
                     if (string.IsNullOrEmpty(startPattern)) startPattern = null;
-                    else startPattern = startPattern.Replace("*", "");
+                    else startPattern = startPattern.Replace("*", string.Empty);
                     var tenant = GetTenant(tenantID);
                     using (var context = new gFileSystemEntities(ConfigHelper.ConnectionString))
                     {
-                        return context.FileStash
-                            .Where(x => x.TenantID == tenant.TenantID &&
-                            (startPattern == null || x.Path.StartsWith(startPattern)))
-                            .GroupBy(x => x.ContainerName)
-                            .Select(x => x.Key)
+                        return context.Container
+                            .Where(x => x.TenantId == tenant.TenantID &&
+                            (startPattern == null || x.Name.StartsWith(startPattern)))
+                            .Select(x => x.Name)
                             .ToList();
                     }
                 }
@@ -263,7 +262,7 @@ namespace Gravitybox.gFileSystem.Service
                         var stash = context.FileStash.Where(x =>
                                 x.TenantID == tenant.TenantID &&
                                 x.Path == fileName &&
-                                x.ContainerName == container)
+                                x.Container.Name == container)
                                 .FirstOrDefault();
                         if (stash != null)
                         {
@@ -290,13 +289,26 @@ namespace Gravitybox.gFileSystem.Service
                         var cipherFile = fe.SaveFile(data);
                         var fiCipher = new FileInfo(cipherFile);
 
+                        var containerId = context.Container
+                            .Where(x => x.TenantId == tenant.TenantID && x.Name == container)
+                            .Select(x => x.ContainerId)
+                            .FirstOrDefault();
+
+                        if (containerId == 0)
+                        {
+                            var newContainer = new Container { TenantId = tenant.TenantID, Name = container };
+                            context.AddItem(newContainer);
+                            context.SaveChanges();
+                            containerId = newContainer.ContainerId;
+                        }
+
                         var newStash = new FileStash
                         {
                             Path = fileName,
                             TenantID = tenant.TenantID,
                             Size = origSize,
                             StorageSize = fiCipher.Length,
-                            ContainerName = container,
+                            ContainerId = containerId,
                             CrcPlain = crc,
                             IsCompressed = isCompressed,
                         };
@@ -352,7 +364,7 @@ namespace Gravitybox.gFileSystem.Service
                         var stash = context.FileStash.Where(x =>
                                 x.TenantID == tenant.TenantID &&
                                 x.Path == fileName &&
-                                x.ContainerName == container)
+                                x.Container.Name == container)
                                 .FirstOrDefault();
                         if (stash != null)
                         {
@@ -387,13 +399,26 @@ namespace Gravitybox.gFileSystem.Service
                         var cipherFile = fe.SaveFile(dataFile);
                         var fiCipher = new FileInfo(cipherFile);
 
+                        var containerId = context.Container
+                            .Where(x => x.TenantId == tenant.TenantID && x.Name == container)
+                            .Select(x => x.ContainerId)
+                            .FirstOrDefault();
+
+                        if (containerId == 0)
+                        {
+                            var newContainer = new Container { TenantId = tenant.TenantID, Name = container };
+                            context.AddItem(newContainer);
+                            context.SaveChanges();
+                            containerId = newContainer.ContainerId;
+                        }
+
                         var newStash = new FileStash
                         {
                             Path = fileName,
                             TenantID = tenant.TenantID,
                             Size = fi.Length,
                             StorageSize = fiCipher.Length,
-                            ContainerName = container,
+                            ContainerId = containerId,
                             CrcPlain = crc,
                             IsCompressed = isCompressed,
                         };
@@ -435,7 +460,7 @@ namespace Gravitybox.gFileSystem.Service
                             .FirstOrDefault(x =>
                                 x.TenantID == tenant.TenantID &&
                                 x.Path == fileName &&
-                                x.ContainerName == container);
+                                x.Container.Name == container);
                     }
                 }
             }
@@ -475,7 +500,7 @@ namespace Gravitybox.gFileSystem.Service
                             .FirstOrDefault(x =>
                                 x.TenantID == tenant.TenantID &&
                                 x.Path == fileName &&
-                                x.ContainerName == container);
+                                x.Container.Name == container);
 
                         //There is no file so return null
                         if (stash == null) return null;
@@ -536,7 +561,7 @@ namespace Gravitybox.gFileSystem.Service
                             .FirstOrDefault(x =>
                                 x.TenantID == tenant.TenantID &&
                                 x.Path == fileName &&
-                                x.ContainerName == container);
+                                x.Container.Name == container);
 
                         //There is no file so return null
                         if (stash == null) return null;
@@ -597,7 +622,7 @@ namespace Gravitybox.gFileSystem.Service
                     {
                         var all = context.FileStash
                             .Where(x => x.TenantID == tenant.TenantID &&
-                                x.ContainerName == container &&
+                                x.Container.Name == container &&
                                 x.Path == fileName)
                             .ToList();
 
@@ -645,7 +670,7 @@ namespace Gravitybox.gFileSystem.Service
                     {
                         var all = context.FileStash
                             .Where(x => x.TenantID == tenant.TenantID &&
-                                x.ContainerName == container)
+                                x.Container.Name == container)
                             .ToList();
 
                         foreach (var item in all)

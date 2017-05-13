@@ -2,7 +2,7 @@
 <configuration type="entity" name="FileStash" id="022f13a6-4ad6-46be-8f15-26cb9c2c1719" allowaudittracking="0" allowcreateaudit="1" allowmodifyaudit="1" allowtimestamp="1" codefacade="" immutable="0" enforceprimarykey="1" isassociative="0" typedentity="None" schema="" generatesdoublederived="0" isgenerated="1" isTenant="0">
 		<summary><![CDATA[]]></summary>
 		<fieldset>
-				<field id="4425f8c9-9985-451c-926c-1ee3c76be9ef" name="ContainerName" nullable="0" datatype="NVarChar" identity="None" codefacade="" dataformatstring="" default="" defaultisfunc="0" formula="" isgenerated="1" isindexed="1" isprimarykey="0" Iscalculated="0" isunique="0" length="100" scale="0" sortorder="7" isreadonly="0" category="" collate="" friendlyname="" isbrowsable="1" max="NaN" min="NaN" validationexpression="" obsolete="0">
+				<field id="80758c9e-9b6a-4ab7-bc70-d80328471789" name="ContainerId" nullable="1" datatype="BigInt" identity="None" codefacade="" dataformatstring="" default="" defaultisfunc="0" formula="" isgenerated="1" isindexed="1" isprimarykey="0" Iscalculated="0" isunique="0" length="8" scale="0" sortorder="11" isreadonly="0" category="" collate="" friendlyname="" isbrowsable="1" max="NaN" min="NaN" validationexpression="" obsolete="0">
 						<summary><![CDATA[]]></summary>
 				</field>
 				<field id="94a49039-d177-44ef-bf6a-ba8876dce601" name="CrcPlain" nullable="0" datatype="VarChar" identity="None" codefacade="" dataformatstring="" default="" defaultisfunc="0" formula="" isgenerated="1" isindexed="0" isprimarykey="0" Iscalculated="0" isunique="0" length="32" scale="0" sortorder="8" isreadonly="0" category="" collate="" friendlyname="" isbrowsable="1" max="NaN" min="NaN" validationexpression="" obsolete="0">

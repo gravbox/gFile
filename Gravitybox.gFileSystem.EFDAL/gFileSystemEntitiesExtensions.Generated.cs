@@ -66,6 +66,26 @@ namespace Gravitybox.gFileSystem.EFDAL
 		/// </summary>
 		/// <param name="item">Related object to return in query results</param>
 		/// <param name="query">The LINQ expresssion that maps an include path</param>
+		public static System.Data.Entity.Infrastructure.DbQuery<Gravitybox.gFileSystem.EFDAL.Entity.Container> Include(this System.Data.Entity.Infrastructure.DbQuery<Gravitybox.gFileSystem.EFDAL.Entity.Container> item, Expression<Func<Gravitybox.gFileSystem.EFDAL.ContainerInclude, Gravitybox.gFileSystem.EFDAL.IContextInclude>> query)
+		{
+			return GetInclude<Gravitybox.gFileSystem.EFDAL.Entity.Container, Gravitybox.gFileSystem.EFDAL.ContainerInclude>(item, query);
+		}
+
+		/// <summary>
+		/// Specifies the related objects to include in the query results.
+		/// </summary>
+		/// <param name="item">Related object to return in query results</param>
+		/// <param name="query">The LINQ expresssion that maps an include path</param>
+		public static IQueryable<Gravitybox.gFileSystem.EFDAL.Entity.Container> Include(this IQueryable<Gravitybox.gFileSystem.EFDAL.Entity.Container> item, Expression<Func<Gravitybox.gFileSystem.EFDAL.ContainerInclude, Gravitybox.gFileSystem.EFDAL.IContextInclude>> query)
+		{
+			return GetInclude<Gravitybox.gFileSystem.EFDAL.Entity.Container, Gravitybox.gFileSystem.EFDAL.ContainerInclude>(item, query);
+		}
+
+		/// <summary>
+		/// Specifies the related objects to include in the query results.
+		/// </summary>
+		/// <param name="item">Related object to return in query results</param>
+		/// <param name="query">The LINQ expresssion that maps an include path</param>
 		public static System.Data.Entity.Infrastructure.DbQuery<Gravitybox.gFileSystem.EFDAL.Entity.FileStash> Include(this System.Data.Entity.Infrastructure.DbQuery<Gravitybox.gFileSystem.EFDAL.Entity.FileStash> item, Expression<Func<Gravitybox.gFileSystem.EFDAL.FileStashInclude, Gravitybox.gFileSystem.EFDAL.IContextInclude>> query)
 		{
 			return GetInclude<Gravitybox.gFileSystem.EFDAL.Entity.FileStash, Gravitybox.gFileSystem.EFDAL.FileStashInclude>(item, query);
@@ -112,6 +132,8 @@ namespace Gravitybox.gFileSystem.EFDAL
 		{
 			if (field is Gravitybox.gFileSystem.EFDAL.Entity.ConfigSetting.FieldNameConstants)
 				return Gravitybox.gFileSystem.EFDAL.Entity.ConfigSetting.GetFieldType((Gravitybox.gFileSystem.EFDAL.Entity.ConfigSetting.FieldNameConstants)field);
+			if (field is Gravitybox.gFileSystem.EFDAL.Entity.Container.FieldNameConstants)
+				return Gravitybox.gFileSystem.EFDAL.Entity.Container.GetFieldType((Gravitybox.gFileSystem.EFDAL.Entity.Container.FieldNameConstants)field);
 			if (field is Gravitybox.gFileSystem.EFDAL.Entity.FileStash.FieldNameConstants)
 				return Gravitybox.gFileSystem.EFDAL.Entity.FileStash.GetFieldType((Gravitybox.gFileSystem.EFDAL.Entity.FileStash.FieldNameConstants)field);
 			if (field is Gravitybox.gFileSystem.EFDAL.Entity.Tenant.FieldNameConstants)
@@ -149,6 +171,7 @@ namespace Gravitybox.gFileSystem.EFDAL
 			switch (entityType)
 			{
 				case EntityMappingConstants.ConfigSetting: return typeof(Gravitybox.gFileSystem.EFDAL.Entity.ConfigSetting);
+				case EntityMappingConstants.Container: return typeof(Gravitybox.gFileSystem.EFDAL.Entity.Container);
 				case EntityMappingConstants.FileStash: return typeof(Gravitybox.gFileSystem.EFDAL.Entity.FileStash);
 				case EntityMappingConstants.Tenant: return typeof(Gravitybox.gFileSystem.EFDAL.Entity.Tenant);
 			}
@@ -455,6 +478,15 @@ namespace Gravitybox.gFileSystem.EFDAL
 				sb.AppendLine(((IQueryable<Gravitybox.gFileSystem.EFDAL.Entity.ConfigSetting>)query).Select(x => new { x.ID }).ToString());
 				sb.AppendLine(") AS [Extent2]");
 				sb.AppendLine("on [X].[ID] = [Extent2].[ID]");
+				sb.AppendLine("select @@ROWCOUNT");
+			}
+			else if (typeof(T) == typeof(Gravitybox.gFileSystem.EFDAL.Entity.Container))
+			{
+				sb.AppendLine("set rowcount " + optimizer.ChunkSize + ";");
+				sb.AppendLine("delete [X] from [dbo].[Container] [X] inner join (");
+				sb.AppendLine(((IQueryable<Gravitybox.gFileSystem.EFDAL.Entity.Container>)query).Select(x => new { x.ContainerId }).ToString());
+				sb.AppendLine(") AS [Extent2]");
+				sb.AppendLine("on [X].[ContainerId] = [Extent2].[ContainerId]");
 				sb.AppendLine("select @@ROWCOUNT");
 			}
 			else if (typeof(T) == typeof(Gravitybox.gFileSystem.EFDAL.Entity.FileStash))
@@ -768,6 +800,20 @@ namespace Gravitybox.gFileSystem.EFDAL
 					sb.AppendLine(((IQueryable<Gravitybox.gFileSystem.EFDAL.Entity.ConfigSetting>)query).Select(x => new { x.ID }).ToString());
 					sb.AppendLine(") AS [Extent2]");
 					sb.AppendLine("on [X].[ID] = [Extent2].[ID]");
+					sb.AppendLine("select @@ROWCOUNT");
+				}
+			}
+			else if (typeof(T) == typeof(Gravitybox.gFileSystem.EFDAL.Entity.Container))
+			{
+				sb.AppendLine("set rowcount " + optimizer.ChunkSize + ";");
+				foreach (var item in mapping.Where(x => x.SqlList.Any()).ToList())
+				{
+					sb.AppendLine("UPDATE [X] SET");
+					sb.AppendLine(string.Join(", ", item.SqlList));
+					sb.AppendLine("FROM [" + item.Schema + "].[" + item.TableName + "] AS [X] INNER JOIN (");
+					sb.AppendLine(((IQueryable<Gravitybox.gFileSystem.EFDAL.Entity.Container>)query).Select(x => new { x.ContainerId }).ToString());
+					sb.AppendLine(") AS [Extent2]");
+					sb.AppendLine("on [X].[ContainerId] = [Extent2].[ContainerId]");
 					sb.AppendLine("select @@ROWCOUNT");
 				}
 			}

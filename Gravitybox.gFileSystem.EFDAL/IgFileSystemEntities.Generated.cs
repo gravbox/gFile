@@ -35,6 +35,9 @@ namespace Gravitybox.gFileSystem.EFDAL
 		IQueryable<Gravitybox.gFileSystem.EFDAL.Entity.ConfigSetting> ConfigSetting { get ; }
 
 		/// <summary />
+		IQueryable<Gravitybox.gFileSystem.EFDAL.Entity.Container> Container { get ; }
+
+		/// <summary />
 		IQueryable<Gravitybox.gFileSystem.EFDAL.Entity.FileStash> FileStash { get ; }
 
 		/// <summary />

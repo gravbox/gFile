@@ -121,6 +121,7 @@
     <EmbeddedResource Include="1_UserDefinedInitialization\UnVersioned\UnversionedUpgradeScript.sql" />
     <Content Include="1_UserDefinedInitialization\Versioned\ReadMe.txt" />
     <EmbeddedResource Include="2_Upgrade Scripts\0000_0000_0000_0000_0019_UpgradeScript.sql" />
+    <EmbeddedResource Include="2_Upgrade Scripts\0000_0000_0000_0000_0020_UpgradeScript.sql" />
     <Content Include="2_Upgrade Scripts\ReadMe.txt" />
     <EmbeddedResource Include="5_Programmability\Functions\Model\Functions.sql" />
     <EmbeddedResource Include="3_GeneratedTablesAndData\CreateData.sql" />
