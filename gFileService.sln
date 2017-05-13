@@ -9,8 +9,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gravitybox.gFileSystem.Serv
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gravitybox.gFileSystem.Service", "Gravitybox.gFileSystem.Service\Gravitybox.gFileSystem.Service.csproj", "{D678B347-D858-4060-86E8-C209D4AA0205}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gravitybox.gFileSystem.Manager", "Gravitybox.gFileSystem.Manager\Gravitybox.gFileSystem.Manager.csproj", "{9000F670-4F01-4211-AB00-5B4A00E60E6D}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gravitybox.gFileSystem.EFDAL", "Gravitybox.gFileSystem.EFDAL\Gravitybox.gFileSystem.EFDAL.csproj", "{587DDB55-1317-4C44-9C50-89457377BA56}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gravitybox.gFileSystem.Install", "Gravitybox.gFileSystem.Install\Gravitybox.gFileSystem.Install.csproj", "{EB0720D1-A6DA-48B3-9CBC-2B3766110D47}"
@@ -35,10 +33,6 @@ Global
 		{D678B347-D858-4060-86E8-C209D4AA0205}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D678B347-D858-4060-86E8-C209D4AA0205}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D678B347-D858-4060-86E8-C209D4AA0205}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9000F670-4F01-4211-AB00-5B4A00E60E6D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9000F670-4F01-4211-AB00-5B4A00E60E6D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9000F670-4F01-4211-AB00-5B4A00E60E6D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9000F670-4F01-4211-AB00-5B4A00E60E6D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{587DDB55-1317-4C44-9C50-89457377BA56}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{587DDB55-1317-4C44-9C50-89457377BA56}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{587DDB55-1317-4C44-9C50-89457377BA56}.Release|Any CPU.ActiveCfg = Release|Any CPU

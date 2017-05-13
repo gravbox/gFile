@@ -4,7 +4,7 @@ using NLog;
 using NLog.Config;
 using NLog.Targets;
 
-namespace Gravitybox.gFileSystem.Manager
+namespace Gravitybox.gFileSystem.Service
 {
     public static class Logger
     {

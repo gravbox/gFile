@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Gravitybox.gFileSystem.Manager
+namespace Gravitybox.gFileSystem.Service
 {
     public static class ConfigHelper
     {

@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{D678B347-D858-4060-86E8-C209D4AA0205}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>TestHarness</RootNamespace>
-    <AssemblyName>TestHarness</AssemblyName>
+    <RootNamespace>Gravitybox.gFileSystem.Service</RootNamespace>
+    <AssemblyName>Gravitybox.gFileSystem.Service</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -39,6 +39,9 @@
       <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.SqlServer.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
+      <HintPath>..\packages\NLog.4.2.3\lib\net45\NLog.dll</HintPath>
+    </Reference>
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Configuration.Install" />
     <Reference Include="System.ServiceProcess" />
@@ -64,15 +67,26 @@
     <Content Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConfigHelper.cs" />
+    <Compile Include="Extensions.cs" />
+    <Compile Include="FileEngine.cs" />
+    <Compile Include="FileHeader.cs" />
+    <Compile Include="FileManager.cs" />
+    <Compile Include="Locking.cs" />
+    <Compile Include="Logger.cs" />
     <Compile Include="PersistentService.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SqlHelper.cs" />
     <Compile Include="SystemCore.cs" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
+    <None Include="NLog.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
     <None Include="Web.Debug.config">
       <DependentUpon>App.config</DependentUpon>
@@ -89,10 +103,6 @@
     <ProjectReference Include="..\Gravitybox.gFileSystem.Install\Gravitybox.gFileSystem.Install.csproj">
       <Project>{eb0720d1-a6da-48b3-9cbc-2b3766110d47}</Project>
       <Name>Gravitybox.gFileSystem.Install</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Gravitybox.gFileSystem.Manager\Gravitybox.gFileSystem.Manager.csproj">
-      <Project>{9000f670-4f01-4211-ab00-5b4a00e60e6d}</Project>
-      <Name>Gravitybox.gFileSystem.Manager</Name>
     </ProjectReference>
     <ProjectReference Include="..\Gravitybox.gFileSystem.Service.Common\Gravitybox.gFileSystem.Service.Common.csproj">
       <Project>{a1fc2bb9-bb98-44e5-8b6a-f286ef60a1ad}</Project>

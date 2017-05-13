@@ -7,7 +7,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Gravitybox.gFileSystem.Manager
+namespace Gravitybox.gFileSystem.Service
 {
     internal static class Extensions
     {

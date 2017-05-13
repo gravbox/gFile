@@ -10,7 +10,7 @@ using System.Data.SqlClient;
 using System.Data;
 using Gravitybox.gFileSystem.Service.Common;
 
-namespace Gravitybox.gFileSystem.Manager
+namespace Gravitybox.gFileSystem.Service
 {
     /// <summary>
     /// This manager add a concurrency layer on top of the FileEngine.

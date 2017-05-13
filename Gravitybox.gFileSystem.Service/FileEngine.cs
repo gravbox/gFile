@@ -7,7 +7,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Gravitybox.gFileSystem.Manager
+namespace Gravitybox.gFileSystem.Service
 {
     /// <summary>
     /// This class is NOT thread safe. You can add and remove the same file 
