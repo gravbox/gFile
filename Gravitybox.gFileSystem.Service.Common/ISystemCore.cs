@@ -12,7 +12,7 @@ namespace Gravitybox.gFileSystem.Service.Common
     public interface ISystemCore
     {
         [OperationContract]
-        Guid GetOrAddTenant(string name);
+        Guid GetOrAddTenant(byte[] _masterKey, string name);
 
         [OperationContract]
         Guid SendFileStart(FileInformation block);
@@ -21,25 +21,25 @@ namespace Gravitybox.gFileSystem.Service.Common
         bool SendFileData(Guid token, byte[] data, int index);
 
         [OperationContract]
-        bool SendFileEnd(Guid token);
+        bool SendFileEnd(byte[] _masterKey, Guid token);
 
         [OperationContract]
-        Guid GetFileStart(Guid tenantId, string container, string fileName);
+        Guid GetFileStart(byte[] _masterKey, Guid tenantId, string container, string fileName);
 
         [OperationContract]
         byte[] GetFilePart(Guid token, int index);
 
         [OperationContract]
-        int RemoveFile(Guid tenantId, string container, string fileName);
+        int RemoveFile(byte[] _masterKey, Guid tenantId, string container, string fileName);
 
         [OperationContract]
-        List<string> GetFileList(Guid tenantID, string startPattern = null);
+        List<string> GetFileList(byte[] _masterKey, Guid tenantID, string startPattern = null);
 
         [OperationContract]
-        int RemoveAll(Guid tenantID, string container);
+        int RemoveAll(byte[] _masterKey, Guid tenantID, string container);
 
         [OperationContract]
-        int RekeyTenant(Guid tenantID);
+        int RekeyTenant(byte[] _masterKey, Guid tenantID);
     }
 
 }

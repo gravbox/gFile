@@ -38,12 +38,6 @@ namespace Gravitybox.gFileSystem.Service
                 throw;
             }
 
-            //Master key must be 16 or 32 bit
-            if (ConfigHelper.MasterKey == null)
-                throw new Exception("Invalid Master Key");
-            if (ConfigHelper.MasterKey.Length != 16 && ConfigHelper.MasterKey.Length != 32)
-                throw new Exception("Invalid Master Key");
-
             try
             {
                 if (string.IsNullOrEmpty(ConfigHelper.StorageFolder) || !Directory.Exists(ConfigHelper.StorageFolder))

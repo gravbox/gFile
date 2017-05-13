@@ -22,10 +22,10 @@ namespace Gravitybox.gFileSystem.Service
         private static HashSet<string> _fileUploadCache = new HashSet<string>();
         private static Dictionary<Guid, FilePartCache> _fileDownloadCache = new Dictionary<Guid, FilePartCache>();
 
-        public Guid GetOrAddTenant(string name)
+        public Guid GetOrAddTenant(byte[] _masterKey, string name)
         {
             //Create the manager object
-            using (var fm = new FileManager(ConfigHelper.MasterKey))
+            using (var fm = new FileManager(_masterKey))
             {
                 return fm.GetOrAddTenant(name);
             }
@@ -139,7 +139,7 @@ namespace Gravitybox.gFileSystem.Service
         /// <summary>
         /// Called to end file upload and finialize the writting to storage
         /// </summary>
-        public bool SendFileEnd(Guid token)
+        public bool SendFileEnd(byte[] _masterKey, Guid token)
         {
             //If not in cache then nothing to do
             if (!_fileUploadPartCache.ContainsKey(token))
@@ -158,7 +158,7 @@ namespace Gravitybox.gFileSystem.Service
                     if (crc == cache.CRC)
                     {
                         //If last part then write to file system
-                        using (var fm = new FileManager(ConfigHelper.MasterKey))
+                        using (var fm = new FileManager(_masterKey))
                         {
                             retval = fm.SaveFile(cache.TenantID, cache.Container, cache.FileName, cache.Data);
                         }
@@ -180,7 +180,7 @@ namespace Gravitybox.gFileSystem.Service
                     if (crc == cache.CRC)
                     {
                         //Write to file system
-                        using (var fm = new FileManager(ConfigHelper.MasterKey))
+                        using (var fm = new FileManager(_masterKey))
                         {
                             retval = fm.SaveFile(cache.TenantID, cache.Container, cache.FileName, outFile);
                         }
@@ -214,11 +214,11 @@ namespace Gravitybox.gFileSystem.Service
         /// Initialize a file for download
         /// </summary>
         /// <returns>Token that is used to get file chunks</returns>
-        public Guid GetFileStart(Guid tenantId, string container, string fileName)
+        public Guid GetFileStart(byte[] _masterKey, Guid tenantId, string container, string fileName)
         {
             try
             {
-                using (var fm = new FileManager(ConfigHelper.MasterKey))
+                using (var fm = new FileManager(_masterKey))
                 {
                     var info = fm.GetFileInfo(tenantId, container, fileName);
                     if (info == null) return Guid.Empty;
@@ -334,11 +334,11 @@ namespace Gravitybox.gFileSystem.Service
         /// <param name="container"></param>
         /// <param name="fileName"></param>
         /// <returns></returns>
-        public int RemoveFile(Guid tenantId, string container, string fileName)
+        public int RemoveFile(byte[] _masterKey, Guid tenantId, string container, string fileName)
         {
             try
             {
-                using (var fm = new FileManager(ConfigHelper.MasterKey))
+                using (var fm = new FileManager(_masterKey))
                 {
                     return fm.RemoveFile(tenantId, container, fileName);
                 }
@@ -353,11 +353,11 @@ namespace Gravitybox.gFileSystem.Service
         /// <summary>
         /// Gets a list of existing files in storage for a tenant
         /// </summary>
-        public List<string> GetFileList(Guid tenantID, string startPattern = null)
+        public List<string> GetFileList(byte[] _masterKey, Guid tenantID, string startPattern = null)
         {
             try
             {
-                using (var fm = new FileManager(ConfigHelper.MasterKey))
+                using (var fm = new FileManager(_masterKey))
                 {
                     return fm.GetFileList(tenantID, startPattern);
                 }
@@ -375,11 +375,11 @@ namespace Gravitybox.gFileSystem.Service
         /// <param name="tenantID"></param>
         /// <param name="container"></param>
         /// <returns></returns>
-        public int RemoveAll(Guid tenantID, string container)
+        public int RemoveAll(byte[] _masterKey, Guid tenantID, string container)
         {
             try
             {
-                using (var fm = new FileManager(ConfigHelper.MasterKey))
+                using (var fm = new FileManager(_masterKey))
                 {
                     return fm.RemoveAll(tenantID, container);
                 }
@@ -394,11 +394,11 @@ namespace Gravitybox.gFileSystem.Service
         /// <summary>
         /// Resets a tenant key and reset all files for the tenant
         /// </summary>
-        public int RekeyTenant(Guid tenantID)
+        public int RekeyTenant(byte[] _masterKey, Guid tenantID)
         {
             try
             {
-                using (var fm = new FileManager(ConfigHelper.MasterKey))
+                using (var fm = new FileManager(_masterKey))
                 {
                     return fm.RekeyTenant(tenantID);
                 }
