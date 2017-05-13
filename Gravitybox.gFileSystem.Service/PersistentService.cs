@@ -1,5 +1,4 @@
 ﻿using Gravitybox.gFileSystem.Install;
-using Gravitybox.gFileSystem.Manager;
 using Gravitybox.gFileSystem.Service.Common;
 using System;
 using System.Collections.Generic;

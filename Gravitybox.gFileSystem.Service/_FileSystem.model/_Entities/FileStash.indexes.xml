@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<configuration type="entity.indexes" id="022f13a6-4ad6-46be-8f15-26cb9c2c1719">
+		<index id="128413ce-7766-4cee-aca6-a8644de0f958" clustered="1" importedname="" indextype="0" isunique="1">
+				<summary><![CDATA[]]></summary>
+				<indexcolumnset>
+						<column id="a307f9ed-6a3a-429e-ae50-9ea5546d5d57" ascending="1" fieldid="67411304-477c-430b-86df-6609e6a0422d" sortorder="1" />
+				</indexcolumnset>
+		</index>
+		<index id="8cc16a56-669b-4e7c-ba0c-d1badb8a5128" clustered="0" importedname="" indextype="1" isunique="0">
+				<summary><![CDATA[]]></summary>
+				<indexcolumnset>
+						<column id="a7d9515e-856c-4df4-89db-58cf6d954881" ascending="1" fieldid="e08f2a71-69e1-442e-b443-db2eb9320df8" sortorder="1" />
+				</indexcolumnset>
+		</index>
+		<index id="0a244fc3-a3d0-43b3-b629-c7ccb16511d5" clustered="0" importedname="" indextype="1" isunique="0">
+				<summary><![CDATA[]]></summary>
+				<indexcolumnset>
+						<column id="c9fcb9ab-9aa4-464d-b8de-2847f7b5f94c" ascending="1" fieldid="a8dbc34a-8359-4bb4-a2a9-ca3519f22ee0" sortorder="1" />
+				</indexcolumnset>
+		</index>
+		<index id="b0f0d9f4-a9e1-4109-b2a3-b6432633ea62" clustered="0" importedname="" indextype="1" isunique="0">
+				<summary><![CDATA[]]></summary>
+				<indexcolumnset>
+						<column id="5089178c-68d3-4748-9d7d-fbddf59ab0a2" ascending="1" fieldid="d939d1b0-8dcb-413e-9325-aa96f4bda915" sortorder="1" />
+				</indexcolumnset>
+		</index>
+		<index id="f1eab836-5a42-4d1b-90e0-9482f200993d" clustered="0" importedname="" indextype="1" isunique="0">
+				<summary><![CDATA[]]></summary>
+				<indexcolumnset>
+						<column id="2fec6891-d387-45e0-b9d1-b81ff62f3463" ascending="1" fieldid="4425f8c9-9985-451c-926c-1ee3c76be9ef" sortorder="1" />
+				</indexcolumnset>
+		</index>
+</configuration>

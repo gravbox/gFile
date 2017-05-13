@@ -84,10 +84,15 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
+    <None Include="FileSystem.nhydrate" />
+    <None Include="FileSystem.nhydrate.diagram">
+      <DependentUpon>FileSystem.nhydrate</DependentUpon>
+    </None>
     <None Include="NLog.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="packages.config" />
+    <None Include="README.md" />
     <None Include="Web.Debug.config">
       <DependentUpon>App.config</DependentUpon>
     </None>
