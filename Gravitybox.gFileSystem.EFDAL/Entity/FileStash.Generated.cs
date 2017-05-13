@@ -62,6 +62,11 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 			[System.ComponentModel.Description("Field mapping for the 'FileStashID' property")]
 			FileStashID,
 			/// <summary>
+			/// Field mapping for the 'IsCompressed' property
+			/// </summary>
+			[System.ComponentModel.Description("Field mapping for the 'IsCompressed' property")]
+			IsCompressed,
+			/// <summary>
 			/// Field mapping for the 'Path' property
 			/// </summary>
 			[System.ComponentModel.Description("Field mapping for the 'Path' property")]
@@ -71,6 +76,11 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 			/// </summary>
 			[System.ComponentModel.Description("Field mapping for the 'Size' property")]
 			Size,
+			/// <summary>
+			/// Field mapping for the 'StorageSize' property
+			/// </summary>
+			[System.ComponentModel.Description("Field mapping for the 'StorageSize' property")]
+			StorageSize,
 			/// <summary>
 			/// Field mapping for the 'TenantID' property
 			/// </summary>
@@ -111,6 +121,8 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 		/// </summary>
 		public FileStash()
 		{
+			this._isCompressed = false;
+			this._storageSize = 0L;
 			this._uniqueKey = Guid.NewGuid();
 
 		}
@@ -191,6 +203,28 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 		}
 
 		/// <summary>
+		/// The property that maps back to the database 'FileStash.IsCompressed' field.
+		/// </summary>
+		/// <remarks>Field: [FileStash].[IsCompressed], Not Nullable, Default Value: 0</remarks>
+		[DataMember]
+		[System.ComponentModel.Browsable(true)]
+		[System.ComponentModel.DisplayName("IsCompressed")]
+		[System.Diagnostics.DebuggerNonUserCode()]
+		public virtual bool IsCompressed
+		{
+			get { return _isCompressed; }
+			set
+			{
+				if (value == _isCompressed) return;
+				var eventArg = new Gravitybox.gFileSystem.EFDAL.EventArguments.ChangingEventArgs<bool>(value, "IsCompressed");
+				this.OnPropertyChanging(eventArg);
+				if (eventArg.Cancel) return;
+				_isCompressed = eventArg.Value;
+				this.OnPropertyChanged(new PropertyChangedEventArgs("IsCompressed"));
+			}
+		}
+
+		/// <summary>
 		/// The property that maps back to the database 'FileStash.Path' field.
 		/// </summary>
 		/// <remarks>Field: [FileStash].[Path], Field Length: 450, Not Nullable, Indexed</remarks>
@@ -233,6 +267,28 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 				if (eventArg.Cancel) return;
 				_size = eventArg.Value;
 				this.OnPropertyChanged(new PropertyChangedEventArgs("Size"));
+			}
+		}
+
+		/// <summary>
+		/// The property that maps back to the database 'FileStash.StorageSize' field.
+		/// </summary>
+		/// <remarks>Field: [FileStash].[StorageSize], Not Nullable, Default Value: 0</remarks>
+		[DataMember]
+		[System.ComponentModel.Browsable(true)]
+		[System.ComponentModel.DisplayName("StorageSize")]
+		[System.Diagnostics.DebuggerNonUserCode()]
+		public virtual long StorageSize
+		{
+			get { return _storageSize; }
+			set
+			{
+				if (value == _storageSize) return;
+				var eventArg = new Gravitybox.gFileSystem.EFDAL.EventArguments.ChangingEventArgs<long>(value, "StorageSize");
+				this.OnPropertyChanging(eventArg);
+				if (eventArg.Cancel) return;
+				_storageSize = eventArg.Value;
+				this.OnPropertyChanged(new PropertyChangedEventArgs("StorageSize"));
 			}
 		}
 
@@ -493,6 +549,38 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 		}
 
 		/// <summary />
+		protected bool _isCompressed;
+		/// <summary>
+		/// Occurs when the 'IsCompressed' property value change is a pending.
+		/// </summary>
+		[field:NonSerialized]
+		public event EventHandler<Gravitybox.gFileSystem.EFDAL.EventArguments.ChangingEventArgs<bool>> IsCompressedChanging;
+
+		/// <summary>
+		/// Raises the OnIsCompressedChanging event.
+		/// </summary>
+		protected virtual void OnIsCompressedChanging(Gravitybox.gFileSystem.EFDAL.EventArguments.ChangingEventArgs<bool> e)
+		{
+			if (this.IsCompressedChanging != null)
+				this.IsCompressedChanging(this, e);
+		}
+
+		/// <summary>
+		/// Occurs when the 'IsCompressed' property value has changed.
+		/// </summary>
+		[field:NonSerialized]
+		public event EventHandler<ChangedEventArgs<bool>> IsCompressedChanged;
+
+		/// <summary>
+		/// Raises the OnIsCompressedChanged event.
+		/// </summary>
+		protected virtual void OnIsCompressedChanged(ChangedEventArgs<bool> e)
+		{
+			if (this.IsCompressedChanged != null)
+				this.IsCompressedChanged(this, e);
+		}
+
+		/// <summary />
 		protected string _path;
 		/// <summary>
 		/// Occurs when the 'Path' property value change is a pending.
@@ -554,6 +642,38 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 		{
 			if (this.SizeChanged != null)
 				this.SizeChanged(this, e);
+		}
+
+		/// <summary />
+		protected long _storageSize;
+		/// <summary>
+		/// Occurs when the 'StorageSize' property value change is a pending.
+		/// </summary>
+		[field:NonSerialized]
+		public event EventHandler<Gravitybox.gFileSystem.EFDAL.EventArguments.ChangingEventArgs<long>> StorageSizeChanging;
+
+		/// <summary>
+		/// Raises the OnStorageSizeChanging event.
+		/// </summary>
+		protected virtual void OnStorageSizeChanging(Gravitybox.gFileSystem.EFDAL.EventArguments.ChangingEventArgs<long> e)
+		{
+			if (this.StorageSizeChanging != null)
+				this.StorageSizeChanging(this, e);
+		}
+
+		/// <summary>
+		/// Occurs when the 'StorageSize' property value has changed.
+		/// </summary>
+		[field:NonSerialized]
+		public event EventHandler<ChangedEventArgs<long>> StorageSizeChanged;
+
+		/// <summary>
+		/// Raises the OnStorageSizeChanged event.
+		/// </summary>
+		protected virtual void OnStorageSizeChanged(ChangedEventArgs<long> e)
+		{
+			if (this.StorageSizeChanged != null)
+				this.StorageSizeChanged(this, e);
 		}
 
 		/// <summary />
@@ -788,9 +908,13 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 					return 32;
 				case Gravitybox.gFileSystem.EFDAL.Entity.FileStash.FieldNameConstants.FileStashID:
 					return 0;
+				case Gravitybox.gFileSystem.EFDAL.Entity.FileStash.FieldNameConstants.IsCompressed:
+					return 0;
 				case Gravitybox.gFileSystem.EFDAL.Entity.FileStash.FieldNameConstants.Path:
 					return 450;
 				case Gravitybox.gFileSystem.EFDAL.Entity.FileStash.FieldNameConstants.Size:
+					return 0;
+				case Gravitybox.gFileSystem.EFDAL.Entity.FileStash.FieldNameConstants.StorageSize:
 					return 0;
 				case Gravitybox.gFileSystem.EFDAL.Entity.FileStash.FieldNameConstants.TenantID:
 					return 0;
@@ -831,8 +955,10 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 				case Gravitybox.gFileSystem.EFDAL.Entity.FileStash.FieldNameConstants.ContainerName: return typeof(string);
 				case Gravitybox.gFileSystem.EFDAL.Entity.FileStash.FieldNameConstants.CrcPlain: return typeof(string);
 				case Gravitybox.gFileSystem.EFDAL.Entity.FileStash.FieldNameConstants.FileStashID: return typeof(long);
+				case Gravitybox.gFileSystem.EFDAL.Entity.FileStash.FieldNameConstants.IsCompressed: return typeof(bool);
 				case Gravitybox.gFileSystem.EFDAL.Entity.FileStash.FieldNameConstants.Path: return typeof(string);
 				case Gravitybox.gFileSystem.EFDAL.Entity.FileStash.FieldNameConstants.Size: return typeof(long);
+				case Gravitybox.gFileSystem.EFDAL.Entity.FileStash.FieldNameConstants.StorageSize: return typeof(long);
 				case Gravitybox.gFileSystem.EFDAL.Entity.FileStash.FieldNameConstants.TenantID: return typeof(long);
 				case Gravitybox.gFileSystem.EFDAL.Entity.FileStash.FieldNameConstants.UniqueKey: return typeof(System.Guid);
 			}
@@ -908,6 +1034,8 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 		{
 			var item = Gravitybox.gFileSystem.EFDAL.Entity.FileStash.Clone(this);
 			item._fileStashID = 0;
+			item._isCompressed = false;
+			item._storageSize = 0L;
 			item._uniqueKey = Guid.NewGuid();
 			return item;
 		}
@@ -921,8 +1049,10 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 			newItem.ContainerName = item.ContainerName;
 			newItem.CrcPlain = item.CrcPlain;
 			newItem.FileStashID = item.FileStashID;
+			newItem.IsCompressed = item.IsCompressed;
 			newItem.Path = item.Path;
 			newItem.Size = item.Size;
+			newItem.StorageSize = item.StorageSize;
 			newItem.TenantID = item.TenantID;
 			newItem.UniqueKey = item.UniqueKey;
 			newItem.CreatedDate = item.CreatedDate;
@@ -955,10 +1085,14 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 				return this.CrcPlain;
 			if (field == Gravitybox.gFileSystem.EFDAL.Entity.FileStash.FieldNameConstants.FileStashID)
 				return this.FileStashID;
+			if (field == Gravitybox.gFileSystem.EFDAL.Entity.FileStash.FieldNameConstants.IsCompressed)
+				return this.IsCompressed;
 			if (field == Gravitybox.gFileSystem.EFDAL.Entity.FileStash.FieldNameConstants.Path)
 				return this.Path;
 			if (field == Gravitybox.gFileSystem.EFDAL.Entity.FileStash.FieldNameConstants.Size)
 				return this.Size;
+			if (field == Gravitybox.gFileSystem.EFDAL.Entity.FileStash.FieldNameConstants.StorageSize)
+				return this.StorageSize;
 			if (field == Gravitybox.gFileSystem.EFDAL.Entity.FileStash.FieldNameConstants.TenantID)
 				return this.TenantID;
 			if (field == Gravitybox.gFileSystem.EFDAL.Entity.FileStash.FieldNameConstants.UniqueKey)
@@ -1008,6 +1142,10 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 			{
 				throw new Exception("Field '" + field.ToString() + "' is a primary key and cannot be set!");
 			}
+			else if (field == Gravitybox.gFileSystem.EFDAL.Entity.FileStash.FieldNameConstants.IsCompressed)
+			{
+				this.IsCompressed = GlobalValues.SetValueHelperBoolNotNullableInternal(newValue, "Field 'IsCompressed' does not allow null values!");
+			}
 			else if (field == Gravitybox.gFileSystem.EFDAL.Entity.FileStash.FieldNameConstants.Path)
 			{
 				this.Path = GlobalValues.SetValueHelperInternal((string)newValue, fixLength, GetMaxLength(field));
@@ -1015,6 +1153,10 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 			else if (field == Gravitybox.gFileSystem.EFDAL.Entity.FileStash.FieldNameConstants.Size)
 			{
 				this.Size = GlobalValues.SetValueHelperLongNotNullableInternal(newValue, "Field 'Size' does not allow null values!");
+			}
+			else if (field == Gravitybox.gFileSystem.EFDAL.Entity.FileStash.FieldNameConstants.StorageSize)
+			{
+				this.StorageSize = GlobalValues.SetValueHelperLongNotNullableInternal(newValue, "Field 'StorageSize' does not allow null values!");
 			}
 			else if (field == Gravitybox.gFileSystem.EFDAL.Entity.FileStash.FieldNameConstants.TenantID)
 			{
@@ -1058,8 +1200,10 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 				case "containername": return "containername";
 				case "crcplain": return "crcplain";
 				case "filestashid": return "filestashid";
+				case "iscompressed": return "iscompressed";
 				case "path": return "path";
 				case "size": return "size";
+				case "storagesize": return "storagesize";
 				case "tenantid": return "tenantid";
 				case "uniquekey": return "uniquekey";
 				case "createddate": return "createddate";
@@ -1078,8 +1222,10 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 				case "containername": return "FileStash";
 				case "crcplain": return "FileStash";
 				case "filestashid": return "FileStash";
+				case "iscompressed": return "FileStash";
 				case "path": return "FileStash";
 				case "size": return "FileStash";
+				case "storagesize": return "FileStash";
 				case "tenantid": return "FileStash";
 				case "uniquekey": return "FileStash";
 				case "createdby": return "FileStash";
@@ -1098,8 +1244,10 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 				case "containername": return "FileStash";
 				case "crcplain": return "FileStash";
 				case "filestashid": return "FileStash";
+				case "iscompressed": return "FileStash";
 				case "path": return "FileStash";
 				case "size": return "FileStash";
+				case "storagesize": return "FileStash";
 				case "tenantid": return "FileStash";
 				case "uniquekey": return "FileStash";
 				case "createdby": return "FileStash";
@@ -1116,8 +1264,10 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 			sql = System.Text.RegularExpressions.Regex.Replace(sql, "\\[" + parentAlias + "\\]\\.\\[containername\\]", "[" + childTables.GetBaseAliasTable(parentAlias, "FileStash") + "].[containername]", RegexOptions.IgnoreCase);
 			sql = System.Text.RegularExpressions.Regex.Replace(sql, "\\[" + parentAlias + "\\]\\.\\[crcplain\\]", "[" + childTables.GetBaseAliasTable(parentAlias, "FileStash") + "].[crcplain]", RegexOptions.IgnoreCase);
 			sql = System.Text.RegularExpressions.Regex.Replace(sql, "\\[" + parentAlias + "\\]\\.\\[filestashid\\]", "[" + childTables.GetBaseAliasTable(parentAlias, "FileStash") + "].[filestashid]", RegexOptions.IgnoreCase);
+			sql = System.Text.RegularExpressions.Regex.Replace(sql, "\\[" + parentAlias + "\\]\\.\\[iscompressed\\]", "[" + childTables.GetBaseAliasTable(parentAlias, "FileStash") + "].[iscompressed]", RegexOptions.IgnoreCase);
 			sql = System.Text.RegularExpressions.Regex.Replace(sql, "\\[" + parentAlias + "\\]\\.\\[path\\]", "[" + childTables.GetBaseAliasTable(parentAlias, "FileStash") + "].[path]", RegexOptions.IgnoreCase);
 			sql = System.Text.RegularExpressions.Regex.Replace(sql, "\\[" + parentAlias + "\\]\\.\\[size\\]", "[" + childTables.GetBaseAliasTable(parentAlias, "FileStash") + "].[size]", RegexOptions.IgnoreCase);
+			sql = System.Text.RegularExpressions.Regex.Replace(sql, "\\[" + parentAlias + "\\]\\.\\[storagesize\\]", "[" + childTables.GetBaseAliasTable(parentAlias, "FileStash") + "].[storagesize]", RegexOptions.IgnoreCase);
 			sql = System.Text.RegularExpressions.Regex.Replace(sql, "\\[" + parentAlias + "\\]\\.\\[tenantid\\]", "[" + childTables.GetBaseAliasTable(parentAlias, "FileStash") + "].[tenantid]", RegexOptions.IgnoreCase);
 			sql = System.Text.RegularExpressions.Regex.Replace(sql, "\\[" + parentAlias + "\\]\\.\\[uniquekey\\]", "[" + childTables.GetBaseAliasTable(parentAlias, "FileStash") + "].[uniquekey]", RegexOptions.IgnoreCase);
 			sql = System.Text.RegularExpressions.Regex.Replace(sql, "\\[" + parentAlias + "\\]\\.\\[createdby\\]", "[" + childTables.GetBaseAliasTable(parentAlias, "FileStash") + "].[createdby]", RegexOptions.IgnoreCase);
@@ -1329,8 +1479,10 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 				case "ContainerName": return "ContainerName";
 				case "CrcPlain": return "CrcPlain";
 				case "FileStashID": return "FileStashID";
+				case "IsCompressed": return "IsCompressed";
 				case "Path": return "Path";
 				case "Size": return "Size";
+				case "StorageSize": return "StorageSize";
 				case "TenantID": return "TenantID";
 				case "UniqueKey": return "UniqueKey";
 				case "CreatedBy": return "CreatedBy";
@@ -1436,8 +1588,10 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 				other.ContainerName == this.ContainerName &&
 				other.CrcPlain == this.CrcPlain &&
 				other.FileStashID == this.FileStashID &&
+				other.IsCompressed == this.IsCompressed &&
 				other.Path == this.Path &&
 				other.Size == this.Size &&
+				other.StorageSize == this.StorageSize &&
 				other.TenantID == this.TenantID &&
 				other.UniqueKey == this.UniqueKey
 				);
@@ -1494,6 +1648,13 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity.Metadata
 		public object FileStashID;
 
 		/// <summary>
+		/// Metadata information for the 'IsCompressed' parameter
+		/// </summary>
+		[System.ComponentModel.DataAnnotations.Required(ErrorMessage = "'IsCompressed' is required.", AllowEmptyStrings = true)]
+		[System.ComponentModel.DataAnnotations.Display(Description = "", Name = "IsCompressed", AutoGenerateField = true)]
+		public object IsCompressed;
+
+		/// <summary>
 		/// Metadata information for the 'Path' parameter
 		/// </summary>
 		[System.ComponentModel.DataAnnotations.Required(ErrorMessage = "'Path' is required.", AllowEmptyStrings = true)]
@@ -1507,6 +1668,13 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity.Metadata
 		[System.ComponentModel.DataAnnotations.Required(ErrorMessage = "'Size' is required.", AllowEmptyStrings = true)]
 		[System.ComponentModel.DataAnnotations.Display(Description = "", Name = "Size", AutoGenerateField = true)]
 		public object Size;
+
+		/// <summary>
+		/// Metadata information for the 'StorageSize' parameter
+		/// </summary>
+		[System.ComponentModel.DataAnnotations.Required(ErrorMessage = "'StorageSize' is required.", AllowEmptyStrings = true)]
+		[System.ComponentModel.DataAnnotations.Display(Description = "", Name = "StorageSize", AutoGenerateField = true)]
+		public object StorageSize;
 
 		/// <summary>
 		/// Metadata information for the 'TenantID' parameter
@@ -1576,8 +1744,10 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity.Metadata
 			retval.Add("ContainerName");
 			retval.Add("CrcPlain");
 			retval.Add("FileStashID");
+			retval.Add("IsCompressed");
 			retval.Add("Path");
 			retval.Add("Size");
+			retval.Add("StorageSize");
 			retval.Add("TenantID");
 			retval.Add("UniqueKey");
 			return retval;
@@ -1609,8 +1779,10 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity.Metadata
 				case "ContainerName": return "ContainerName";
 				case "CrcPlain": return "CrcPlain";
 				case "FileStashID": return "FileStashID";
+				case "IsCompressed": return "IsCompressed";
 				case "Path": return "Path";
 				case "Size": return "Size";
+				case "StorageSize": return "StorageSize";
 				case "TenantID": return "TenantID";
 				case "UniqueKey": return "UniqueKey";
 				case "CreatedBy": return "CreatedBy";

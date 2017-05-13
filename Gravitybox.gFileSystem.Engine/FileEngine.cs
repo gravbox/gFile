@@ -24,12 +24,12 @@ namespace Gravitybox.gFileSystem.Engine
         public static readonly byte[] DefaultIV32 = Encoding.UTF8.GetBytes("@2CdcëD45F6%d7Hz[(25Vo(q:'30(d8");
         #endregion
 
-        public FileEngine(byte[] masterKey, byte[] tenantKey)
-            : this(masterKey, tenantKey, GetDefaultIV(masterKey.Length))
+        public FileEngine(byte[] masterKey, byte[] tenantKey, Guid tenantId)
+            : this(masterKey, tenantKey, tenantId, GetDefaultIV(masterKey.Length))
         {
         }
 
-        public FileEngine(byte[] masterKey, byte[] tenantKey, byte[] iv)
+        public FileEngine(byte[] masterKey, byte[] tenantKey, Guid tenantId, byte[] iv)
         {
             if (masterKey == null || (masterKey.Length != 16 && masterKey.Length != 32))
                 throw new Exception("The master key must be a 128/256 bit value.");
@@ -37,10 +37,13 @@ namespace Gravitybox.gFileSystem.Engine
                 throw new Exception("The tenant key must be a 128/256 bit value.");
             if (iv == null || (iv.Length != 16 && iv.Length != 32))
                 throw new Exception("The IV must be a 128/256 bit value.");
+            if (tenantId == Guid.Empty)
+                throw new Exception("The TenantId must be set.");
 
             if (masterKey.Length != tenantKey.Length || tenantKey.Length != iv.Length)
                 throw new Exception("The master key, tenant key, and IV must be the same size.");
 
+            this.TenantID = tenantId;
             this.KeySize = tenantKey.Length * 8;
 
             _masterKey = masterKey;
@@ -68,6 +71,8 @@ namespace Gravitybox.gFileSystem.Engine
         /// </summary>
         public string WorkingFolder { get; set; }
 
+        public Guid TenantID { get; private set; }
+
         /// <summary>
         /// Given a file, this will encrypt it and put it in storage
         /// </summary>
@@ -76,9 +81,38 @@ namespace Gravitybox.gFileSystem.Engine
             try
             {
                 var newFile = Path.Combine(this.WorkingFolder, Guid.NewGuid().ToString() + ".crypt");
+                var header = new FileHeader { DataKey = FileUtilities.GetNewKey(32) };
+                header.EncryptedDataKey = header.DataKey.Encrypt(_tenantKey, _iv);
+                header.TenantKey = _tenantKey;
+
                 using (var fs = File.Open(fileName, FileMode.Open, FileAccess.Read))
                 {
-                    fs.EncryptStream(newFile, _masterKey, _iv, _tenantKey);
+                    fs.EncryptStream(newFile, _iv, header);
+                }
+                return newFile;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex);
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Given a file, this will encrypt it and put it in storage
+        /// </summary>
+        public string SaveFile(byte[] data)
+        {
+            try
+            {
+                var newFile = Path.Combine(this.WorkingFolder, Guid.NewGuid().ToString() + ".crypt");
+                var header = new FileHeader { DataKey = FileUtilities.GetNewKey(32) };
+                header.EncryptedDataKey = header.DataKey.Encrypt(_tenantKey, _iv);
+                header.TenantKey = _tenantKey;
+
+                using (var fs = new MemoryStream(data))
+                {
+                    fs.EncryptStream(newFile, _iv, header);
                 }
                 return newFile;
             }
@@ -101,12 +135,40 @@ namespace Gravitybox.gFileSystem.Engine
                 if (!File.Exists(cryptFileName))
                     return null;
 
+                var header = new FileHeader { TenantKey = _tenantKey };
                 var newFile = Path.Combine(this.WorkingFolder, Guid.NewGuid().ToString() + ".decrypt");
-                using (var fs = File.Open(cryptFileName, FileMode.Open, FileAccess.Read))
+                using (var ts = File.OpenWrite(newFile))
                 {
-                    fs.DecryptStream(newFile, _masterKey, _iv, _tenantKey);
+                    using (var fs = File.Open(cryptFileName, FileMode.Open, FileAccess.Read))
+                    {
+                        fs.DecryptStream(ts, _iv, header);
+                    }
                 }
                 return newFile;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex);
+                throw;
+            }
+        }
+
+        public byte[] GetFileData(string cryptFileName)
+        {
+            try
+            {
+                if (!File.Exists(cryptFileName))
+                    return null;
+
+                var header = new FileHeader { TenantKey = _tenantKey };
+                using (var ts = new MemoryStream())
+                {
+                    using (var fs = File.Open(cryptFileName, FileMode.Open, FileAccess.Read))
+                    {
+                        fs.DecryptStream(ts, _iv, header);
+                    }
+                    return ts.ToArray();
+                }
             }
             catch (Exception ex)
             {
@@ -125,25 +187,28 @@ namespace Gravitybox.gFileSystem.Engine
         {
             try
             {
-                byte[] padBytes = null;
+                var header = new FileHeader();
                 using (var fs = File.Open(cryptFileName, FileMode.Open, FileAccess.Read))
                 {
                     //Get the data key
-                    var dataKey = new byte[32];
-                    var vv = new byte[48];
+                    var vv = new byte[FileHeader.FileHeaderSize];
                     fs.Read(vv, 0, vv.Length);
-                    dataKey = vv.Decrypt(_tenantKey, _iv);
+                    header.Load(vv);
+                    var dataKey = header.EncryptedDataKey.Decrypt(_tenantKey, _iv);
+                    if (dataKey == null)
+                    {
+                        Logger.LogWarning("File could not be decrypted: " + cryptFileName);
+                        return false;
+                    }
+
                     //Create new file pad with data key encrypted with new tenant key
-                    padBytes = dataKey.Encrypt(newTenantKey, _iv);
+                    header.TenantKey = newTenantKey;
+                    header.DataKey = dataKey;
+                    header.EncryptedDataKey = dataKey.Encrypt(newTenantKey, _iv);
                 }
+                FileUtilities.WriteFileHeader(cryptFileName, header);
 
-                using (var file = File.OpenWrite(cryptFileName))
-                {
-                    //Write encrypted data key to front of file
-                    file.Write(padBytes, 0, padBytes.Length);
-                }
-
-                return false;
+                return true;
             }
             catch (Exception ex)
             {

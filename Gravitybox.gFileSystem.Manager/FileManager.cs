@@ -14,29 +14,32 @@ using Gravitybox.gFileSystem.Service.Common;
 namespace Gravitybox.gFileSystem.Manager
 {
     /// <summary>
-    /// This manager add a concurrency layer on top of the FileEngine
-    /// If uses SQL Server to manage encrption keys as well as manage concurrency across multiple machines
+    /// This manager add a concurrency layer on top of the FileEngine.
+    /// It uses SQL Server to manage encryption keys.
     /// </summary>
     public class FileManager : IFileManager, IDisposable
     {
-        private string _connectionString = null;
         private byte[] _masterKey = null;
         private byte[] _iv = null;
+        private readonly Guid GetOrAddTenantLockID = Guid.NewGuid();
+        private string[] _skipZipExtensions = new string[] {
+            ".zip", ".iso", ".tar", ".mp3", ".mp4", ".z", ".7z",
+            ".s7z", ".apk", ".arc", ".cab", ".jar", ".lzh",
+            ".pak",".png",".jpg",".jpeg",".wav",".rar"
+        };
 
-        public FileManager(byte[] masterKey, string connectionString)
-            : this(masterKey, FileEngine.GetDefaultIV(masterKey.Length), connectionString)
+        public FileManager(byte[] masterKey)
+            : this(masterKey, FileEngine.GetDefaultIV(masterKey.Length))
         {
         }
 
-        public FileManager(byte[] masterKey, byte[] iv, string connectionString)
+        public FileManager(byte[] masterKey, byte[] iv)
         {
-            ConfigHelper.ConnectionString = connectionString;
             if (!Directory.Exists(ConfigHelper.StorageFolder))
                 throw new Exception("The 'StorageFolder' does not exist.");
             if (!Directory.Exists(ConfigHelper.WorkFolder))
                 throw new Exception("The 'WorkFolder' does not exist.");
 
-            _connectionString = connectionString;
             _masterKey = masterKey;
             _iv = iv;
         }
@@ -52,13 +55,19 @@ namespace Gravitybox.gFileSystem.Manager
 
             try
             {
-                using (var q = new WriterLock(Guid.Empty, "GetOrAddTenant", _connectionString))
+                using (var q = new WriterLock(GetOrAddTenantLockID, "GetOrAddTenant"))
                 {
                     //Add/get a tenant in a transaction
                     var parameters = new List<SqlParameter>();
                     parameters.Add(new SqlParameter { DbType = DbType.String, IsNullable = false, ParameterName = "@name", Value = name });
                     parameters.Add(new SqlParameter { DbType = DbType.Binary, IsNullable = false, ParameterName = "@key", Value = FileUtilities.GetNewKey(_masterKey.Length).Encrypt(_masterKey, _iv) });
-                    var retval = (Guid)SqlHelper.ExecuteWithReturn(_connectionString, "[AddOrUpdateTenant] @name, @key", parameters);
+                    var retval = (Guid)SqlHelper.ExecuteWithReturn(ConfigHelper.ConnectionString, "[AddOrUpdateTenant] @name, @key", parameters);
+
+                    //Create the tenant storage folder
+                    var tFolder = Path.Combine(ConfigHelper.StorageFolder, retval.ToString());
+                    if (!Directory.Exists(tFolder))
+                        Directory.CreateDirectory(tFolder);
+
                     return retval;
                 }
             }
@@ -76,7 +85,7 @@ namespace Gravitybox.gFileSystem.Manager
         {
             try
             {
-                using (var context = new gFileSystemEntities(_connectionString))
+                using (var context = new gFileSystemEntities(ConfigHelper.ConnectionString))
                 {
                     return context.Tenant.Where(x => x.Name == name).Select(x => x.UniqueKey).FirstOrDefault();
                 }
@@ -95,7 +104,7 @@ namespace Gravitybox.gFileSystem.Manager
         {
             try
             {
-                using (var context = new gFileSystemEntities(_connectionString))
+                using (var context = new gFileSystemEntities(ConfigHelper.ConnectionString))
                 {
                     return context.Tenant.Where(x => x.UniqueKey == id).Select(x => x.UniqueKey).FirstOrDefault();
                 }
@@ -118,12 +127,12 @@ namespace Gravitybox.gFileSystem.Manager
         {
             try
             {
-                using (var q = new ReaderLock(tenantID, "", _connectionString))
+                using (var q = new ReaderLock(tenantID, ""))
                 {
                     if (string.IsNullOrEmpty(startPattern)) startPattern = null;
                     else startPattern = startPattern.Replace("*", "");
                     var tenant = GetTenant(tenantID);
-                    using (var context = new gFileSystemEntities(_connectionString))
+                    using (var context = new gFileSystemEntities(ConfigHelper.ConnectionString))
                     {
                         return context.FileStash
                             .Where(x => x.TenantID == tenant.TenantID &&
@@ -151,12 +160,12 @@ namespace Gravitybox.gFileSystem.Manager
         {
             try
             {
-                using (var q = new ReaderLock(tenantID, "", _connectionString))
+                using (var q = new ReaderLock(tenantID, ""))
                 {
                     if (string.IsNullOrEmpty(startPattern)) startPattern = null;
                     else startPattern = startPattern.Replace("*", "");
                     var tenant = GetTenant(tenantID);
-                    using (var context = new gFileSystemEntities(_connectionString))
+                    using (var context = new gFileSystemEntities(ConfigHelper.ConnectionString))
                     {
                         return context.FileStash
                             .Where(x => x.TenantID == tenant.TenantID &&
@@ -187,18 +196,18 @@ namespace Gravitybox.gFileSystem.Manager
 
             try
             {
-                using (var q = new WriterLock(tenantID, "", _connectionString))
+                using (var q = new WriterLock(tenantID, ""))
                 {
                     var count = 0;
 
                     //Create engine
                     var tenantKey = tenant.Key.Decrypt(_masterKey, _iv);
                     var newKey = FileUtilities.GetNewKey(_masterKey.Length);
-                    using (var fe = new FileEngine(_masterKey, tenantKey, _iv))
+                    using (var fe = new FileEngine(_masterKey, tenantKey, tenantID, _iv))
                     {
                         fe.WorkingFolder = ConfigHelper.WorkFolder;
 
-                        using (var context = new gFileSystemEntities(_connectionString))
+                        using (var context = new gFileSystemEntities(ConfigHelper.ConnectionString))
                         {
                             var all = context.FileStash
                                 .Where(x => x.TenantID == tenant.TenantID)
@@ -208,11 +217,11 @@ namespace Gravitybox.gFileSystem.Manager
                             //There is nothing to change in the database
                             foreach (var stash in all)
                             {
-                                var existingFile = Path.Combine(ConfigHelper.StorageFolder, stash.UniqueKey.ToString());
+                                var existingFile = Path.Combine(ConfigHelper.StorageFolder, tenant.UniqueKey.ToString(), stash.UniqueKey.ToString());
                                 if (File.Exists(existingFile))
                                 {
-                                    fe.RekeyFile(existingFile, newKey);
-                                    count++;
+                                    if (fe.RekeyFile(existingFile, newKey))
+                                        count++;
                                 }
                             }
 
@@ -223,6 +232,84 @@ namespace Gravitybox.gFileSystem.Manager
                         }
                     }
                     return count;
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex);
+                throw;
+            }
+        }
+
+        public bool SaveFile(Guid tenantID, string container, string fileName, byte[] data)
+        {
+            if (string.IsNullOrEmpty(container))
+                throw new Exception("The container must be set");
+
+            var tenant = GetTenant(tenantID);
+            if (tenant == null)
+                return false;
+
+            try
+            {
+                using (var q = new WriterLock(tenantID, container + "|" + fileName))
+                {
+                    //Create engine
+                    var tenantKey = tenant.Key.Decrypt(_masterKey, _iv);
+                    var fe = new FileEngine(_masterKey, tenantKey, tenantID, _iv);
+
+                    using (var context = new gFileSystemEntities(ConfigHelper.ConnectionString))
+                    {
+                        //Delete the old file if one exists
+                        var stash = context.FileStash.Where(x =>
+                                x.TenantID == tenant.TenantID &&
+                                x.Path == fileName &&
+                                x.ContainerName == container)
+                                .FirstOrDefault();
+                        if (stash != null)
+                        {
+                            var existingFile = Path.Combine(ConfigHelper.StorageFolder, tenantID.ToString(), stash.UniqueKey.ToString());
+                            if (File.Exists(existingFile))
+                                File.Delete(existingFile);
+                            context.DeleteItem(stash);
+                            context.SaveChanges();
+                        }
+
+                        var crc = FileUtilities.FileCRC(data);
+
+                        //Determine if should compress
+                        var isCompressed = false;
+                        var fi = new FileInfo(fileName);
+                        var origSize = data.Length;
+                        if (!_skipZipExtensions.Contains(fi.Extension.ToLower()) && data.Length > 5000)
+                        {
+                            data = FileUtilities.ZipArray(data);
+                            isCompressed = true;
+                        }
+
+                        //Do the actual encryption
+                        var cipherFile = fe.SaveFile(data);
+                        var fiCipher = new FileInfo(cipherFile);
+
+                        var newStash = new FileStash
+                        {
+                            Path = fileName,
+                            TenantID = tenant.TenantID,
+                            Size = origSize,
+                            StorageSize = fiCipher.Length,
+                            ContainerName = container,
+                            CrcPlain = crc,
+                            IsCompressed = isCompressed,
+                        };
+                        context.AddItem(newStash);
+                        context.SaveChanges();
+
+                        //Move the cipher file to storage
+                        var destFile = Path.Combine(ConfigHelper.StorageFolder, tenantID.ToString(), newStash.UniqueKey.ToString());
+                        File.Move(cipherFile, destFile);
+                    }
+
+                    return true;
                 }
             }
             catch (Exception ex)
@@ -253,14 +340,14 @@ namespace Gravitybox.gFileSystem.Manager
 
             try
             {
-                using (var q = new WriterLock(tenantID, container + "|" + fileName, _connectionString))
+                using (var q = new WriterLock(tenantID, container + "|" + fileName))
                 {
                     //Create engine
                     var tenantKey = tenant.Key.Decrypt(_masterKey, _iv);
-                    var fe = new FileEngine(_masterKey, tenantKey, _iv);
+                    var fe = new FileEngine(_masterKey, tenantKey, tenantID, _iv);
                     fe.WorkingFolder = ConfigHelper.WorkFolder;
 
-                    using (var context = new gFileSystemEntities(_connectionString))
+                    using (var context = new gFileSystemEntities(ConfigHelper.ConnectionString))
                     {
                         //Delete the old file if one exists
                         var stash = context.FileStash.Where(x =>
@@ -270,7 +357,7 @@ namespace Gravitybox.gFileSystem.Manager
                                 .FirstOrDefault();
                         if (stash != null)
                         {
-                            var existingFile = Path.Combine(ConfigHelper.StorageFolder, stash.UniqueKey.ToString());
+                            var existingFile = Path.Combine(ConfigHelper.StorageFolder, tenantID.ToString(), stash.UniqueKey.ToString());
                             if (File.Exists(existingFile))
                                 File.Delete(existingFile);
                             context.DeleteItem(stash);
@@ -281,26 +368,76 @@ namespace Gravitybox.gFileSystem.Manager
                         if (string.IsNullOrEmpty(dataFile))
                             dataFile = fileName;
 
-                        var cipherFile = fe.SaveFile(dataFile);
+                        var crc = FileUtilities.FileCRC(dataFile);
 
+                        //Determine if should compress
+                        var isCompressed = false;
                         var fi = new FileInfo(fileName);
+                        if (!_skipZipExtensions.Contains(fi.Extension.ToLower()) && fi.Length > 5000)
+                        {
+                            var zipFile = dataFile + ".z";
+                            if (FileUtilities.ZipFile(dataFile, zipFile))
+                            {
+                                FileUtilities.WipeFile(dataFile);
+                                dataFile = zipFile;
+                                isCompressed = true;
+                            }
+                        }
+
+                        //Do the actual encryption
+                        var cipherFile = fe.SaveFile(dataFile);
+                        var fiCipher = new FileInfo(cipherFile);
+
                         var newStash = new FileStash
                         {
                             Path = fileName,
                             TenantID = tenant.TenantID,
                             Size = fi.Length,
+                            StorageSize = fiCipher.Length,
                             ContainerName = container,
-                            CrcPlain = FileUtilities.FileCRC(dataFile),
+                            CrcPlain = crc,
+                            IsCompressed = isCompressed,
                         };
                         context.AddItem(newStash);
                         context.SaveChanges();
 
                         //Move the cipher file to storage
-                        var destFile = Path.Combine(ConfigHelper.StorageFolder, newStash.UniqueKey.ToString());
+                        var destFile = Path.Combine(ConfigHelper.StorageFolder, tenantID.ToString(), newStash.UniqueKey.ToString());
                         File.Move(cipherFile, destFile);
                     }
 
                     return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex);
+                throw;
+            }
+        }
+
+        public FileStash GetFileInfo(Guid tenantID, string container, string fileName)
+        {
+            if (string.IsNullOrEmpty(container))
+                throw new Exception("The container must be set");
+
+            var tenant = GetTenant(tenantID);
+            if (tenant == null)
+                return null;
+
+            try
+            {
+                using (var q = new ReaderLock(tenantID, container + "|" + fileName))
+                {
+                    using (var context = new gFileSystemEntities(ConfigHelper.ConnectionString))
+                    {
+                        var fi = new FileInfo(fileName);
+                        return context.FileStash
+                            .FirstOrDefault(x =>
+                                x.TenantID == tenant.TenantID &&
+                                x.Path == fileName &&
+                                x.ContainerName == container);
+                    }
                 }
             }
             catch (Exception ex)
@@ -329,10 +466,10 @@ namespace Gravitybox.gFileSystem.Manager
 
             try
             {
-                using (var q = new ReaderLock(tenantID, container + "|" + fileName, _connectionString))
+                using (var q = new ReaderLock(tenantID, container + "|" + fileName))
                 {
                     FileStash stash = null;
-                    using (var context = new gFileSystemEntities(_connectionString))
+                    using (var context = new gFileSystemEntities(ConfigHelper.ConnectionString))
                     {
                         var fi = new FileInfo(fileName);
                         stash = context.FileStash
@@ -347,11 +484,22 @@ namespace Gravitybox.gFileSystem.Manager
 
                     //Create engine
                     var tenantKey = tenant.Key.Decrypt(_masterKey, _iv);
-                    var fe = new FileEngine(_masterKey, tenantKey, _iv);
+                    var fe = new FileEngine(_masterKey, tenantKey, tenantID, _iv);
                     fe.WorkingFolder = ConfigHelper.WorkFolder;
 
-                    var cipherFile = Path.Combine(ConfigHelper.StorageFolder, stash.UniqueKey.ToString());
+                    var cipherFile = Path.Combine(ConfigHelper.StorageFolder, tenant.UniqueKey.ToString(), stash.UniqueKey.ToString());
                     var plainText = fe.GetFile(cipherFile);
+
+                    if (stash.IsCompressed)
+                    {
+                        var unzipFile = plainText + ".uz";
+                        if (FileUtilities.UnzipFile(plainText, unzipFile))
+                        {
+                            FileUtilities.WipeFile(plainText);
+                            File.Move(unzipFile, plainText);
+                        }
+                    }
+
                     var crc = FileUtilities.FileCRC(plainText);
 
                     //Verify that the file is the same as when it was saved
@@ -359,6 +507,62 @@ namespace Gravitybox.gFileSystem.Manager
                         throw new Exception("The file is corrupted!");
 
                     return plainText;
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex);
+                throw;
+            }
+        }
+
+        public byte[] GetFileData(Guid tenantID, string container, string fileName)
+        {
+            if (string.IsNullOrEmpty(container))
+                throw new Exception("The container must be set");
+
+            var tenant = GetTenant(tenantID);
+            if (tenant == null)
+                return null;
+
+            try
+            {
+                using (var q = new ReaderLock(tenantID, container + "|" + fileName))
+                {
+                    FileStash stash = null;
+                    using (var context = new gFileSystemEntities(ConfigHelper.ConnectionString))
+                    {
+                        var fi = new FileInfo(fileName);
+                        stash = context.FileStash
+                            .FirstOrDefault(x =>
+                                x.TenantID == tenant.TenantID &&
+                                x.Path == fileName &&
+                                x.ContainerName == container);
+
+                        //There is no file so return null
+                        if (stash == null) return null;
+                    }
+
+                    //Create engine
+                    var tenantKey = tenant.Key.Decrypt(_masterKey, _iv);
+                    var fe = new FileEngine(_masterKey, tenantKey, tenantID, _iv);
+                    fe.WorkingFolder = ConfigHelper.WorkFolder;
+
+                    var cipherFile = Path.Combine(ConfigHelper.StorageFolder, tenant.UniqueKey.ToString(), stash.UniqueKey.ToString());
+                    var data = fe.GetFileData(cipherFile);
+
+                    if (stash.IsCompressed)
+                    {
+                        data = FileUtilities.UnzipArray(data);
+                    }
+
+                    var crc = FileUtilities.FileCRC(data);
+
+                    //Verify that the file is the same as when it was saved
+                    if (crc != stash.CrcPlain)
+                        throw new Exception("The file is corrupted!");
+
+                    return data;
                 }
             }
             catch (Exception ex)
@@ -387,10 +591,10 @@ namespace Gravitybox.gFileSystem.Manager
 
             try
             {
-                using (var q = new WriterLock(tenantID, "", _connectionString))
+                using (var q = new WriterLock(tenantID, ""))
                 {
                     var count = 0;
-                    using (var context = new gFileSystemEntities(_connectionString))
+                    using (var context = new gFileSystemEntities(ConfigHelper.ConnectionString))
                     {
                         var all = context.FileStash
                             .Where(x => x.TenantID == tenant.TenantID &&
@@ -400,7 +604,7 @@ namespace Gravitybox.gFileSystem.Manager
 
                         foreach (var item in all)
                         {
-                            var existingFile = Path.Combine(ConfigHelper.StorageFolder, item.UniqueKey.ToString());
+                            var existingFile = Path.Combine(ConfigHelper.StorageFolder, tenantID.ToString(), item.UniqueKey.ToString());
                             if (File.Exists(existingFile))
                                 File.Delete(existingFile);
                             context.DeleteItem(item);
@@ -435,10 +639,10 @@ namespace Gravitybox.gFileSystem.Manager
 
             try
             {
-                using (var q = new WriterLock(tenantID, "", _connectionString))
+                using (var q = new WriterLock(tenantID, ""))
                 {
                     var count = 0;
-                    using (var context = new gFileSystemEntities(_connectionString))
+                    using (var context = new gFileSystemEntities(ConfigHelper.ConnectionString))
                     {
                         var all = context.FileStash
                             .Where(x => x.TenantID == tenant.TenantID &&
@@ -447,7 +651,7 @@ namespace Gravitybox.gFileSystem.Manager
 
                         foreach (var item in all)
                         {
-                            var existingFile = Path.Combine(ConfigHelper.StorageFolder, item.UniqueKey.ToString());
+                            var existingFile = Path.Combine(ConfigHelper.StorageFolder, tenantID.ToString(), item.UniqueKey.ToString());
                             if (File.Exists(existingFile))
                                 File.Delete(existingFile);
                             context.DeleteItem(item);
@@ -469,7 +673,7 @@ namespace Gravitybox.gFileSystem.Manager
         {
             try
             {
-                using (var context = new gFileSystemEntities(_connectionString))
+                using (var context = new gFileSystemEntities(ConfigHelper.ConnectionString))
                 {
                     return context.Tenant.Where(x => x.UniqueKey == id).FirstOrDefault();
                 }

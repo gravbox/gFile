@@ -21,21 +21,17 @@ namespace Gravitybox.gFileSystem.Engine
             return aes.Key;
         }
 
-        internal static void EncryptStream(this System.IO.Stream stream, string targetFile,
-          byte[] masterKey, byte[] iv, byte[] tenantKey)
+        internal static void EncryptStream(this System.IO.Stream stream, string targetFile, byte[] iv, FileHeader header)
         {
             try
             {
-                var aes = CryptoProvider(FileUtilities.GetNewKey(32), iv);
-
-                //Encrypt the data key
-                var header = new FileHeader { EncryptedDataKey = aes.Key.Encrypt(tenantKey, iv) };
-                var padBytes = header.ToArray();
+                var aes = CryptoProvider(header.DataKey, iv);
                 using (ICryptoTransform encryptor = aes.CreateEncryptor())
                 {
                     using (var newFile = File.Create(targetFile))
                     {
-                        //Write encrypted data key to front of file
+                        //Write blank header. It will be filled in later
+                        var padBytes = new byte[FileHeader.FileHeaderSize];
                         newFile.Write(padBytes, 0, padBytes.Length);
 
                         //Write encrypted data
@@ -45,6 +41,7 @@ namespace Gravitybox.gFileSystem.Engine
                         }
                     }
                 }
+                WriteFileHeader(targetFile, header);
             }
             catch (Exception ex)
             {
@@ -52,27 +49,24 @@ namespace Gravitybox.gFileSystem.Engine
             }
         }
 
-        internal static void DecryptStream(this System.IO.Stream stream, string targetFile,
-            byte[] masterKey, byte[] iv, byte[] tenantKey)
+        internal static void DecryptStream(this System.IO.Stream src, System.IO.Stream dest, byte[] iv, FileHeader header)
         {
             try
             {
                 //Get the data key
                 var vv = new byte[FileHeader.FileHeaderSize];
-                stream.Read(vv, 0, vv.Length);
-                var header = FileHeader.Load(vv);
+                src.Read(vv, 0, vv.Length);
+                header.Load(vv);
 
-                var dataKey = header.EncryptedDataKey.Decrypt(tenantKey, iv);
-                var aes = CryptoProvider(dataKey, iv);
+                header.DataKey = header.EncryptedDataKey.Decrypt(header.TenantKey, iv);
+
+                var aes = CryptoProvider(header.DataKey, iv);
                 using (ICryptoTransform encryptor = aes.CreateDecryptor())
                 {
-                    using (var newFile = File.OpenWrite(targetFile))
+                    src.Seek(FileHeader.FileHeaderSize, SeekOrigin.Begin);
+                    using (var cryptoStream = new CryptoStream(src, encryptor, CryptoStreamMode.Read))
                     {
-                        stream.Seek(FileHeader.FileHeaderSize, SeekOrigin.Begin);
-                        using (var cryptoStream = new CryptoStream(stream, encryptor, CryptoStreamMode.Read))
-                        {
-                            cryptoStream.CopyTo(newFile);
-                        }
+                        cryptoStream.CopyTo(dest);
                     }
                 }
             }
@@ -90,6 +84,24 @@ namespace Gravitybox.gFileSystem.Engine
             aes.Mode = CipherMode.CBC;
             aes.Padding = PaddingMode.PKCS7;
             return aes;
+        }
+
+        internal static void WriteFileHeader(string cryptFileName, FileHeader header)
+        {
+            try
+            {
+                using (var file = File.OpenWrite(cryptFileName))
+                {
+                    //Write encrypted data key to front of file
+                    var padBytes = header.ToArray();
+                    file.Write(padBytes, 0, padBytes.Length);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex);
+                throw;
+            }
         }
     }
 }

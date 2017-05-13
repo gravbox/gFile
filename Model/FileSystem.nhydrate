@@ -24,6 +24,12 @@
         <entityHasFields Id="57600cd2-3f96-430e-aa15-f99782aa1322">
           <field Id="94a49039-d177-44ef-bf6a-ba8876dce601" name="CrcPlain" nullable="false" length="32" min="NaN" max="NaN" scale="0" sortOrder="8" />
         </entityHasFields>
+        <entityHasFields Id="ade13d15-505d-44ce-89e1-d31acafe9421">
+          <field Id="0fcabbeb-0efa-44c7-be89-17ed5ea37652" name="IsCompressed" nullable="false" dataType="Bit" default="0" length="1" min="NaN" max="NaN" scale="0" sortOrder="9" />
+        </entityHasFields>
+        <entityHasFields Id="c4e8b6be-f207-4946-b1e2-d4af34bf40a4">
+          <field Id="7c6dbf1f-8b8a-4781-8644-e34f871416d8" name="StorageSize" nullable="false" dataType="BigInt" default="0" length="8" min="NaN" max="NaN" scale="0" sortOrder="10" />
+        </entityHasFields>
       </fields>
       <indexes>
         <entityHasIndexes Id="11b3acdb-9cad-47d1-b646-64b987e998ff">
@@ -141,60 +147,6 @@
             <indexColumns>
               <indexHasIndexColumns Id="1b46a8fb-5a19-4103-8893-326939aebdb5">
                 <indexColumn Id="d1c5fea9-9c53-46ce-9c29-b174466ec869" fieldID="441b22d6-2c6b-4e6c-8821-d01e16b78a04" sortOrder="1" />
-              </indexHasIndexColumns>
-            </indexColumns>
-          </index>
-        </entityHasIndexes>
-      </indexes>
-    </entity>
-    <entity Id="706c3712-9889-4983-ab78-fd32fecc6132" name="ThreadLock" copyStateInfo="">
-      <fields>
-        <entityHasFields Id="a1a91701-7afa-4e7c-8cb1-feb64d3726cf">
-          <field Id="62fd209b-4afb-473c-833b-8762579c4fd9" name="ID" nullable="false" dataType="BigInt" identity="Database" isIndexed="true" isUnique="true" length="8" min="NaN" max="NaN" isPrimaryKey="true" scale="0" sortOrder="1" />
-        </entityHasFields>
-        <entityHasFields Id="aa619457-82be-41ad-a847-31747cd3f9c6">
-          <field Id="b357f133-0972-40e7-9c20-fbe20c3dbda6" name="IsWrite" nullable="false" dataType="Bit" default="0" isIndexed="true" length="1" min="NaN" max="NaN" scale="0" sortOrder="2" />
-        </entityHasFields>
-        <entityHasFields Id="8b4d4cc9-ebf0-44cf-b865-99e9ed218d92">
-          <field Id="e5fdbb02-9cd3-4598-8db2-72274104ea10" name="Key" nullable="false" isIndexed="true" min="NaN" max="NaN" scale="0" sortOrder="3" />
-        </entityHasFields>
-        <entityHasFields Id="30e2836a-7528-4682-8541-cf93fe51b057">
-          <field Id="fc56904d-a820-4c6c-bab4-1493a8a64ce2" name="Hash" nullable="false" dataType="BigInt" isIndexed="true" length="8" min="NaN" max="NaN" scale="0" sortOrder="4" />
-        </entityHasFields>
-      </fields>
-      <indexes>
-        <entityHasIndexes Id="ee4dc286-da79-4857-b15d-b29ddc632860">
-          <index Id="80293181-e3b7-47f2-934e-1c6779ecdca4" parentEntityID="706c3712-9889-4983-ab78-fd32fecc6132" isUnique="true" indexType="PrimaryKey" clustered="true">
-            <indexColumns>
-              <indexHasIndexColumns Id="25358cc0-0d7c-4d80-ae40-61c5abedddca">
-                <indexColumn Id="ce593a52-c98c-430c-97b1-581183f03cb9" fieldID="62fd209b-4afb-473c-833b-8762579c4fd9" sortOrder="1" />
-              </indexHasIndexColumns>
-            </indexColumns>
-          </index>
-        </entityHasIndexes>
-        <entityHasIndexes Id="101c5a9c-eb1d-402a-80c2-03f5f7d66ffc">
-          <index Id="10923351-a8b1-46eb-b269-701819813142" parentEntityID="706c3712-9889-4983-ab78-fd32fecc6132" indexType="IsIndexed">
-            <indexColumns>
-              <indexHasIndexColumns Id="deab4d85-d657-44da-9d8c-e8c9a1594e2c">
-                <indexColumn Id="3bbe9d77-ca84-485a-b986-e713ad390f69" fieldID="b357f133-0972-40e7-9c20-fbe20c3dbda6" sortOrder="1" />
-              </indexHasIndexColumns>
-            </indexColumns>
-          </index>
-        </entityHasIndexes>
-        <entityHasIndexes Id="9306fe39-c7dd-4e61-846d-990880a3a105">
-          <index Id="4e82588f-96cb-4c44-aaf0-c3b9783113da" parentEntityID="706c3712-9889-4983-ab78-fd32fecc6132" indexType="IsIndexed">
-            <indexColumns>
-              <indexHasIndexColumns Id="c804fa41-3270-4ae4-a51c-f813e0e29cc0">
-                <indexColumn Id="afbeedbb-ebfa-40d3-955c-72b42d22f9c0" fieldID="e5fdbb02-9cd3-4598-8db2-72274104ea10" sortOrder="1" />
-              </indexHasIndexColumns>
-            </indexColumns>
-          </index>
-        </entityHasIndexes>
-        <entityHasIndexes Id="f77c46d4-76e9-4f0e-b057-d257cc7c47ba">
-          <index Id="e5404fcc-6895-449b-8b64-c6d7f4968697" parentEntityID="706c3712-9889-4983-ab78-fd32fecc6132" indexType="IsIndexed">
-            <indexColumns>
-              <indexHasIndexColumns Id="ba241a52-55a0-4c7f-b8b3-97c4a3b8df62">
-                <indexColumn Id="8abb6065-179f-4088-b7bf-cdc18f9c4553" fieldID="fc56904d-a820-4c6c-bab4-1493a8a64ce2" sortOrder="1" />
               </indexHasIndexColumns>
             </indexColumns>
           </index>

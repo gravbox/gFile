@@ -41,9 +41,6 @@ namespace Gravitybox.gFileSystem.EFDAL
 		IQueryable<Gravitybox.gFileSystem.EFDAL.Entity.Tenant> Tenant { get ; }
 
 		/// <summary />
-		IQueryable<Gravitybox.gFileSystem.EFDAL.Entity.ThreadLock> ThreadLock { get ; }
-
-		/// <summary />
 		Gravitybox.gFileSystem.EFDAL.IBusinessObject AddItem(Gravitybox.gFileSystem.EFDAL.IBusinessObject entity);
 
 		/// <summary />

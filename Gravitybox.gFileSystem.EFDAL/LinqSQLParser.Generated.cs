@@ -183,7 +183,6 @@ namespace Gravitybox.gFileSystem.EFDAL
 			if (parentTable == "ConfigSetting") realTable = Gravitybox.gFileSystem.EFDAL.Entity.ConfigSetting.GetTableFromFieldNameSqlMapping(field);
 			else if (parentTable == "FileStash") realTable = Gravitybox.gFileSystem.EFDAL.Entity.FileStash.GetTableFromFieldNameSqlMapping(field);
 			else if (parentTable == "Tenant") realTable = Gravitybox.gFileSystem.EFDAL.Entity.Tenant.GetTableFromFieldNameSqlMapping(field);
-			else if (parentTable == "ThreadLock") realTable = Gravitybox.gFileSystem.EFDAL.Entity.ThreadLock.GetTableFromFieldNameSqlMapping(field);
 			LinqSQLFromClause sqlFromClause = this.GetByTable(realTable);
 			return sqlFromClause.TableName;
 		}
@@ -488,10 +487,6 @@ namespace Gravitybox.gFileSystem.EFDAL
 					{
 						childTables.Add(fromClause);
 					}
-					if (fromClause.TableName == "ThreadLock")
-					{
-						childTables.Add(fromClause);
-					}
 				}
 				if (_type == ObjectTypeConstants.View)
 				{
@@ -513,7 +508,6 @@ namespace Gravitybox.gFileSystem.EFDAL
 					if (clause.TableName == "ConfigSetting") realTable = Gravitybox.gFileSystem.EFDAL.Entity.ConfigSetting.GetTableFromFieldAliasSqlMapping(field.Alias);
 					else if (clause.TableName == "FileStash") realTable = Gravitybox.gFileSystem.EFDAL.Entity.FileStash.GetTableFromFieldAliasSqlMapping(field.Alias);
 					else if (clause.TableName == "Tenant") realTable = Gravitybox.gFileSystem.EFDAL.Entity.Tenant.GetTableFromFieldAliasSqlMapping(field.Alias);
-					else if (clause.TableName == "ThreadLock") realTable = Gravitybox.gFileSystem.EFDAL.Entity.ThreadLock.GetTableFromFieldAliasSqlMapping(field.Alias);
 				}
 				var sqlFromClause = _fromLinkList.GetByTable(realTable);
 				field.Table = sqlFromClause.Alias;
@@ -542,7 +536,6 @@ namespace Gravitybox.gFileSystem.EFDAL
 					case "ConfigSetting": return Gravitybox.gFileSystem.EFDAL.Entity.ConfigSetting.GetRemappedLinqSql(whereClause, tableInfo.Alias, fromLinkList);
 					case "FileStash": return Gravitybox.gFileSystem.EFDAL.Entity.FileStash.GetRemappedLinqSql(whereClause, tableInfo.Alias, fromLinkList);
 					case "Tenant": return Gravitybox.gFileSystem.EFDAL.Entity.Tenant.GetRemappedLinqSql(whereClause, tableInfo.Alias, fromLinkList);
-					case "ThreadLock": return Gravitybox.gFileSystem.EFDAL.Entity.ThreadLock.GetRemappedLinqSql(whereClause, tableInfo.Alias, fromLinkList);
 				}
 			}
 			if (type == ObjectTypeConstants.View)
@@ -625,7 +618,6 @@ namespace Gravitybox.gFileSystem.EFDAL
 						case "ConfigSetting": alias = Gravitybox.gFileSystem.EFDAL.Entity.ConfigSetting.GetFieldAliasFromFieldNameSqlMapping(field); break;
 						case "FileStash": alias = Gravitybox.gFileSystem.EFDAL.Entity.FileStash.GetFieldAliasFromFieldNameSqlMapping(field); break;
 						case "Tenant": alias = Gravitybox.gFileSystem.EFDAL.Entity.Tenant.GetFieldAliasFromFieldNameSqlMapping(field); break;
-						case "ThreadLock": alias = Gravitybox.gFileSystem.EFDAL.Entity.ThreadLock.GetFieldAliasFromFieldNameSqlMapping(field); break;
 					}
 				}
 

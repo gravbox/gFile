@@ -116,8 +116,6 @@ namespace Gravitybox.gFileSystem.EFDAL
 				return Gravitybox.gFileSystem.EFDAL.Entity.FileStash.GetFieldType((Gravitybox.gFileSystem.EFDAL.Entity.FileStash.FieldNameConstants)field);
 			if (field is Gravitybox.gFileSystem.EFDAL.Entity.Tenant.FieldNameConstants)
 				return Gravitybox.gFileSystem.EFDAL.Entity.Tenant.GetFieldType((Gravitybox.gFileSystem.EFDAL.Entity.Tenant.FieldNameConstants)field);
-			if (field is Gravitybox.gFileSystem.EFDAL.Entity.ThreadLock.FieldNameConstants)
-				return Gravitybox.gFileSystem.EFDAL.Entity.ThreadLock.GetFieldType((Gravitybox.gFileSystem.EFDAL.Entity.ThreadLock.FieldNameConstants)field);
 			throw new Exception("Unknown field type!");
 		}
 
@@ -153,7 +151,6 @@ namespace Gravitybox.gFileSystem.EFDAL
 				case EntityMappingConstants.ConfigSetting: return typeof(Gravitybox.gFileSystem.EFDAL.Entity.ConfigSetting);
 				case EntityMappingConstants.FileStash: return typeof(Gravitybox.gFileSystem.EFDAL.Entity.FileStash);
 				case EntityMappingConstants.Tenant: return typeof(Gravitybox.gFileSystem.EFDAL.Entity.Tenant);
-				case EntityMappingConstants.ThreadLock: return typeof(Gravitybox.gFileSystem.EFDAL.Entity.ThreadLock);
 			}
 			throw new Exception("Unknown entity type!");
 		}
@@ -478,15 +475,6 @@ namespace Gravitybox.gFileSystem.EFDAL
 				sb.AppendLine("on [X].[TenantID] = [Extent2].[TenantID]");
 				sb.AppendLine("select @@ROWCOUNT");
 			}
-			else if (typeof(T) == typeof(Gravitybox.gFileSystem.EFDAL.Entity.ThreadLock))
-			{
-				sb.AppendLine("set rowcount " + optimizer.ChunkSize + ";");
-				sb.AppendLine("delete [X] from [dbo].[ThreadLock] [X] inner join (");
-				sb.AppendLine(((IQueryable<Gravitybox.gFileSystem.EFDAL.Entity.ThreadLock>)query).Select(x => new { x.ID }).ToString());
-				sb.AppendLine(") AS [Extent2]");
-				sb.AppendLine("on [X].[ID] = [Extent2].[ID]");
-				sb.AppendLine("select @@ROWCOUNT");
-			}
 			else throw new Exception("Entity type not found");
 			#endregion
 			if (string.IsNullOrEmpty(connectionString))
@@ -808,20 +796,6 @@ namespace Gravitybox.gFileSystem.EFDAL
 					sb.AppendLine(((IQueryable<Gravitybox.gFileSystem.EFDAL.Entity.Tenant>)query).Select(x => new { x.TenantID }).ToString());
 					sb.AppendLine(") AS [Extent2]");
 					sb.AppendLine("on [X].[TenantID] = [Extent2].[TenantID]");
-					sb.AppendLine("select @@ROWCOUNT");
-				}
-			}
-			else if (typeof(T) == typeof(Gravitybox.gFileSystem.EFDAL.Entity.ThreadLock))
-			{
-				sb.AppendLine("set rowcount " + optimizer.ChunkSize + ";");
-				foreach (var item in mapping.Where(x => x.SqlList.Any()).ToList())
-				{
-					sb.AppendLine("UPDATE [X] SET");
-					sb.AppendLine(string.Join(", ", item.SqlList));
-					sb.AppendLine("FROM [" + item.Schema + "].[" + item.TableName + "] AS [X] INNER JOIN (");
-					sb.AppendLine(((IQueryable<Gravitybox.gFileSystem.EFDAL.Entity.ThreadLock>)query).Select(x => new { x.ID }).ToString());
-					sb.AppendLine(") AS [Extent2]");
-					sb.AppendLine("on [X].[ID] = [Extent2].[ID]");
 					sb.AppendLine("select @@ROWCOUNT");
 				}
 			}

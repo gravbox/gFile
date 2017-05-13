@@ -13,5 +13,6 @@ namespace Gravitybox.gFileSystem.Service.Common
         public string Container { get; set; }
         public string FileName { get; set; }
         public string CRC { get; set; }
+        public long Size { get; set; }
     }
 }

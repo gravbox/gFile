@@ -68,10 +68,6 @@
     <Compile Include="Entity\Tenant.Generated.cs">
       <DependentUpon>Tenant.cs</DependentUpon>
     </Compile>
-    <Compile Include="Entity\ThreadLock.cs" />
-    <Compile Include="Entity\ThreadLock.Generated.cs">
-      <DependentUpon>ThreadLock.cs</DependentUpon>
-    </Compile>
     <Compile Include="gFileSystemEntities.cs" />
     <Compile Include="gFileSystemEntities.Generated.cs">
       <DependentUpon>gFileSystemEntities.cs</DependentUpon>

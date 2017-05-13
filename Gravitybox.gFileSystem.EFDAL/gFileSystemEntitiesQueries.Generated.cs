@@ -114,6 +114,12 @@ namespace Gravitybox.gFileSystem.EFDAL
 		[System.Diagnostics.DebuggerNonUserCode()]
 		public virtual long FileStashID { get; set; }
 		/// <summary>
+		/// (Maps to the 'FileStash.IsCompressed' database field)
+		/// </summary>
+		[Column(Name = "IsCompressed", DbType = "Bit", CanBeNull = false, IsPrimaryKey = false)]
+		[System.Diagnostics.DebuggerNonUserCode()]
+		public virtual bool IsCompressed { get; set; }
+		/// <summary>
 		/// (Maps to the 'FileStash.Path' database field)
 		/// </summary>
 		[Column(Name = "Path", DbType = "NVarChar (450)", CanBeNull = false, IsPrimaryKey = false)]
@@ -125,6 +131,12 @@ namespace Gravitybox.gFileSystem.EFDAL
 		[Column(Name = "Size", DbType = "BigInt", CanBeNull = false, IsPrimaryKey = false)]
 		[System.Diagnostics.DebuggerNonUserCode()]
 		public virtual long Size { get; set; }
+		/// <summary>
+		/// (Maps to the 'FileStash.StorageSize' database field)
+		/// </summary>
+		[Column(Name = "StorageSize", DbType = "BigInt", CanBeNull = false, IsPrimaryKey = false)]
+		[System.Diagnostics.DebuggerNonUserCode()]
+		public virtual long StorageSize { get; set; }
 		/// <summary>
 		/// (Maps to the 'FileStash.TenantID' database field)
 		/// </summary>
@@ -214,77 +226,6 @@ namespace Gravitybox.gFileSystem.EFDAL
 		[Column(Name = "UniqueKey", DbType = "UniqueIdentifier", CanBeNull = false, IsPrimaryKey = false)]
 		[System.Diagnostics.DebuggerNonUserCode()]
 		public virtual System.Guid UniqueKey { get; set; }
-		/// <summary>
-		/// The date of creation
-		/// </summary>
-		[Column(Name = "CreatedDate", DbType = "DateTime", CanBeNull = true)]
-		[System.Diagnostics.DebuggerNonUserCode()]
-		public virtual DateTime? CreatedDate { get; set; }
-		/// <summary>
-		/// The name of the creating entity
-		/// </summary>
-		[Column(Name = "CreatedBy", DbType = "VarChar(100)", CanBeNull = true)]
-		[System.Diagnostics.DebuggerNonUserCode()]
-		public virtual string CreatedBy { get; set; }
-		/// <summary>
-		/// The date of last modification
-		/// </summary>
-		[Column(Name = "ModifiedDate", DbType = "DateTime", CanBeNull = true)]
-		public virtual DateTime? ModifiedDate { get; set; }
-		/// <summary>
-		/// The name of the last modifing entity
-		/// </summary>
-		[Column(Name = "ModifiedBy", DbType = "VarChar(100)", CanBeNull = true)]
-		[System.Diagnostics.DebuggerNonUserCode()]
-		public virtual string ModifiedBy { get; set; }
-		/// <summary>
-		/// This is an internal field and is not to be used.
-		/// </summary>
-		[Column(Name = "Timestamp", DbType = "Binary", CanBeNull = false)]
-		[System.Diagnostics.DebuggerNonUserCode()]
-		public virtual byte[] Timestamp { get; set; }
-
-		#endregion
-
-	}
-
-	#endregion
-
-	#region ThreadLockQuery
-
-	/// <summary>
-	/// This is a helper object for running LINQ queries on the ThreadLock collection.
-	/// </summary>
-	[Serializable]
-	[Table(Name = "ThreadLock")]
-	[System.CodeDom.Compiler.GeneratedCode("nHydrateModelGenerator", "6.0.0")]
-	public partial class ThreadLockQuery : IBusinessObjectLINQQuery
-	{
-		#region Properties
-		/// <summary>
-		/// (Maps to the 'ThreadLock.Hash' database field)
-		/// </summary>
-		[Column(Name = "Hash", DbType = "BigInt", CanBeNull = false, IsPrimaryKey = false)]
-		[System.Diagnostics.DebuggerNonUserCode()]
-		public virtual long Hash { get; set; }
-		/// <summary>
-		/// (Maps to the 'ThreadLock.ID' database field)
-		/// </summary>
-		[Column(Name = "ID", DbType = "BigInt", CanBeNull = false, IsPrimaryKey = true)]
-		[System.Diagnostics.DebuggerNonUserCode()]
-		public virtual long ID { get; set; }
-		/// <summary>
-		/// (Maps to the 'ThreadLock.IsWrite' database field)
-		/// </summary>
-		[Column(Name = "IsWrite", DbType = "Bit", CanBeNull = false, IsPrimaryKey = false)]
-		[System.Diagnostics.DebuggerNonUserCode()]
-		public virtual bool IsWrite { get; set; }
-		/// <summary>
-		/// (Maps to the 'ThreadLock.Key' database field)
-		/// </summary>
-		[Column(Name = "Key", DbType = "VarChar (50)", CanBeNull = false, IsPrimaryKey = false)]
-		[System.Diagnostics.DebuggerNonUserCode()]
-		public virtual string Key { get; set; }
 		/// <summary>
 		/// The date of creation
 		/// </summary>

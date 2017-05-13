@@ -36,16 +36,5 @@ if exists(select * from sysobjects where name = '__TR_Tenant__DELETE' AND xtype 
 DROP TRIGGER [dbo].[__TR_Tenant__DELETE]
 GO
 
---DROP ANY AUDIT TRIGGERS FOR [dbo].[ThreadLock]
-if exists(select * from sysobjects where name = '__TR_ThreadLock__INSERT' AND xtype = 'TR')
-DROP TRIGGER [dbo].[__TR_ThreadLock__INSERT]
-GO
-if exists(select * from sysobjects where name = '__TR_ThreadLock__UPDATE' AND xtype = 'TR')
-DROP TRIGGER [dbo].[__TR_ThreadLock__UPDATE]
-GO
-if exists(select * from sysobjects where name = '__TR_ThreadLock__DELETE' AND xtype = 'TR')
-DROP TRIGGER [dbo].[__TR_ThreadLock__DELETE]
-GO
-
 --##SECTION END [AUDIT TRIGGERS]
 

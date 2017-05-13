@@ -68,18 +68,4 @@ namespace Gravitybox.gFileSystem.EFDAL
 
 	#endregion
 
-	#region ThreadLockInclude
-
-	/// <summary>
-	/// This is a helper object for creating LINQ definitions for context includes on the ThreadLock collection.
-	/// </summary>
-	[Serializable]
-	[Table(Name = "ThreadLock")]
-	[System.CodeDom.Compiler.GeneratedCode("nHydrateModelGenerator", "6.0.0")]
-	public partial class ThreadLockInclude : Gravitybox.gFileSystem.EFDAL.IContextInclude
-	{
-	}
-
-	#endregion
-
 }

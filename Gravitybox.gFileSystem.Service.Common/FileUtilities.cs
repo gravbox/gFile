@@ -33,6 +33,26 @@ namespace Gravitybox.gFileSystem.Service.Common
         }
 
         /// <summary>
+        /// CRC hash a file
+        /// </summary>
+        public static string FileCRC(byte[] data)
+        {
+            var sb = new StringBuilder();
+            using (var md5 = MD5.Create())
+            {
+                using (var stream = new MemoryStream(data))
+                {
+                    byte[] hashBytes = md5.ComputeHash(stream);
+                    foreach (byte bt in hashBytes)
+                    {
+                        sb.Append(bt.ToString("x2"));
+                    }
+                }
+            }
+            return sb.ToString();
+        }
+
+        /// <summary>
         /// Deletes a file in a secure way by overwriting it with
         /// random garbage data n times.
         /// </summary>
@@ -143,6 +163,9 @@ namespace Gravitybox.gFileSystem.Service.Common
         /// </summary>
         public static byte[] GetNewKey(int keyByteSize)
         {
+            if (keyByteSize != 16 && keyByteSize != 32)
+                throw new Exception("The key size must be 16 or 32.");
+
             var aes = new System.Security.Cryptography.AesManaged();
             aes.KeySize = keyByteSize * 8;
             aes.GenerateKey();
@@ -212,6 +235,45 @@ namespace Gravitybox.gFileSystem.Service.Common
             catch (Exception ex)
             {
                 return false;
+            }
+        }
+
+        public static byte[] ZipArray(byte[] data)
+        {
+            try
+            {
+                var outStream = new System.IO.MemoryStream();
+                using (var fs = new MemoryStream(data))
+                {
+                    using (var compressionStream = new System.IO.Compression.GZipStream(outStream, System.IO.Compression.CompressionMode.Compress))
+                    {
+                        fs.CopyTo(compressionStream);
+                    }
+                }
+                return outStream.ToArray();
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+
+        public static byte[] UnzipArray(byte[] data)
+        {
+            try
+            {
+                using (var bigStream = new System.IO.Compression.GZipStream(new MemoryStream(data), System.IO.Compression.CompressionMode.Decompress))
+                {
+                    using (var bigStreamOut = new System.IO.MemoryStream())
+                    {
+                        bigStream.CopyTo(bigStreamOut);
+                        return bigStreamOut.ToArray();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return null;
             }
         }
 

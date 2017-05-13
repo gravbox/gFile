@@ -41,18 +41,5 @@ if exists(select * from sys.objects where name = 'gen_Tenant_Update' and type = 
 	drop procedure [dbo].[gen_Tenant_Update]
 GO
 
---This SQL is generated for internal stored procedures for table [ThreadLock]
-if exists(select * from sys.objects where name = 'gen_ThreadLock_Delete' and type = 'P' and type_desc = 'SQL_STORED_PROCEDURE')
-	drop procedure [dbo].[gen_ThreadLock_Delete]
-GO
-
-if exists(select * from sys.objects where name = 'gen_ThreadLock_Insert' and type = 'P' and type_desc = 'SQL_STORED_PROCEDURE')
-	drop procedure [dbo].[gen_ThreadLock_Insert]
-GO
-
-if exists(select * from sys.objects where name = 'gen_ThreadLock_Update' and type = 'P' and type_desc = 'SQL_STORED_PROCEDURE')
-	drop procedure [dbo].[gen_ThreadLock_Update]
-GO
-
 --##SECTION END [INTERNAL STORED PROCS]
 

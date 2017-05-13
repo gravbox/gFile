@@ -27,6 +27,42 @@ namespace Gravitybox.gFileSystem.Service
         {
             try
             {
+                ConfigHelper.ConnectionString = ConfigurationManager.ConnectionStrings["gFileSystemEntities"].ConnectionString;
+
+                //Test if database connection works
+                var a = ConfigHelper.StorageFolder;
+            }
+            catch(Exception  ex)
+            {
+                Logger.LogError(ex);
+                throw;
+            }
+
+            //Master key must be 16 or 32 bit
+            if (ConfigHelper.MasterKey == null)
+                throw new Exception("Invalid Master Key");
+            if (ConfigHelper.MasterKey.Length != 16 && ConfigHelper.MasterKey.Length != 32)
+                throw new Exception("Invalid Master Key");
+
+            try
+            {
+                if (string.IsNullOrEmpty(ConfigHelper.StorageFolder) || !Directory.Exists(ConfigHelper.StorageFolder))
+                    throw new Exception("Invalid StorageFolder");
+                if (string.IsNullOrEmpty(ConfigHelper.WorkFolder) || !Directory.Exists(ConfigHelper.WorkFolder))
+                    throw new Exception("Invalid WorkFolder");
+
+                //Test if have permission to add/delete folders in storage area
+                var testFolder = Path.Combine(ConfigHelper.StorageFolder, Guid.NewGuid().ToString());
+                Directory.CreateDirectory(testFolder);
+                Directory.Delete(testFolder);
+
+                //Test if have permission to add/delete folders in working area
+                testFolder = Path.Combine(ConfigHelper.WorkFolder, Guid.NewGuid().ToString());
+                Directory.CreateDirectory(testFolder);
+                Directory.Delete(testFolder);
+
+                Logger.LogInfo("Storage permission granted");
+
                 //Do this to avoid an infinite hang if the firewall has blocked the port
                 //You cannot shut down the service if blocked because it never finishes startup
                 var t = new System.Threading.Thread(StartupEndpoint);

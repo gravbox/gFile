@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.ServiceModel;
 using System.Text;
 using System.Threading.Tasks;
@@ -45,7 +46,13 @@ namespace Gravitybox.gFileSystem.Service.Common
 
         public Guid GetOrAddTenant(string name)
         {
-            return _service.GetOrAddTenant(name);
+            Guid retval = Guid.Empty;
+            RetryHelper.DefaultRetryPolicy(3)
+                .Execute(() =>
+                {
+                    retval = _service.GetOrAddTenant(name);
+                });
+            return retval;
         }
 
         public bool SaveFile(Guid tenantId, string container, string fileName)
@@ -63,11 +70,18 @@ namespace Gravitybox.gFileSystem.Service.Common
                     FileName = fileName,
                     TenantID = tenantId,
                     CRC = FileUtilities.FileCRC(fileName),
+                    Size = fi.Length,
                 };
 
                 using (var fs = File.Open(fileName, FileMode.Open, FileAccess.Read))
                 {
-                    var token = _service.SendFileStart(block);
+                    Guid token = Guid.Empty;
+                    RetryHelper.DefaultRetryPolicy(3)
+                        .Execute(() =>
+                        {
+                            token = _service.SendFileStart(block);
+                        });
+
                     for (var ii = 1; ii <= count; ii++)
                     {
                         var bb = new byte[blockSize];
@@ -75,9 +89,22 @@ namespace Gravitybox.gFileSystem.Service.Common
                         //If last block is smaller then truncate it
                         if (c < blockSize)
                             bb = bb.Take(c).ToArray();
-                        var wasSaved = _service.SendFileData(token, bb);
+
+                        RetryHelper.DefaultRetryPolicy(3)
+                            .Execute(() =>
+                            {
+                                var wasSaved = _service.SendFileData(token, bb, ii);
+                            });
+
                     }
-                    return _service.SendFileEnd(token);
+
+                    var retval = false;
+                    RetryHelper.DefaultRetryPolicy(3)
+                        .Execute(() =>
+                        {
+                            retval = _service.SendFileEnd(token);
+                        });
+                    return retval;
                 }
             }
             catch (Exception ex)
@@ -90,7 +117,13 @@ namespace Gravitybox.gFileSystem.Service.Common
         {
             try
             {
-                var token = _service.GetFileStart(tenantId, container, fileName);
+                Guid token = Guid.Empty;
+                RetryHelper.DefaultRetryPolicy(3)
+                        .Execute(() =>
+                        {
+                            token = _service.GetFileStart(tenantId, container, fileName);
+                        });
+
                 var index = 0;
                 var count = 0;
                 var tempfile = Path.Combine(this.WorkingFolder, Guid.NewGuid().ToString());
@@ -99,7 +132,13 @@ namespace Gravitybox.gFileSystem.Service.Common
                     do
                     {
                         count = 0;
-                        var arr = _service.GetFile(token, index);
+                        byte[] arr = null;
+                        RetryHelper.DefaultRetryPolicy(3)
+                            .Execute(() =>
+                            {
+                                arr = _service.GetFilePart(token, index);
+                            });
+
                         if (arr != null)
                         {
                             count = arr.Length;
@@ -118,12 +157,47 @@ namespace Gravitybox.gFileSystem.Service.Common
 
         public int RemoveFile(Guid tenantId, string container, string fileName)
         {
-            return _service.RemoveFile(tenantId, container, fileName);
+            var retval = 0;
+            RetryHelper.DefaultRetryPolicy(3)
+                .Execute(() =>
+                {
+                    retval = _service.RemoveFile(tenantId, container, fileName);
+                });
+            return retval;
+        }
+
+        public int RemoveAll(Guid tenantId, string container)
+        {
+            var retval = 0;
+            RetryHelper.DefaultRetryPolicy(3)
+                .Execute(() =>
+                {
+                    retval = _service.RemoveAll(tenantId, container);
+                });
+            return retval;
         }
 
         public List<string> GetFileList(Guid tenantID, string startPattern = null)
         {
-            return _service.GetFileList(tenantID, startPattern);
+            List<string> retval = null;
+            RetryHelper.DefaultRetryPolicy(3)
+                .Execute(() =>
+                {
+                    retval = _service.GetFileList(tenantID, startPattern);
+                });
+            return retval;
+        }
+
+        public int RekeyTenant(Guid tenantID)
+        {
+            var retval = 0;
+            RetryHelper.DefaultRetryPolicy(3)
+                .Execute(() =>
+                {
+                    retval = _service.RekeyTenant(tenantID);
+                });
+            return retval;
+            
         }
 
         void IDisposable.Dispose()

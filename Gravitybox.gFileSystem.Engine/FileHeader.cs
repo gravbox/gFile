@@ -13,26 +13,26 @@ namespace Gravitybox.gFileSystem.Engine
         public short FileVersion { get; set; } = 1;
         public bool IsCompressed { get; set; } = false;
         public byte[] EncryptedDataKey { get; set; }
+        public byte[] DataKey { get; set; }
+        public byte[] TenantKey { get; set; }
 
-        public static FileHeader Load(byte[] arr)
+        public bool Load(byte[] arr)
         {
-            var retval = new FileHeader();
-
             //File version
             var tarr = new byte[2];
             Buffer.BlockCopy(arr, 0, tarr, 0, tarr.Length);
-            retval.FileVersion = BitConverter.ToInt16(tarr, 0);
+            this.FileVersion = BitConverter.ToInt16(tarr, 0);
 
             //Data key
-            retval.EncryptedDataKey = new byte[48];
-            Buffer.BlockCopy(arr, 2, retval.EncryptedDataKey, 0, retval.EncryptedDataKey.Length);
+            this.EncryptedDataKey = new byte[48];
+            Buffer.BlockCopy(arr, 2, this.EncryptedDataKey, 0, this.EncryptedDataKey.Length);
 
             //Compressed
             tarr = new byte[1];
             Buffer.BlockCopy(arr, 50, tarr, 0, tarr.Length);
-            retval.IsCompressed = BitConverter.ToBoolean(tarr, 0);
+            this.IsCompressed = BitConverter.ToBoolean(tarr, 0);
 
-            return retval;
+            return true;
         }
 
         /// <summary>

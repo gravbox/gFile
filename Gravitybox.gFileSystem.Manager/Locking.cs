@@ -8,79 +8,266 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Gravitybox.gFileSystem.Manager
 {
-    /// <summary>
-    /// This is a database thread locking class where locks are held in the database
-    /// This ensures that applications on multiple machines do not interfere with storage
-    /// </summary>
-    internal abstract class LockBase : IDisposable
+    internal static class LockingManager
     {
-        protected const int TimeoutException = 60000;
-        protected string _connectionString = null;
-        protected long LockId = 0;
-        protected long Hash = 0;
-        protected DateTime _startedDate = DateTime.Now;
+        private static Dictionary<Guid, DatastoreLock> _lockCache = new Dictionary<Guid, DatastoreLock>();
+        private static object _locker = new object();
 
-        internal LockBase(Guid key, string item, string connectionString, bool isWrite)
+        internal static DatastoreLock GetLocker(Guid id)
         {
-            _connectionString = connectionString;
-
-            //If empty then lock whole tenant
-            long hash = 0;
-            if (!string.IsNullOrEmpty(item))
-                hash = FileUtilities.Hash(Encoding.UTF8.GetBytes(item));
-
-            var parameters = new List<SqlParameter>();
-            parameters.Add(new SqlParameter { DbType = DbType.Guid, IsNullable = false, ParameterName = "@key", Value = key });
-            parameters.Add(new SqlParameter { DbType = DbType.Boolean, IsNullable = false, ParameterName = "@iswrite", Value = isWrite });
-            parameters.Add(new SqlParameter { DbType = DbType.Int64, IsNullable = false, ParameterName = "@hash", Value = hash });
-
-            //Try to get a lock and if not loop and try again
-            long lockId = (long)SqlHelper.ExecuteWithReturn(_connectionString, "[GetLock] @key, @iswrite, @hash", parameters);
-            if (lockId == 0)
+            lock (_locker)
             {
-                do
-                {
-                    System.Threading.Thread.Sleep(100);
-                    lockId = (long)SqlHelper.ExecuteWithReturn(_connectionString, "[GetLock] @key, @iswrite, @hash", parameters);
-                } while (lockId == 0 && DateTime.Now.Subtract(_startedDate).TotalMilliseconds >= TimeoutException);
+                if (!_lockCache.ContainsKey(id))
+                    _lockCache.Add(id, new DatastoreLock(id));
+                return _lockCache[id];
+            }
+        }
+    }
+
+    #region IDataLock
+
+    internal interface IDataLock
+    {
+        int LockTime { get; }
+
+        int WaitingLocksOnEntry { get; }
+
+        int ReadLockCount { get; }
+    }
+
+    #endregion
+
+    #region AcquireReaderLock
+
+    internal class ReaderLock : IDataLock, IDisposable
+    {
+        private DatastoreLock m_Lock = null;
+        private bool m_Disposed = false;
+        private static long _counter = 0;
+        private long _lockIndex = 0;
+        private DateTime _initTime = DateTime.Now;
+        private const int TimeOut = 60000;
+        private bool _inError = false;
+
+        /// <summary />
+        public ReaderLock(Guid id, string traceInfo)
+        {
+            this.LockTime = -1;
+            m_Lock = LockingManager.GetLocker(id);
+
+            this.ReadLockCount = m_Lock.CurrentReadCount;
+            this.WaitingLocksOnEntry = m_Lock.WaitingWriteCount;
+            if (this.WaitingLocksOnEntry > 10)
+                Logger.LogWarning("Waiting Writer Locks: Count=" + this.WaitingLocksOnEntry + ", RepositoryId=" + id);
+
+            if (!m_Lock.TryEnterReadLock(TimeOut))
+            {
+                _inError = true;
+
+                throw new Exception("Could not get reader lock: " +
+                    ((m_Lock.ObjectId == Guid.Empty) ? string.Empty : "ID=" + m_Lock.ObjectId) +
+                    ", CurrentReadCount=" + m_Lock.CurrentReadCount +
+                    ", WaitingReadCount=" + m_Lock.WaitingReadCount +
+                    ", WaitingWriteCount=" + m_Lock.WaitingWriteCount +
+                    ", HoldingThread=" + m_Lock.HoldingThreadId +
+                    ", TraceInfo=" + m_Lock.TraceInfo +
+                    ", LockFailTime=" + (int)DateTime.Now.Subtract(_initTime).TotalMilliseconds +
+                    ", WriteHeldTime=" + m_Lock.WriteHeldTime);
             }
 
-            if (lockId == 0)
-                throw new Exception("Timeout error");
-
-            this.LockId = lockId;
-
+            this.LockTime = (int)DateTime.Now.Subtract(_initTime).TotalMilliseconds;
+            Interlocked.Increment(ref _counter);
+            _lockIndex = _counter;
+            m_Lock.HeldReads.AddOrUpdate(_lockIndex, DateTime.Now, (key, value) => DateTime.Now);
+            m_Lock.TraceInfo = traceInfo;
+            m_Lock.HoldingThreadId = System.Threading.Thread.CurrentThread.ManagedThreadId;
         }
 
-        void IDisposable.Dispose()
+        public int LockTime { get; private set; }
+
+        /// <summary>
+        /// Returns the number of write locks that were in queue when creating this lock
+        /// </summary>
+        public int WaitingLocksOnEntry { get; private set; }
+
+        /// <summary>
+        /// Returns the number of read locks held on entry
+        /// </summary>
+        public int ReadLockCount { get; private set; }
+
+        public void Dispose()
         {
+            Dispose(true);
             GC.SuppressFinalize(this);
-            using (var context = new gFileSystemEntities(_connectionString))
+        }
+
+        /// <summary />
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!m_Disposed)
             {
-                context.ThreadLock.Where(x => x.ID == this.LockId).Delete();
-                context.SaveChanges();
+                if (disposing && m_Lock != null)
+                {
+                    var traceInfo = m_Lock.TraceInfo;
+                    var totalTime = DateTime.Now.Subtract(_initTime);
+                    if (!_inError)
+                    {
+                        DateTime dt;
+                        if (!m_Lock.HeldReads.TryRemove(_lockIndex, out dt))
+                            Logger.LogWarning("HeldReads was not released. ObjectId=" + m_Lock.ObjectId + ", Index=" + _lockIndex + ", TraceInfo=" + m_Lock.TraceInfo + ", Elapsed=" + totalTime.TotalMilliseconds);
+                        m_Lock.TraceInfo = null;
+                        m_Lock.HoldingThreadId = null;
+                    }
+
+                    m_Lock.ExitReadLock();
+
+                    if (totalTime.TotalSeconds > 60)
+                        Logger.LogWarning("ReaderLock Long: Elapsed=" + totalTime.TotalSeconds);
+                }
+            }
+            m_Disposed = true;
+        }
+    }
+
+    #endregion
+
+    #region AcquireWriterLock
+
+    /// <summary />
+    internal class WriterLock : IDataLock, IDisposable
+    {
+        private DatastoreLock m_Lock = null;
+        private bool m_Disposed = false;
+        private DateTime _initTime = DateTime.Now;
+        private const int TimeOut = 60000;
+        private bool _inError = false;
+
+        public WriterLock(Guid id)
+            : this(id, string.Empty)
+        {
+        }
+
+        public WriterLock(Guid id, string traceInfo)
+        {
+            if (id == Guid.Empty) return;
+
+            m_Lock = LockingManager.GetLocker(id);
+
+            this.ReadLockCount = m_Lock.CurrentReadCount;
+            this.WaitingLocksOnEntry = m_Lock.WaitingWriteCount;
+            if (this.WaitingLocksOnEntry > 10)
+                Logger.LogWarning("Waiting Writer Locks: Count=" + this.WaitingLocksOnEntry + ", RepositoryId=" + id);
+
+            if (!m_Lock.TryEnterWriteLock(TimeOut))
+            {
+                _inError = true;
+
+                var lapses = string.Join("-", m_Lock.HeldReads.Values.ToList().Select(x => (int)DateTime.Now.Subtract(x).TotalSeconds).ToList());
+                throw new Exception("Could not get writer lock: " +
+                    ((m_Lock.ObjectId == Guid.Empty) ? string.Empty : "ID=" + m_Lock.ObjectId) +
+                    ", CurrentReadCount=" + m_Lock.CurrentReadCount +
+                    ", WaitingReadCount=" + m_Lock.WaitingReadCount +
+                    ", WaitingWriteCount=" + m_Lock.WaitingWriteCount +
+                    ", HoldingThread=" + m_Lock.HoldingThreadId +
+                    ", TraceInfo=" + m_Lock.TraceInfo +
+                    ", WriteHeldTime=" + m_Lock.WriteHeldTime +
+                    ", LockFailTime=" + (int)DateTime.Now.Subtract(_initTime).TotalMilliseconds +
+                    ", Lapses=" + lapses);
+            }
+
+            this.LockTime = (int)DateTime.Now.Subtract(_initTime).TotalMilliseconds;
+            m_Lock.TraceInfo = traceInfo;
+            m_Lock.WriteLockHeldTime = DateTime.Now;
+            m_Lock.HoldingThreadId = System.Threading.Thread.CurrentThread.ManagedThreadId;
+        }
+
+        public int LockTime { get; private set; }
+
+        /// <summary>
+        /// Returns the number of write locks that were in queue when creating this lock
+        /// </summary>
+        public int WaitingLocksOnEntry { get; private set; }
+
+        /// <summary>
+        /// Returns the number of read locks held on entry
+        /// </summary>
+        public int ReadLockCount { get; private set; }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary />
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!m_Disposed && disposing && m_Lock != null)
+            {
+                var traceInfo = m_Lock.TraceInfo;
+                if (!_inError)
+                {
+                    m_Lock.WriteLockHeldTime = null;
+                    m_Lock.TraceInfo = null;
+                    m_Lock.HoldingThreadId = null;
+                }
+
+                m_Lock.ExitWriteLock();
+
+                var totalTime = (int)DateTime.Now.Subtract(_initTime).TotalSeconds;
+                if (totalTime > 60)
+                    Logger.LogWarning("WriterLock Long: Elapsed=" + totalTime);
+            }
+            m_Disposed = true;
+        }
+    }
+
+    #endregion
+
+    #region DatastoreLock
+
+    internal class DatastoreLock : System.Threading.ReaderWriterLockSlim
+    {
+        public DatastoreLock(Guid objectId)
+            : base(LockRecursionPolicy.SupportsRecursion)
+        {
+            this.ObjectId = objectId;
+        }
+
+        public bool AnyLocks()
+        {
+            return (this.CurrentReadCount == 0) && !this.IsWriteLockHeld;
+        }
+
+        public int WriteHeldTime
+        {
+            get
+            {
+                var retval = -1;
+                if (this.WriteLockHeldTime.HasValue)
+                    retval = (int)DateTime.Now.Subtract(this.WriteLockHeldTime.Value).TotalMilliseconds;
+                return retval;
             }
         }
+
+        public DateTime? WriteLockHeldTime { get; internal set; }
+
+        public string TraceInfo { get; internal set; }
+
+        public Guid LockID { get; private set; } = Guid.NewGuid();
+
+        public Guid ObjectId { get; private set; }
+
+        public int? HoldingThreadId { get; internal set; }
+
+        public System.Collections.Concurrent.ConcurrentDictionary<long, DateTime> HeldReads { get; private set; } = new System.Collections.Concurrent.ConcurrentDictionary<long, DateTime>();
     }
 
-    internal class ReaderLock : LockBase
-    {
-        public ReaderLock(Guid key, string item, string connectionString)
-            : base(key, item, connectionString, false)
-        {
-        }
-    }
-
-    internal class WriterLock : LockBase
-    {
-        public WriterLock(Guid key, string item, string connectionString)
-            : base(key, item, connectionString, true)
-        {
-        }
-    }
+    #endregion
 
 }

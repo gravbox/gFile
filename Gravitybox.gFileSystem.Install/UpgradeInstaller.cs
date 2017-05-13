@@ -33,7 +33,7 @@ namespace Gravitybox.gFileSystem.Install
         internal const string DEFAULT_NAMESPACE = "Gravitybox.gFileSystem.Install";
         internal const string MODELKEY = "d570da75-dc5a-443f-83e7-b964165ae8e7";
         private GeneratedVersion _previousVersion = null;
-        private static GeneratedVersion _upgradeToVersion = new GeneratedVersion(0, 0, 0, 0, 17);
+        private static GeneratedVersion _upgradeToVersion = new GeneratedVersion(0, 0, 0, 0, 19);
         private InstallSetup _setup = null;
         private System.Data.SqlClient.SqlConnection _connection;
         private System.Data.SqlClient.SqlTransaction _transaction;
