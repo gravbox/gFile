@@ -110,14 +110,14 @@ namespace Gravitybox.gFileSystem.Service.Common
 
                 using (var fs = File.Open(fileName, FileMode.Open, FileAccess.Read))
                 {
-                    Guid token = Guid.Empty;
+                    FileDataInfo fileInfo = null;
                     RetryHelper.DefaultRetryPolicy(3)
                         .Execute(() =>
                         {
                             using (var factory = GetFactory(_server, _port))
                             {
                                 var service = factory.CreateChannel();
-                                token = service.SendFileStart(block);
+                                fileInfo = service.SendFileStart(block);
                             }
                         });
 
@@ -135,7 +135,7 @@ namespace Gravitybox.gFileSystem.Service.Common
                                 using (var factory = GetFactory(_server, _port))
                                 {
                                     var service = factory.CreateChannel();
-                                    var wasSaved = service.SendFileData(token, bb, ii);
+                                    var wasSaved = service.SendFileData(fileInfo.Token, bb, ii);
                                 }
                             });
 
@@ -156,7 +156,7 @@ namespace Gravitybox.gFileSystem.Service.Common
                             using (var factory = GetFactory(_server, _port))
                             {
                                 var service = factory.CreateChannel();
-                                retval = service.SendFileEnd(_masterKey, token);
+                                retval = service.SendFileEnd(_masterKey, fileInfo.Token);
                             }
                         });
                     return retval;
@@ -180,18 +180,18 @@ namespace Gravitybox.gFileSystem.Service.Common
         {
             try
             {
-                Guid token = Guid.Empty;
+                FileDataInfo fileInfo = null;
                 RetryHelper.DefaultRetryPolicy(3)
                         .Execute(() =>
                         {
                             using (var factory = GetFactory(_server, _port))
                             {
                                 var service = factory.CreateChannel();
-                                token = service.GetFileStart(_masterKey, tenantId, container, fileName);
+                                fileInfo = service.GetFileStart(_masterKey, tenantId, container, fileName);
                             }
                         });
 
-                if (token == Guid.Empty)
+                if (fileInfo.Token == Guid.Empty)
                     return null;
 
                 var index = 0;
@@ -209,7 +209,7 @@ namespace Gravitybox.gFileSystem.Service.Common
                                 using (var factory = GetFactory(_server, _port))
                                 {
                                     var service = factory.CreateChannel();
-                                    arr = service.GetFilePart(token, index);
+                                    arr = service.GetFilePart(fileInfo.Token, index);
 
                                     if (arr != null)
                                     {

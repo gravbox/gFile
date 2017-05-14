@@ -43,6 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FileDataInfo.cs" />
     <Compile Include="FilePart.cs" />
     <Compile Include="FileProgressEventArgs.cs" />
     <Compile Include="FileUtilities.cs" />

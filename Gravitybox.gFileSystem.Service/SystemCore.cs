@@ -14,7 +14,7 @@ using System.Web;
 namespace Gravitybox.gFileSystem.Service
 {
     [Serializable()]
-    [KnownType(typeof(FileInfo))]
+    [KnownType(typeof(FileDataInfo))]
     [ServiceBehavior(ConcurrencyMode = ConcurrencyMode.Multiple, InstanceContextMode = InstanceContextMode.Single)]
     public class SystemCore : MarshalByRefObject, ISystemCore, IDisposable
     {
@@ -39,7 +39,7 @@ namespace Gravitybox.gFileSystem.Service
         /// Initialize a file for upload
         /// </summary>
         /// <returns>Token that is used to append data in chunk</returns>
-        public Guid SendFileStart(FileInformation block)
+        public FileDataInfo SendFileStart(FileInformation block)
         {
             if (block == null)
                 throw new Exception("Fie information not set");
@@ -84,7 +84,11 @@ namespace Gravitybox.gFileSystem.Service
                         cache.DataFolder = Path.Combine(ConfigHelper.WorkFolder, cache.ID.ToString());
                         Directory.CreateDirectory(cache.DataFolder);
                     }
-                    return cache.ID;
+                    return new FileDataInfo
+                    {
+                        Token = cache.ID,
+                        Size = cache.Size,
+                    };
                 }
                 catch (Exception ex)
                 {
@@ -243,14 +247,15 @@ namespace Gravitybox.gFileSystem.Service
         /// Initialize a file for download
         /// </summary>
         /// <returns>Token that is used to get file chunks</returns>
-        public Guid GetFileStart(byte[] _masterKey, Guid tenantId, string container, string fileName)
+        public FileDataInfo GetFileStart(byte[] _masterKey, Guid tenantId, string container, string fileName)
         {
             try
             {
+                var retval = new FileDataInfo();
                 using (var fm = new FileManager(_masterKey))
                 {
                     var info = fm.GetFileInfo(tenantId, container, fileName);
-                    if (info == null) return Guid.Empty;
+                    if (info == null) return retval;
 
                     var token = Guid.NewGuid();
                     if (info.Size <= ConfigHelper.MaxMemoryFileSize)
@@ -260,6 +265,7 @@ namespace Gravitybox.gFileSystem.Service
                         {
                             Data = data,
                             InMem = true,
+                            Size = info.Size,
                         });
                     }
                     else
@@ -267,9 +273,13 @@ namespace Gravitybox.gFileSystem.Service
                         _fileDownloadCache.Add(token, new FilePartCache
                         {
                             DecryptStream = fm.GetFile(tenantId, container, fileName),
+                            Size = info.Size,
                         });
                     }
-                    return token;
+
+                    retval.Token = token;
+                    retval.Size = info.Size;
+                    return retval;
                 }
             }
             catch (Exception ex)
@@ -507,7 +517,6 @@ namespace Gravitybox.gFileSystem.Service
         void IDisposable.Dispose()
         {
         }
-
     }
 
     internal class FilePartCache
