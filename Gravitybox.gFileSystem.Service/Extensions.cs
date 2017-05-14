@@ -16,7 +16,7 @@ namespace Gravitybox.gFileSystem.Service
             try
             {
                 var aes = CryptoProvider(masterKey, iv);
-                using (ICryptoTransform encrypt = aes.CreateEncryptor())
+                using (var encrypt = aes.CreateEncryptor())
                 {
                     byte[] dest = encrypt.TransformFinalBlock(src, 0, src.Length);
                     return dest;
@@ -33,7 +33,7 @@ namespace Gravitybox.gFileSystem.Service
             try
             {
                 var aes = CryptoProvider(masterKey, iv);
-                using (ICryptoTransform decrypt = aes.CreateDecryptor())
+                using (var decrypt = aes.CreateDecryptor())
                 {
                     byte[] dest = decrypt.TransformFinalBlock(src, 0, src.Length);
                     return dest;
@@ -45,7 +45,7 @@ namespace Gravitybox.gFileSystem.Service
             }
         }
 
-        private static AesCryptoServiceProvider CryptoProvider(byte[] key, byte[] iv)
+        internal static AesCryptoServiceProvider CryptoProvider(byte[] key, byte[] iv)
         {
             var aes = new AesCryptoServiceProvider();
             aes.IV = iv;
@@ -60,7 +60,7 @@ namespace Gravitybox.gFileSystem.Service
             try
             {
                 var aes = CryptoProvider(header.DataKey, iv);
-                using (ICryptoTransform encryptor = aes.CreateEncryptor())
+                using (var encryptor = aes.CreateEncryptor())
                 {
                     using (var newFile = File.Create(targetFile))
                     {
@@ -95,10 +95,10 @@ namespace Gravitybox.gFileSystem.Service
                 header.DataKey = header.EncryptedDataKey.Decrypt(header.TenantKey, iv);
 
                 var aes = CryptoProvider(header.DataKey, iv);
-                using (ICryptoTransform encryptor = aes.CreateDecryptor())
+                using (var decryptor = aes.CreateDecryptor())
                 {
                     src.Seek(FileHeader.FileHeaderSize, SeekOrigin.Begin);
-                    using (var cryptoStream = new CryptoStream(src, encryptor, CryptoStreamMode.Read))
+                    using (var cryptoStream = new CryptoStream(src, decryptor, CryptoStreamMode.Read))
                     {
                         cryptoStream.CopyTo(dest);
                     }

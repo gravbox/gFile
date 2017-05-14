@@ -61,7 +61,7 @@ namespace Gravitybox.gFileSystem.Service
         /// <summary>
         /// Given a file, this will encrypt it and put it in storage
         /// </summary>
-        public string SaveFile(string fileName)
+        public string SaveFile(System.IO.Stream fs)
         {
             try
             {
@@ -70,10 +70,7 @@ namespace Gravitybox.gFileSystem.Service
                 header.EncryptedDataKey = header.DataKey.Encrypt(_tenantKey, _iv);
                 header.TenantKey = _tenantKey;
 
-                using (var fs = File.Open(fileName, FileMode.Open, FileAccess.Read))
-                {
-                    fs.EncryptStream(newFile, _iv, header);
-                }
+                fs.EncryptStream(newFile, _iv, header);
                 return newFile;
             }
             catch (Exception ex)

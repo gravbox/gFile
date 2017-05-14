@@ -17,14 +17,15 @@ namespace TestHarness
 
         static void Main(string[] args)
         {
+            System.Threading.Thread.Sleep(2000);
             var testFolder = @"C:\Program Files (x86)\Notepad++";
 
             Test1();
-            Test2(testFolder);
-            TestManyTenants(testFolder);
-            TestRekeyTenant();
-            TestMultipleTenants();
-            TestRemoveAll();
+            //Test2(testFolder);
+            //TestManyTenants(testFolder);
+            //TestRekeyTenant();
+            //TestMultipleTenants();
+            //TestRemoveAll();
 
             Console.WriteLine("Complete...");
             Console.ReadLine();
@@ -52,6 +53,8 @@ namespace TestHarness
 
                 //Compare the 2 plain text files
                 var isEqual = FileUtilities.FilesAreEqual(plainFile, newFile);
+                if (isEqual) Console.WriteLine("Files match");
+                else Console.WriteLine("ERROR: Files do not match!");
                 Debug.Assert(isEqual);
 
                 //Remove the file from storage

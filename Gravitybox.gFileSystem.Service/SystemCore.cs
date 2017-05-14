@@ -5,6 +5,7 @@ using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Security.Cryptography;
 using System.ServiceModel;
 using System.Text;
 using System.Web;
@@ -184,13 +185,20 @@ namespace Gravitybox.gFileSystem.Service
                     var outFile = Path.Combine(cache.DataFolder, "out");
                     this.CombineAndWipe(cache.DataFolder, outFile, cache.OneTimeKey);
 
-                    var crc = Common.FileUtilities.FileCRC(outFile);
+                    var crc = cache.CRC;
                     if (crc == cache.CRC)
                     {
                         //Write to file system
                         using (var fm = new FileManager(_masterKey))
                         {
-                            retval = fm.SaveFile(cache.TenantID, cache.Container, cache.FileName, outFile);
+                            retval = fm.SaveFile(
+                                tenantID: cache.TenantID,
+                                container: cache.Container,
+                                fileKey: cache.FileName,
+                                dataFile: outFile,
+                                dataKey: cache.OneTimeKey,
+                                crc: cache.CRC,
+                                fileLen: cache.Size);
                         }
                         Common.FileUtilities.WipeFile(outFile);
                         Directory.Delete(cache.DataFolder, true);
@@ -429,28 +437,36 @@ namespace Gravitybox.gFileSystem.Service
                             .OrderBy(x => x)
                             .ToList();
 
-                using (var outputStream = File.Create(outFile))
+                var aes = Extensions.CryptoProvider(key, FileEngine.DefaultIVector);
+                using (var encryptor = aes.CreateEncryptor())
                 {
-                    foreach (var inputFilePath in inputFilePaths)
+                    using (var outputStream = File.Create(outFile))
                     {
-                        using (var inputStream = File.OpenRead(inputFilePath))
+                        using (var cryptoStream = new CryptoStream(outputStream, encryptor, CryptoStreamMode.Write))
                         {
-                            using (var ms = new MemoryStream())
+                            //Take the encrypted file parts and combine into an encrypted OUT file
+                            foreach (var inputFilePath in inputFilePaths)
                             {
-                                var header = new FileHeader
+                                using (var inputStream = File.OpenRead(inputFilePath))
                                 {
-                                    DataKey = key,
-                                    EncryptedDataKey = key.Encrypt(key, FileEngine.DefaultIVector),
-                                    TenantKey = key,
-                                };
+                                    using (var ms = new MemoryStream())
+                                    {
+                                        var header = new FileHeader
+                                        {
+                                            DataKey = key,
+                                            EncryptedDataKey = key.Encrypt(key, FileEngine.DefaultIVector),
+                                            TenantKey = key,
+                                        };
 
-                                //TODO: make the out file encrypted: It is plain text now!
-                                inputStream.DecryptStream(ms, FileEngine.DefaultIVector, header);
-                                ms.Seek(0, SeekOrigin.Begin);
-                                ms.CopyTo(outputStream);
+                                        //The OUT file is encrypted
+                                        inputStream.DecryptStream(ms, FileEngine.DefaultIVector, header);
+                                        ms.Seek(0, SeekOrigin.Begin);
+                                        ms.CopyTo(cryptoStream);
+                                    }
+                                }
+                                FileUtilities.WipeFile(inputFilePath);
                             }
                         }
-                        Common.FileUtilities.WipeFile(inputFilePath);
                     }
                 }
             }

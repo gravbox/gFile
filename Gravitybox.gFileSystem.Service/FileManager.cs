@@ -9,6 +9,7 @@ using System.IO;
 using System.Data.SqlClient;
 using System.Data;
 using Gravitybox.gFileSystem.Service.Common;
+using System.Security.Cryptography;
 
 namespace Gravitybox.gFileSystem.Service
 {
@@ -201,9 +202,9 @@ namespace Gravitybox.gFileSystem.Service
                     //Create engine
                     var tenantKey = tenant.Key.Decrypt(_masterKey, _iv);
                     var newKey = FileUtilities.GetNewKey();
-                    using (var fe = new FileEngine(_masterKey, tenantKey, tenantID, _iv))
+                    using (var engine = new FileEngine(_masterKey, tenantKey, tenantID, _iv))
                     {
-                        fe.WorkingFolder = ConfigHelper.WorkFolder;
+                        engine.WorkingFolder = ConfigHelper.WorkFolder;
 
                         using (var context = new gFileSystemEntities(ConfigHelper.ConnectionString))
                         {
@@ -219,7 +220,7 @@ namespace Gravitybox.gFileSystem.Service
                                 var existingFile = GetFilePath(tenant.UniqueKey, stash.Container.UniqueKey, stash);
                                 if (File.Exists(existingFile))
                                 {
-                                    if (fe.RekeyFile(existingFile, newKey))
+                                    if (engine.RekeyFile(existingFile, newKey))
                                         count++;
                                 }
                             }
@@ -255,71 +256,72 @@ namespace Gravitybox.gFileSystem.Service
                 {
                     //Create engine
                     var tenantKey = tenant.Key.Decrypt(_masterKey, _iv);
-                    var fe = new FileEngine(_masterKey, tenantKey, tenantID, _iv);
-
-                    using (var context = new gFileSystemEntities(ConfigHelper.ConnectionString))
+                    using (var engine = new FileEngine(_masterKey, tenantKey, tenantID, _iv))
                     {
-                        //Delete the old file if one exists
-                        var stash = context.FileStash
-                            .Include(x => x.Container)
-                            .Where(x =>
-                                x.TenantID == tenant.TenantID &&
-                                x.Path == fileName &&
-                                x.Container.Name == container)
+                        using (var context = new gFileSystemEntities(ConfigHelper.ConnectionString))
+                        {
+                            //Delete the old file if one exists
+                            var stash = context.FileStash
+                                .Include(x => x.Container)
+                                .Where(x =>
+                                    x.TenantID == tenant.TenantID &&
+                                    x.Path == fileName &&
+                                    x.Container.Name == container)
+                                    .FirstOrDefault();
+                            if (stash != null)
+                            {
+                                var existingFile = GetFilePath(tenant.UniqueKey, stash.Container.UniqueKey, stash);
+                                if (File.Exists(existingFile))
+                                    File.Delete(existingFile);
+                                context.DeleteItem(stash);
+                                context.SaveChanges();
+                            }
+
+                            var crc = FileUtilities.FileCRC(data);
+
+                            //Determine if should compress
+                            var isCompressed = false;
+                            var fi = new FileInfo(fileName);
+                            var origSize = data.Length;
+                            if (!_skipZipExtensions.Contains(fi.Extension.ToLower()) && data.Length > 5000)
+                            {
+                                data = FileUtilities.ZipArray(data);
+                                isCompressed = true;
+                            }
+
+                            //Do the actual encryption
+                            var cipherFile = engine.SaveFile(data);
+                            var fiCipher = new FileInfo(cipherFile);
+
+                            var containerItem = context.Container
+                                .Where(x => x.TenantId == tenant.TenantID && x.Name == container)
                                 .FirstOrDefault();
-                        if (stash != null)
-                        {
-                            var existingFile = GetFilePath(tenant.UniqueKey, stash.Container.UniqueKey, stash);
-                            if (File.Exists(existingFile))
-                                File.Delete(existingFile);
-                            context.DeleteItem(stash);
+
+                            if (containerItem == null)
+                            {
+                                containerItem = new Container { TenantId = tenant.TenantID, Name = container };
+                                context.AddItem(containerItem);
+                                context.SaveChanges();
+                                Directory.CreateDirectory(Path.Combine(ConfigHelper.StorageFolder, tenantID.ToString(), containerItem.UniqueKey.ToString()));
+                            }
+
+                            stash = new FileStash
+                            {
+                                Path = fileName,
+                                TenantID = tenant.TenantID,
+                                Size = origSize,
+                                StorageSize = fiCipher.Length,
+                                ContainerId = containerItem.ContainerId,
+                                CrcPlain = crc,
+                                IsCompressed = isCompressed,
+                            };
+                            context.AddItem(stash);
                             context.SaveChanges();
+
+                            //Move the cipher file to storage
+                            var destFile = GetFilePath(tenant.UniqueKey, containerItem.UniqueKey, stash);
+                            File.Move(cipherFile, destFile);
                         }
-
-                        var crc = FileUtilities.FileCRC(data);
-
-                        //Determine if should compress
-                        var isCompressed = false;
-                        var fi = new FileInfo(fileName);
-                        var origSize = data.Length;
-                        if (!_skipZipExtensions.Contains(fi.Extension.ToLower()) && data.Length > 5000)
-                        {
-                            data = FileUtilities.ZipArray(data);
-                            isCompressed = true;
-                        }
-
-                        //Do the actual encryption
-                        var cipherFile = fe.SaveFile(data);
-                        var fiCipher = new FileInfo(cipherFile);
-
-                        var containerItem = context.Container
-                            .Where(x => x.TenantId == tenant.TenantID && x.Name == container)
-                            .FirstOrDefault();
-
-                        if (containerItem == null)
-                        {
-                            containerItem = new Container { TenantId = tenant.TenantID, Name = container };
-                            context.AddItem(containerItem);
-                            context.SaveChanges();
-                            Directory.CreateDirectory(Path.Combine(ConfigHelper.StorageFolder, tenantID.ToString(), containerItem.UniqueKey.ToString()));
-                        }
-
-                        stash = new FileStash
-                        {
-                            Path = fileName,
-                            TenantID = tenant.TenantID,
-                            Size = origSize,
-                            StorageSize = fiCipher.Length,
-                            ContainerId = containerItem.ContainerId,
-                            CrcPlain = crc,
-                            IsCompressed = isCompressed,
-                        };
-                        context.AddItem(stash);
-                        context.SaveChanges();
-
-                        //Move the cipher file to storage
-                        var destFile = GetFilePath(tenant.UniqueKey, containerItem.UniqueKey, stash);
-                        File.Move(cipherFile, destFile);
                     }
 
                     return true;
@@ -339,10 +341,11 @@ namespace Gravitybox.gFileSystem.Service
         /// </summary>
         /// <param name="tenantID">The tenant account under which to store this file</param>
         /// <param name="container">The container name under which to store this file</param>
-        /// <param name="fileName">The file name to store</param>
+        /// <param name="fileKey">The file name to store</param>
         /// <param name="dataFile">If the data is in a different file then specify it here</param>
         /// <returns></returns>
-        public bool SaveFile(Guid tenantID, string container, string fileName, string dataFile = null)
+        public bool SaveFile(Guid tenantID, string container, string fileKey, string dataFile, 
+            byte[] dataKey, string crc, long fileLen)
         {
             if (string.IsNullOrEmpty(container))
                 throw new Exception("The container must be set");
@@ -353,84 +356,92 @@ namespace Gravitybox.gFileSystem.Service
 
             try
             {
-                using (var q = new WriterLock(tenantID, container + "|" + fileName))
+                using (var q = new WriterLock(tenantID, container + "|" + fileKey))
                 {
                     //Create engine
                     var tenantKey = tenant.Key.Decrypt(_masterKey, _iv);
-                    var fe = new FileEngine(_masterKey, tenantKey, tenantID, _iv);
-                    fe.WorkingFolder = ConfigHelper.WorkFolder;
-
-                    using (var context = new gFileSystemEntities(ConfigHelper.ConnectionString))
+                    using (var engine = new FileEngine(_masterKey, tenantKey, tenantID, _iv))
                     {
-                        //Delete the old file if one exists
-                        var stash = context.FileStash
-                            .Include(x => x.Container)
-                            .Where(x =>
-                                x.TenantID == tenant.TenantID &&
-                                x.Path == fileName &&
-                                x.Container.Name == container)
-                                .FirstOrDefault();
-                        if (stash != null)
+                        engine.WorkingFolder = ConfigHelper.WorkFolder;
+                        using (var context = new gFileSystemEntities(ConfigHelper.ConnectionString))
                         {
-                            var existingFile = GetFilePath(tenant.UniqueKey, stash.Container.UniqueKey, stash);
-                            if (File.Exists(existingFile))
-                                File.Delete(existingFile);
-                            context.DeleteItem(stash);
-                            context.SaveChanges();
-                        }
-
-                        //Encrypt/save file
-                        if (string.IsNullOrEmpty(dataFile))
-                            dataFile = fileName;
-
-                        var crc = FileUtilities.FileCRC(dataFile);
-
-                        //Determine if should compress
-                        var isCompressed = false;
-                        var fi = new FileInfo(fileName);
-                        if (!_skipZipExtensions.Contains(fi.Extension.ToLower()) && fi.Length > 5000)
-                        {
-                            var zipFile = dataFile + ".z";
-                            if (FileUtilities.ZipFile(dataFile, zipFile))
+                            //Delete the old file if one exists
+                            var stash = context.FileStash
+                                .Include(x => x.Container)
+                                .Where(x =>
+                                    x.TenantID == tenant.TenantID &&
+                                    x.Path == fileKey &&
+                                    x.Container.Name == container)
+                                    .FirstOrDefault();
+                            if (stash != null)
                             {
-                                FileUtilities.WipeFile(dataFile);
-                                dataFile = zipFile;
-                                isCompressed = true;
+                                var existingFile = GetFilePath(tenant.UniqueKey, stash.Container.UniqueKey, stash);
+                                if (File.Exists(existingFile))
+                                    File.Delete(existingFile);
+                                context.DeleteItem(stash);
+                                context.SaveChanges();
                             }
-                        }
 
-                        //Do the actual encryption
-                        var cipherFile = fe.SaveFile(dataFile);
-                        var fiCipher = new FileInfo(cipherFile);
+                            //Determine if should compress
+                            var isCompressed = false;
+                            //var fi = new FileInfo(dataFile);
+                            //if (!_skipZipExtensions.Contains(fi.Extension.ToLower()) && fi.Length > 5000)
+                            //{
+                            //    var zipFile = dataFile + ".z";
+                            //    if (FileUtilities.ZipFile(dataFile, zipFile))
+                            //    {
+                            //        FileUtilities.WipeFile(dataFile);
+                            //        dataFile = zipFile;
+                            //        isCompressed = true;
+                            //    }
+                            //}
 
-                        var containerItem = context.Container
-                            .Where(x => x.TenantId == tenant.TenantID && x.Name == container)
-                            .FirstOrDefault();
+                            //Take the encrypted temp file and perform the actual storage encryption
+                            string cipherFile = null;
+                            using (var fs = File.Open(dataFile, FileMode.Open, FileAccess.Read))
+                            {
+                                var aes = Extensions.CryptoProvider(dataKey, FileEngine.DefaultIVector);
+                                using (var decryptor = aes.CreateDecryptor())
+                                {
+                                    using (var cryptoStream = new CryptoStream(fs, decryptor, CryptoStreamMode.Read))
+                                    {
+                                        cipherFile = engine.SaveFile(cryptoStream);
+                                        //stream.CopyTo(cryptoStream);
+                                    }
+                                }
+                            }
 
-                        if (containerItem == null)
-                        {
-                            containerItem = new Container { TenantId = tenant.TenantID, Name = container };
-                            context.AddItem(containerItem);
+                            var fiCipher = new FileInfo(cipherFile);
+
+                            var containerItem = context.Container
+                                .Where(x => x.TenantId == tenant.TenantID && x.Name == container)
+                                .FirstOrDefault();
+
+                            if (containerItem == null)
+                            {
+                                containerItem = new Container { TenantId = tenant.TenantID, Name = container };
+                                context.AddItem(containerItem);
+                                context.SaveChanges();
+                                Directory.CreateDirectory(Path.Combine(ConfigHelper.StorageFolder, tenantID.ToString(), containerItem.UniqueKey.ToString()));
+                            }
+
+                            stash = new FileStash
+                            {
+                                Path = fileKey,
+                                TenantID = tenant.TenantID,
+                                Size = fileLen,
+                                StorageSize = fiCipher.Length,
+                                ContainerId = containerItem.ContainerId,
+                                CrcPlain = crc,
+                                IsCompressed = isCompressed,
+                            };
+                            context.AddItem(stash);
                             context.SaveChanges();
-                            Directory.CreateDirectory(Path.Combine(ConfigHelper.StorageFolder, tenantID.ToString(), containerItem.UniqueKey.ToString()));
+
+                            //Move the cipher file to storage
+                            var destFile = GetFilePath(tenant.UniqueKey, containerItem.UniqueKey, stash);
+                            File.Move(cipherFile, destFile);
                         }
-
-                        stash = new FileStash
-                        {
-                            Path = fileName,
-                            TenantID = tenant.TenantID,
-                            Size = fi.Length,
-                            StorageSize = fiCipher.Length,
-                            ContainerId = containerItem.ContainerId,
-                            CrcPlain = crc,
-                            IsCompressed = isCompressed,
-                        };
-                        context.AddItem(stash);
-                        context.SaveChanges();
-
-                        //Move the cipher file to storage
-                        var destFile = GetFilePath(tenant.UniqueKey, containerItem.UniqueKey, stash);
-                        File.Move(cipherFile, destFile);
                     }
 
                     return true;
@@ -512,11 +523,14 @@ namespace Gravitybox.gFileSystem.Service
 
                     //Create engine
                     var tenantKey = tenant.Key.Decrypt(_masterKey, _iv);
-                    var fe = new FileEngine(_masterKey, tenantKey, tenantID, _iv);
-                    fe.WorkingFolder = ConfigHelper.WorkFolder;
-
-                    var cipherFile = GetFilePath(tenant.UniqueKey, stash.Container.UniqueKey, stash);
-                    var plainText = fe.GetFile(cipherFile);
+                    string cipherFile = null;
+                    string plainText = null;
+                    using (var engine = new FileEngine(_masterKey, tenantKey, tenantID, _iv))
+                    {
+                        engine.WorkingFolder = ConfigHelper.WorkFolder;
+                        cipherFile = GetFilePath(tenant.UniqueKey, stash.Container.UniqueKey, stash);
+                        plainText = engine.GetFile(cipherFile);
+                    }
 
                     if (stash.IsCompressed)
                     {
@@ -544,6 +558,9 @@ namespace Gravitybox.gFileSystem.Service
             }
         }
 
+        /// <summary>
+        /// Get the entire decrypted contents as a byte array
+        /// </summary>
         public byte[] GetFileData(Guid tenantID, string container, string fileName)
         {
             if (string.IsNullOrEmpty(container))
@@ -574,11 +591,15 @@ namespace Gravitybox.gFileSystem.Service
 
                     //Create engine
                     var tenantKey = tenant.Key.Decrypt(_masterKey, _iv);
-                    var fe = new FileEngine(_masterKey, tenantKey, tenantID, _iv);
-                    fe.WorkingFolder = ConfigHelper.WorkFolder;
+                    string cipherFile = null;
+                    byte[] data = null;
+                    using (var engine = new FileEngine(_masterKey, tenantKey, tenantID, _iv))
+                    {
+                        engine.WorkingFolder = ConfigHelper.WorkFolder;
 
-                    var cipherFile = GetFilePath(tenant.UniqueKey, stash.Container.UniqueKey, stash);
-                    var data = fe.GetFileData(cipherFile);
+                        cipherFile = GetFilePath(tenant.UniqueKey, stash.Container.UniqueKey, stash);
+                        data = engine.GetFileData(cipherFile);
+                    }
 
                     if (stash.IsCompressed)
                     {
