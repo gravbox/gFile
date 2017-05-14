@@ -14,18 +14,35 @@ namespace Gravitybox.gFileSystem.Service.Common
     /// </summary>
     public class SystemConnection : IDisposable
     {
-        private ChannelFactory<ISystemCore> _factory = null;
-        private ISystemCore _service = null;
-        private byte[] _masterKey = null;
+        protected byte[] _masterKey = null;
+        protected string _server = null;
+        protected int _port = 0;
+
+        public delegate void FileUploadEventHandler(object sender, FileProgressEventArgs e);
+
+        public event FileUploadEventHandler FileUpload;
+        public event FileUploadEventHandler FileDownload;
+
+        protected virtual void OnFileUpload(FileProgressEventArgs e)
+        {
+            if (this.FileUpload != null)
+                this.FileUpload(this, e);
+        }
+
+        protected virtual void OnFileDownload(FileProgressEventArgs e)
+        {
+            if (this.FileDownload != null)
+                this.FileDownload(this, e);
+        }
 
         public SystemConnection(byte[] masterKey, string server = "localhost", int port = 1900)
         {
             if (masterKey == null || masterKey.Length != 32)
                 throw new Exception("Invalid master key");
 
+            _server = server;
+            _port = port;
             _masterKey = masterKey;
-            _factory = GetFactory(server, port);
-            _service = _factory.CreateChannel();
         }
 
         /// <summary>
@@ -61,7 +78,11 @@ namespace Gravitybox.gFileSystem.Service.Common
             RetryHelper.DefaultRetryPolicy(3)
                 .Execute(() =>
                 {
-                    retval = _service.GetOrAddTenant(_masterKey, name);
+                    using (var factory = GetFactory(_server, _port))
+                    {
+                        var service = factory.CreateChannel();
+                        retval = service.GetOrAddTenant(_masterKey, name);
+                    }
                 });
             return retval;
         }
@@ -76,7 +97,7 @@ namespace Gravitybox.gFileSystem.Service.Common
                 //Save the file
                 var fi = new FileInfo(fileName);
                 const int blockSize = 1024 * 1024;
-                var count = Math.Ceiling((fi.Length * 1.0) / blockSize);
+                var count = (int)Math.Ceiling((fi.Length * 1.0) / blockSize);
 
                 var block = new FileInformation
                 {
@@ -93,10 +114,14 @@ namespace Gravitybox.gFileSystem.Service.Common
                     RetryHelper.DefaultRetryPolicy(3)
                         .Execute(() =>
                         {
-                            token = _service.SendFileStart(block);
+                            using (var factory = GetFactory(_server, _port))
+                            {
+                                var service = factory.CreateChannel();
+                                token = service.SendFileStart(block);
+                            }
                         });
 
-                    for (var ii = 1; ii <= count; ii++)
+                    for (var ii = 0; ii < count; ii++)
                     {
                         var bb = new byte[blockSize];
                         var c = fs.Read(bb, 0, bb.Length);
@@ -107,8 +132,20 @@ namespace Gravitybox.gFileSystem.Service.Common
                         RetryHelper.DefaultRetryPolicy(3)
                             .Execute(() =>
                             {
-                                var wasSaved = _service.SendFileData(token, bb, ii);
+                                using (var factory = GetFactory(_server, _port))
+                                {
+                                    var service = factory.CreateChannel();
+                                    var wasSaved = service.SendFileData(token, bb, ii);
+                                }
                             });
+
+                        this.OnFileUpload(new FileProgressEventArgs
+                        {
+                            ChunkIndex = ii,
+                            Container = container,
+                            FileName = fileName,
+                            TotalChunks = count,
+                        });
 
                     }
 
@@ -116,7 +153,11 @@ namespace Gravitybox.gFileSystem.Service.Common
                     RetryHelper.DefaultRetryPolicy(3)
                         .Execute(() =>
                         {
-                            retval = _service.SendFileEnd(_masterKey, token);
+                            using (var factory = GetFactory(_server, _port))
+                            {
+                                var service = factory.CreateChannel();
+                                retval = service.SendFileEnd(_masterKey, token);
+                            }
                         });
                     return retval;
                 }
@@ -127,6 +168,14 @@ namespace Gravitybox.gFileSystem.Service.Common
             }
         }
 
+        /// <summary>
+        /// Get a file from storage for a tenant in the specified container
+        /// </summary>
+        /// <param name="_masterKey"></param>
+        /// <param name="tenantId"></param>
+        /// <param name="container"></param>
+        /// <param name="fileName"></param>
+        /// <returns></returns>
         public string GetFile(byte[] _masterKey, Guid tenantId, string container, string fileName)
         {
             try
@@ -135,8 +184,15 @@ namespace Gravitybox.gFileSystem.Service.Common
                 RetryHelper.DefaultRetryPolicy(3)
                         .Execute(() =>
                         {
-                            token = _service.GetFileStart(_masterKey, tenantId, container, fileName);
+                            using (var factory = GetFactory(_server, _port))
+                            {
+                                var service = factory.CreateChannel();
+                                token = service.GetFileStart(_masterKey, tenantId, container, fileName);
+                            }
                         });
+
+                if (token == Guid.Empty)
+                    return null;
 
                 var index = 0;
                 var count = 0;
@@ -150,7 +206,22 @@ namespace Gravitybox.gFileSystem.Service.Common
                         RetryHelper.DefaultRetryPolicy(3)
                             .Execute(() =>
                             {
-                                arr = _service.GetFilePart(token, index);
+                                using (var factory = GetFactory(_server, _port))
+                                {
+                                    var service = factory.CreateChannel();
+                                    arr = service.GetFilePart(token, index);
+
+                                    if (arr != null)
+                                    {
+                                        this.OnFileDownload(new FileProgressEventArgs
+                                        {
+                                            ChunkIndex = index,
+                                            Container = container,
+                                            FileName = fileName,
+                                            TotalChunks = count,
+                                        });
+                                    }
+                                }
                             });
 
                         if (arr != null)
@@ -170,7 +241,7 @@ namespace Gravitybox.gFileSystem.Service.Common
         }
 
         /// <summary>
-        /// Removes a file from storage
+        /// Removes a file from storage for a tenant in the specified container
         /// </summary>
         public int RemoveFile(Guid tenantId, string container, string fileName)
         {
@@ -178,7 +249,11 @@ namespace Gravitybox.gFileSystem.Service.Common
             RetryHelper.DefaultRetryPolicy(3)
                 .Execute(() =>
                 {
-                    retval = _service.RemoveFile(_masterKey, tenantId, container, fileName);
+                    using (var factory = GetFactory(_server, _port))
+                    {
+                        var service = factory.CreateChannel();
+                        retval = service.RemoveFile(_masterKey, tenantId, container, fileName);
+                    }
                 });
             return retval;
         }
@@ -192,7 +267,11 @@ namespace Gravitybox.gFileSystem.Service.Common
             RetryHelper.DefaultRetryPolicy(3)
                 .Execute(() =>
                 {
-                    retval = _service.RemoveAll(_masterKey, tenantId, container);
+                    using (var factory = GetFactory(_server, _port))
+                    {
+                        var service = factory.CreateChannel();
+                        retval = service.RemoveAll(_masterKey, tenantId, container);
+                    }
                 });
             return retval;
         }
@@ -206,7 +285,11 @@ namespace Gravitybox.gFileSystem.Service.Common
             RetryHelper.DefaultRetryPolicy(3)
                 .Execute(() =>
                 {
-                    retval = _service.GetFileList(_masterKey, tenantID, startPattern);
+                    using (var factory = GetFactory(_server, _port))
+                    {
+                        var service = factory.CreateChannel();
+                        retval = service.GetFileList(_masterKey, tenantID, startPattern);
+                    }
                 });
             return retval;
         }
@@ -220,7 +303,11 @@ namespace Gravitybox.gFileSystem.Service.Common
             RetryHelper.DefaultRetryPolicy(3)
                 .Execute(() =>
                 {
-                    retval = _service.RekeyTenant(_masterKey, tenantID);
+                    using (var factory = GetFactory(_server, _port))
+                    {
+                        var service = factory.CreateChannel();
+                        retval = service.RekeyTenant(_masterKey, tenantID);
+                    }
                 });
             return retval;
             
@@ -230,8 +317,6 @@ namespace Gravitybox.gFileSystem.Service.Common
         {
             try
             {
-                ((IDisposable)_service).Dispose();
-                ((IDisposable)_factory).Dispose();
             }
             catch { }
         }

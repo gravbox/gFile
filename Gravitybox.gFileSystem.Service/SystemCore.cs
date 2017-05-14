@@ -8,6 +8,7 @@ using System.Runtime.Serialization;
 using System.Security.Cryptography;
 using System.ServiceModel;
 using System.Text;
+using System.Threading.Tasks;
 using System.Web;
 
 namespace Gravitybox.gFileSystem.Service
@@ -58,7 +59,7 @@ namespace Gravitybox.gFileSystem.Service
                 FileName = block.FileName,
                 CRC = block.CRC,
                 Size = block.Size,
-                Index = 1,
+                Index = 0,
             };
 
             lock (_fileUploadCache)
@@ -156,62 +157,16 @@ namespace Gravitybox.gFileSystem.Service
 
             try
             {
-                bool retval = false;
-
                 //We know the file part if valid here
                 var cache = _fileUploadPartCache[token];
 
-                if (cache.InMem)
+                //Do all the post processing like disk copy and DB update async
+                Task.Factory.StartNew(() =>
                 {
-                    var crc = Common.FileUtilities.FileCRC(cache.Data);
-                    if (crc == cache.CRC)
-                    {
-                        //If last part then write to file system
-                        using (var fm = new FileManager(_masterKey))
-                        {
-                            retval = fm.SaveFile(cache.TenantID, cache.Container, cache.FileName, cache.Data);
-                        }
-                    }
-                    else
-                    {
-                        throw new Exception("File upload failed due to CRC check");
-                    }
-                }
-                else
-                {
-                    //Get temp folder to store parts
-                    var partFolder = Path.Combine(ConfigHelper.WorkFolder, cache.ID.ToString());
-
-                    var outFile = Path.Combine(cache.DataFolder, "out");
-                    this.CombineAndWipe(cache.DataFolder, outFile, cache.OneTimeKey);
-
-                    var crc = cache.CRC;
-                    if (crc == cache.CRC)
-                    {
-                        //Write to file system
-                        using (var fm = new FileManager(_masterKey))
-                        {
-                            retval = fm.SaveFile(
-                                tenantID: cache.TenantID,
-                                container: cache.Container,
-                                fileKey: cache.FileName,
-                                dataFile: outFile,
-                                dataKey: cache.OneTimeKey,
-                                crc: cache.CRC,
-                                fileLen: cache.Size);
-                        }
-                        Common.FileUtilities.WipeFile(outFile);
-                        Directory.Delete(cache.DataFolder, true);
-                    }
-                    else
-                    {
-                        Common.FileUtilities.WipeFile(outFile);
-                        Directory.Delete(cache.DataFolder, true);
-                        throw new Exception("File upload failed due to CRC check");
-                    }
-                }
-
-                return retval;
+                    SendFileEndPostProcess(_masterKey, cache);
+                });
+                
+                return true;
             }
             catch (Exception ex)
             {
@@ -223,6 +178,64 @@ namespace Gravitybox.gFileSystem.Service
                 var cache = _fileUploadPartCache[token];
                 _fileUploadCache.Remove(cache.Key);
                 _fileUploadPartCache.Remove(token);
+            }
+        }
+
+        private void SendFileEndPostProcess(byte[] _masterKey, FilePartCache cache)
+        {
+            bool retval;
+            if (cache.InMem)
+            {
+                #region InMem processing
+                var crc = Common.FileUtilities.FileCRC(cache.Data);
+                if (crc == cache.CRC)
+                {
+                    //If last part then write to file system
+                    using (var fm = new FileManager(_masterKey))
+                    {
+                        retval = fm.SaveFile(cache.TenantID, cache.Container, cache.FileName, cache.Data);
+                    }
+                }
+                else
+                {
+                    throw new Exception("File upload failed due to CRC check");
+                }
+                #endregion
+            }
+            else
+            {
+                #region Disk Processing
+                //Get temp folder to store parts
+                var partFolder = Path.Combine(ConfigHelper.WorkFolder, cache.ID.ToString());
+
+                var outFile = Path.Combine(cache.DataFolder, "out");
+                this.CombineAndWipe(cache.DataFolder, outFile, cache.OneTimeKey);
+
+                var crc = cache.CRC;
+                if (crc == cache.CRC)
+                {
+                    //Write to file system
+                    using (var fm = new FileManager(_masterKey))
+                    {
+                        retval = fm.SaveFile(
+                            tenantID: cache.TenantID,
+                            container: cache.Container,
+                            fileKey: cache.FileName,
+                            dataFile: outFile,
+                            dataKey: cache.OneTimeKey,
+                            crc: cache.CRC,
+                            fileLen: cache.Size);
+                    }
+                    Common.FileUtilities.WipeFile(outFile);
+                    Directory.Delete(cache.DataFolder, true);
+                }
+                else
+                {
+                    Common.FileUtilities.WipeFile(outFile);
+                    Directory.Delete(cache.DataFolder, true);
+                    throw new Exception("File upload failed due to CRC check");
+                }
+                #endregion
             }
         }
 
@@ -526,7 +539,7 @@ namespace Gravitybox.gFileSystem.Service
         /// <summary>
         /// The current index of the file part being uploaded/downloaded
         /// </summary>
-        public int Index { get; set; } = 1;
+        public int Index { get; set; } = 0;
         /// <summary>
         /// The temp data folder in the working area used to store the file contents while in transit
         /// </summary>

@@ -35,12 +35,17 @@ namespace TestHarness
         {
             using (var service = new SystemConnection(MasterKey))
             {
+                service.FileUpload += (object sender, FileProgressEventArgs e) => Console.WriteLine("Upload " + e.ChunkIndex + " of " + e.TotalChunks);
+                service.FileDownload += (object sender, FileProgressEventArgs e) => Console.WriteLine("Download " + e.ChunkIndex);
+
                 //Get/create tenant
                 const string TenantName = "Test1";
                 var tenantId = service.GetOrAddTenant(TenantName);
 
                 //This is the plain text file to test
-                var plainFile = @"c:\temp\test.txt";
+                //var plainFile = @"c:\temp\test.txt";
+                //var plainFile = @"d:\temp\bigfile.iso";
+                var plainFile = @"c:\temp\qqq.xml";
 
                 //Save the file
                 var timer = Stopwatch.StartNew();
@@ -48,8 +53,15 @@ namespace TestHarness
                 timer.Stop();
                 Console.WriteLine("Write file: Elapsed=" + timer.ElapsedMilliseconds);
 
-                //Get the save file by name
-                var newFile = service.GetFile(MasterKey, tenantId, Container, plainFile);
+                //Get the saved file by name
+                //Big files are processed on the server async so 
+                //Loop and until the file is available
+                string newFile = null;
+                do
+                {
+                    newFile = service.GetFile(MasterKey, tenantId, Container, plainFile);
+                    System.Threading.Thread.Sleep(500);
+                } while (newFile == null);
 
                 //Compare the 2 plain text files
                 var isEqual = FileUtilities.FilesAreEqual(plainFile, newFile);
@@ -64,6 +76,11 @@ namespace TestHarness
                 FileUtilities.WipeFile(newFile);
             }
         }
+
+        //private static void Service_FileUpload(object sender, FileProgressEventArgs e)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
         private static void Test2(string folderName)
         {

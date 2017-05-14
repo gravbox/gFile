@@ -44,6 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FilePart.cs" />
+    <Compile Include="FileProgressEventArgs.cs" />
     <Compile Include="FileUtilities.cs" />
     <Compile Include="ISystemCore.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
