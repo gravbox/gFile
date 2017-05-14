@@ -55,6 +55,16 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 			[System.ComponentModel.Description("Field mapping for the 'CrcPlain' property")]
 			CrcPlain,
 			/// <summary>
+			/// Field mapping for the 'FileCreatedTime' property
+			/// </summary>
+			[System.ComponentModel.Description("Field mapping for the 'FileCreatedTime' property")]
+			FileCreatedTime,
+			/// <summary>
+			/// Field mapping for the 'FileModifiedTime' property
+			/// </summary>
+			[System.ComponentModel.Description("Field mapping for the 'FileModifiedTime' property")]
+			FileModifiedTime,
+			/// <summary>
 			/// Field mapping for the 'FileStashID' property
 			/// </summary>
 			[System.ComponentModel.DataAnnotations.Key]
@@ -174,6 +184,54 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 				if (eventArg.Cancel) return;
 				_crcPlain = eventArg.Value;
 				this.OnPropertyChanged(new PropertyChangedEventArgs("CrcPlain"));
+			}
+		}
+
+		/// <summary>
+		/// The property that maps back to the database 'FileStash.FileCreatedTime' field.
+		/// </summary>
+		/// <remarks>Field: [FileStash].[FileCreatedTime], Not Nullable</remarks>
+		[DataMember]
+		[System.ComponentModel.Browsable(true)]
+		[System.ComponentModel.DisplayName("FileCreatedTime")]
+		[System.Diagnostics.DebuggerNonUserCode()]
+		public virtual DateTime FileCreatedTime
+		{
+			get { return _fileCreatedTime; }
+			set
+			{
+				if ((value < GlobalValues.MIN_DATETIME)) throw new Exception("The DateTime value 'FileCreatedTime' (" + value.ToString("yyyy-MM-dd HH:mm:ss") + ") cannot be less than " + GlobalValues.MIN_DATETIME.ToString());
+				if ((value > GlobalValues.MAX_DATETIME)) throw new Exception("The DateTime value 'FileCreatedTime' (" + value.ToString("yyyy-MM-dd HH:mm:ss") + ") cannot be greater than " + GlobalValues.MAX_DATETIME.ToString());
+				if (value == _fileCreatedTime) return;
+				var eventArg = new Gravitybox.gFileSystem.EFDAL.EventArguments.ChangingEventArgs<DateTime>(value, "FileCreatedTime");
+				this.OnPropertyChanging(eventArg);
+				if (eventArg.Cancel) return;
+				_fileCreatedTime = eventArg.Value;
+				this.OnPropertyChanged(new PropertyChangedEventArgs("FileCreatedTime"));
+			}
+		}
+
+		/// <summary>
+		/// The property that maps back to the database 'FileStash.FileModifiedTime' field.
+		/// </summary>
+		/// <remarks>Field: [FileStash].[FileModifiedTime], Not Nullable</remarks>
+		[DataMember]
+		[System.ComponentModel.Browsable(true)]
+		[System.ComponentModel.DisplayName("FileModifiedTime")]
+		[System.Diagnostics.DebuggerNonUserCode()]
+		public virtual DateTime FileModifiedTime
+		{
+			get { return _fileModifiedTime; }
+			set
+			{
+				if ((value < GlobalValues.MIN_DATETIME)) throw new Exception("The DateTime value 'FileModifiedTime' (" + value.ToString("yyyy-MM-dd HH:mm:ss") + ") cannot be less than " + GlobalValues.MIN_DATETIME.ToString());
+				if ((value > GlobalValues.MAX_DATETIME)) throw new Exception("The DateTime value 'FileModifiedTime' (" + value.ToString("yyyy-MM-dd HH:mm:ss") + ") cannot be greater than " + GlobalValues.MAX_DATETIME.ToString());
+				if (value == _fileModifiedTime) return;
+				var eventArg = new Gravitybox.gFileSystem.EFDAL.EventArguments.ChangingEventArgs<DateTime>(value, "FileModifiedTime");
+				this.OnPropertyChanging(eventArg);
+				if (eventArg.Cancel) return;
+				_fileModifiedTime = eventArg.Value;
+				this.OnPropertyChanged(new PropertyChangedEventArgs("FileModifiedTime"));
 			}
 		}
 
@@ -513,6 +571,70 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 		{
 			if (this.CrcPlainChanged != null)
 				this.CrcPlainChanged(this, e);
+		}
+
+		/// <summary />
+		protected DateTime _fileCreatedTime;
+		/// <summary>
+		/// Occurs when the 'FileCreatedTime' property value change is a pending.
+		/// </summary>
+		[field:NonSerialized]
+		public event EventHandler<Gravitybox.gFileSystem.EFDAL.EventArguments.ChangingEventArgs<DateTime>> FileCreatedTimeChanging;
+
+		/// <summary>
+		/// Raises the OnFileCreatedTimeChanging event.
+		/// </summary>
+		protected virtual void OnFileCreatedTimeChanging(Gravitybox.gFileSystem.EFDAL.EventArguments.ChangingEventArgs<DateTime> e)
+		{
+			if (this.FileCreatedTimeChanging != null)
+				this.FileCreatedTimeChanging(this, e);
+		}
+
+		/// <summary>
+		/// Occurs when the 'FileCreatedTime' property value has changed.
+		/// </summary>
+		[field:NonSerialized]
+		public event EventHandler<ChangedEventArgs<DateTime>> FileCreatedTimeChanged;
+
+		/// <summary>
+		/// Raises the OnFileCreatedTimeChanged event.
+		/// </summary>
+		protected virtual void OnFileCreatedTimeChanged(ChangedEventArgs<DateTime> e)
+		{
+			if (this.FileCreatedTimeChanged != null)
+				this.FileCreatedTimeChanged(this, e);
+		}
+
+		/// <summary />
+		protected DateTime _fileModifiedTime;
+		/// <summary>
+		/// Occurs when the 'FileModifiedTime' property value change is a pending.
+		/// </summary>
+		[field:NonSerialized]
+		public event EventHandler<Gravitybox.gFileSystem.EFDAL.EventArguments.ChangingEventArgs<DateTime>> FileModifiedTimeChanging;
+
+		/// <summary>
+		/// Raises the OnFileModifiedTimeChanging event.
+		/// </summary>
+		protected virtual void OnFileModifiedTimeChanging(Gravitybox.gFileSystem.EFDAL.EventArguments.ChangingEventArgs<DateTime> e)
+		{
+			if (this.FileModifiedTimeChanging != null)
+				this.FileModifiedTimeChanging(this, e);
+		}
+
+		/// <summary>
+		/// Occurs when the 'FileModifiedTime' property value has changed.
+		/// </summary>
+		[field:NonSerialized]
+		public event EventHandler<ChangedEventArgs<DateTime>> FileModifiedTimeChanged;
+
+		/// <summary>
+		/// Raises the OnFileModifiedTimeChanged event.
+		/// </summary>
+		protected virtual void OnFileModifiedTimeChanged(ChangedEventArgs<DateTime> e)
+		{
+			if (this.FileModifiedTimeChanged != null)
+				this.FileModifiedTimeChanged(this, e);
 		}
 
 		/// <summary />
@@ -905,6 +1027,10 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 					return 0;
 				case Gravitybox.gFileSystem.EFDAL.Entity.FileStash.FieldNameConstants.CrcPlain:
 					return 32;
+				case Gravitybox.gFileSystem.EFDAL.Entity.FileStash.FieldNameConstants.FileCreatedTime:
+					return 0;
+				case Gravitybox.gFileSystem.EFDAL.Entity.FileStash.FieldNameConstants.FileModifiedTime:
+					return 0;
 				case Gravitybox.gFileSystem.EFDAL.Entity.FileStash.FieldNameConstants.FileStashID:
 					return 0;
 				case Gravitybox.gFileSystem.EFDAL.Entity.FileStash.FieldNameConstants.IsCompressed:
@@ -953,6 +1079,8 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 			{
 				case Gravitybox.gFileSystem.EFDAL.Entity.FileStash.FieldNameConstants.ContainerId: return typeof(long?);
 				case Gravitybox.gFileSystem.EFDAL.Entity.FileStash.FieldNameConstants.CrcPlain: return typeof(string);
+				case Gravitybox.gFileSystem.EFDAL.Entity.FileStash.FieldNameConstants.FileCreatedTime: return typeof(DateTime);
+				case Gravitybox.gFileSystem.EFDAL.Entity.FileStash.FieldNameConstants.FileModifiedTime: return typeof(DateTime);
 				case Gravitybox.gFileSystem.EFDAL.Entity.FileStash.FieldNameConstants.FileStashID: return typeof(long);
 				case Gravitybox.gFileSystem.EFDAL.Entity.FileStash.FieldNameConstants.IsCompressed: return typeof(bool);
 				case Gravitybox.gFileSystem.EFDAL.Entity.FileStash.FieldNameConstants.Path: return typeof(string);
@@ -1047,6 +1175,8 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 			var newItem = new FileStash();
 			newItem.ContainerId = item.ContainerId;
 			newItem.CrcPlain = item.CrcPlain;
+			newItem.FileCreatedTime = item.FileCreatedTime;
+			newItem.FileModifiedTime = item.FileModifiedTime;
 			newItem.FileStashID = item.FileStashID;
 			newItem.IsCompressed = item.IsCompressed;
 			newItem.Path = item.Path;
@@ -1082,6 +1212,10 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 				return ((this.ContainerId == null) ? defaultValue : this.ContainerId);
 			if (field == Gravitybox.gFileSystem.EFDAL.Entity.FileStash.FieldNameConstants.CrcPlain)
 				return this.CrcPlain;
+			if (field == Gravitybox.gFileSystem.EFDAL.Entity.FileStash.FieldNameConstants.FileCreatedTime)
+				return this.FileCreatedTime;
+			if (field == Gravitybox.gFileSystem.EFDAL.Entity.FileStash.FieldNameConstants.FileModifiedTime)
+				return this.FileModifiedTime;
 			if (field == Gravitybox.gFileSystem.EFDAL.Entity.FileStash.FieldNameConstants.FileStashID)
 				return this.FileStashID;
 			if (field == Gravitybox.gFileSystem.EFDAL.Entity.FileStash.FieldNameConstants.IsCompressed)
@@ -1136,6 +1270,14 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 			else if (field == Gravitybox.gFileSystem.EFDAL.Entity.FileStash.FieldNameConstants.CrcPlain)
 			{
 				this.CrcPlain = GlobalValues.SetValueHelperInternal((string)newValue, fixLength, GetMaxLength(field));
+			}
+			else if (field == Gravitybox.gFileSystem.EFDAL.Entity.FileStash.FieldNameConstants.FileCreatedTime)
+			{
+				this.FileCreatedTime = GlobalValues.SetValueHelperDateTimeNotNullableInternal(newValue, "Field 'FileCreatedTime' does not allow null values!");
+			}
+			else if (field == Gravitybox.gFileSystem.EFDAL.Entity.FileStash.FieldNameConstants.FileModifiedTime)
+			{
+				this.FileModifiedTime = GlobalValues.SetValueHelperDateTimeNotNullableInternal(newValue, "Field 'FileModifiedTime' does not allow null values!");
 			}
 			else if (field == Gravitybox.gFileSystem.EFDAL.Entity.FileStash.FieldNameConstants.FileStashID)
 			{
@@ -1205,6 +1347,8 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 			{
 				case "containerid": return "containerid";
 				case "crcplain": return "crcplain";
+				case "filecreatedtime": return "filecreatedtime";
+				case "filemodifiedtime": return "filemodifiedtime";
 				case "filestashid": return "filestashid";
 				case "iscompressed": return "iscompressed";
 				case "path": return "path";
@@ -1227,6 +1371,8 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 			{
 				case "containerid": return "FileStash";
 				case "crcplain": return "FileStash";
+				case "filecreatedtime": return "FileStash";
+				case "filemodifiedtime": return "FileStash";
 				case "filestashid": return "FileStash";
 				case "iscompressed": return "FileStash";
 				case "path": return "FileStash";
@@ -1249,6 +1395,8 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 			{
 				case "containerid": return "FileStash";
 				case "crcplain": return "FileStash";
+				case "filecreatedtime": return "FileStash";
+				case "filemodifiedtime": return "FileStash";
 				case "filestashid": return "FileStash";
 				case "iscompressed": return "FileStash";
 				case "path": return "FileStash";
@@ -1269,6 +1417,8 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 		{
 			sql = System.Text.RegularExpressions.Regex.Replace(sql, "\\[" + parentAlias + "\\]\\.\\[containerid\\]", "[" + childTables.GetBaseAliasTable(parentAlias, "FileStash") + "].[containerid]", RegexOptions.IgnoreCase);
 			sql = System.Text.RegularExpressions.Regex.Replace(sql, "\\[" + parentAlias + "\\]\\.\\[crcplain\\]", "[" + childTables.GetBaseAliasTable(parentAlias, "FileStash") + "].[crcplain]", RegexOptions.IgnoreCase);
+			sql = System.Text.RegularExpressions.Regex.Replace(sql, "\\[" + parentAlias + "\\]\\.\\[filecreatedtime\\]", "[" + childTables.GetBaseAliasTable(parentAlias, "FileStash") + "].[filecreatedtime]", RegexOptions.IgnoreCase);
+			sql = System.Text.RegularExpressions.Regex.Replace(sql, "\\[" + parentAlias + "\\]\\.\\[filemodifiedtime\\]", "[" + childTables.GetBaseAliasTable(parentAlias, "FileStash") + "].[filemodifiedtime]", RegexOptions.IgnoreCase);
 			sql = System.Text.RegularExpressions.Regex.Replace(sql, "\\[" + parentAlias + "\\]\\.\\[filestashid\\]", "[" + childTables.GetBaseAliasTable(parentAlias, "FileStash") + "].[filestashid]", RegexOptions.IgnoreCase);
 			sql = System.Text.RegularExpressions.Regex.Replace(sql, "\\[" + parentAlias + "\\]\\.\\[iscompressed\\]", "[" + childTables.GetBaseAliasTable(parentAlias, "FileStash") + "].[iscompressed]", RegexOptions.IgnoreCase);
 			sql = System.Text.RegularExpressions.Regex.Replace(sql, "\\[" + parentAlias + "\\]\\.\\[path\\]", "[" + childTables.GetBaseAliasTable(parentAlias, "FileStash") + "].[path]", RegexOptions.IgnoreCase);
@@ -1484,6 +1634,8 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 			{
 				case "ContainerId": return "ContainerId";
 				case "CrcPlain": return "CrcPlain";
+				case "FileCreatedTime": return "FileCreatedTime";
+				case "FileModifiedTime": return "FileModifiedTime";
 				case "FileStashID": return "FileStashID";
 				case "IsCompressed": return "IsCompressed";
 				case "Path": return "Path";
@@ -1593,6 +1745,8 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity
 			return (
 				other.ContainerId == this.ContainerId &&
 				other.CrcPlain == this.CrcPlain &&
+				other.FileCreatedTime == this.FileCreatedTime &&
+				other.FileModifiedTime == this.FileModifiedTime &&
 				other.FileStashID == this.FileStashID &&
 				other.IsCompressed == this.IsCompressed &&
 				other.Path == this.Path &&
@@ -1641,6 +1795,20 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity.Metadata
 		[System.ComponentModel.DataAnnotations.StringLength(32, ErrorMessage = "The property 'CrcPlain' has a maximum length of 32")]
 		[System.ComponentModel.DataAnnotations.Display(Description = "", Name = "CrcPlain", AutoGenerateField = true)]
 		public object CrcPlain;
+
+		/// <summary>
+		/// Metadata information for the 'FileCreatedTime' parameter
+		/// </summary>
+		[System.ComponentModel.DataAnnotations.Required(ErrorMessage = "'FileCreatedTime' is required.", AllowEmptyStrings = true)]
+		[System.ComponentModel.DataAnnotations.Display(Description = "", Name = "FileCreatedTime", AutoGenerateField = true)]
+		public object FileCreatedTime;
+
+		/// <summary>
+		/// Metadata information for the 'FileModifiedTime' parameter
+		/// </summary>
+		[System.ComponentModel.DataAnnotations.Required(ErrorMessage = "'FileModifiedTime' is required.", AllowEmptyStrings = true)]
+		[System.ComponentModel.DataAnnotations.Display(Description = "", Name = "FileModifiedTime", AutoGenerateField = true)]
+		public object FileModifiedTime;
 
 		/// <summary>
 		/// Metadata information for the 'FileStashID' parameter
@@ -1747,6 +1915,8 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity.Metadata
 			var retval = new List<string>();
 			retval.Add("ContainerId");
 			retval.Add("CrcPlain");
+			retval.Add("FileCreatedTime");
+			retval.Add("FileModifiedTime");
 			retval.Add("FileStashID");
 			retval.Add("IsCompressed");
 			retval.Add("Path");
@@ -1782,6 +1952,8 @@ namespace Gravitybox.gFileSystem.EFDAL.Entity.Metadata
 			{
 				case "ContainerId": return "ContainerId";
 				case "CrcPlain": return "CrcPlain";
+				case "FileCreatedTime": return "FileCreatedTime";
+				case "FileModifiedTime": return "FileModifiedTime";
 				case "FileStashID": return "FileStashID";
 				case "IsCompressed": return "IsCompressed";
 				case "Path": return "Path";

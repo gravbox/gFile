@@ -106,6 +106,8 @@ namespace Gravitybox.gFileSystem.Service.Common
                     TenantID = tenantId,
                     CRC = FileUtilities.FileCRC(fileName),
                     Size = fi.Length,
+                    CreatedTime = fi.CreationTime.ToUniversalTime(),
+                    ModifiedTime = fi.LastWriteTime.ToUniversalTime(),
                 };
 
                 using (var fs = File.Open(fileName, FileMode.Open, FileAccess.Read))
@@ -232,6 +234,11 @@ namespace Gravitybox.gFileSystem.Service.Common
                         index++;
                     } while (count > 0);
                 }
+
+                var fi = new FileInfo(tempfile);
+                fi.CreationTime = fileInfo.CreatedTime;
+                fi.LastWriteTime = fileInfo.ModifiedTime;
+
                 return tempfile;
             }
             catch (Exception ex)

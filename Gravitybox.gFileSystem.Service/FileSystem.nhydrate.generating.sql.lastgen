@@ -13,6 +13,12 @@
 								<c key="94a49039-d177-44ef-bf6a-ba8876dce601" name="CrcPlain" dataFieldSortOrder="8" length="32" id="1574876720" type="22" allowNull="0">
 										<pt key="022f13a6-4ad6-46be-8f15-26cb9c2c1719" ref="107254513" refType="1" />
 								</c>
+								<c key="ad3687c5-fda4-4df8-bf87-8bdcbc7a83db" name="FileCreatedTime" dataFieldSortOrder="12" id="629862454" type="4" allowNull="0">
+										<pt key="022f13a6-4ad6-46be-8f15-26cb9c2c1719" ref="107254513" refType="1" />
+								</c>
+								<c key="f1a0acae-5dd6-4259-a714-b6a41d3999c7" name="FileModifiedTime" dataFieldSortOrder="13" id="1643970023" type="4" allowNull="0">
+										<pt key="022f13a6-4ad6-46be-8f15-26cb9c2c1719" ref="107254513" refType="1" />
+								</c>
 								<c key="67411304-477c-430b-86df-6609e6a0422d" primaryKey="1" identity="1" name="FileStashID" dataFieldSortOrder="1" isIndexed="1" isUnique="1" id="1663610803" type="0" allowNull="0">
 										<pt key="022f13a6-4ad6-46be-8f15-26cb9c2c1719" ref="107254513" refType="1" />
 								</c>
@@ -197,6 +203,8 @@
 												<f key="0fcabbeb-0efa-44c7-be89-17ed5ea37652" ref="643831650" refType="0" />
 												<f key="7c6dbf1f-8b8a-4781-8644-e34f871416d8" ref="1370693958" refType="0" />
 												<f key="80758c9e-9b6a-4ab7-bc70-d80328471789" ref="971957775" refType="0" />
+												<f key="ad3687c5-fda4-4df8-bf87-8bdcbc7a83db" ref="629862454" refType="0" />
+												<f key="f1a0acae-5dd6-4259-a714-b6a41d3999c7" ref="1643970023" refType="0" />
 										</c>
 										<security key="00000000-0000-0000-0000-000000000000" sql="">
 												<parameters key="00000000-0000-0000-0000-000000000000" />

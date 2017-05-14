@@ -86,7 +86,7 @@ namespace Gravitybox.gFileSystem.EFDAL
 		private static Dictionary<string, SequentialIdGenerator> _sequentialIdGeneratorCache = new Dictionary<string, SequentialIdGenerator>();
 		private static object _seqCacheLock = new object();
 
-		private const string _version = "0.0.0.0.21";
+		private const string _version = "0.0.0.0.22";
 		private const string _modelKey = "d570da75-dc5a-443f-83e7-b964165ae8e7";
 
 		/// <summary />
@@ -274,6 +274,8 @@ namespace Gravitybox.gFileSystem.EFDAL
 			//Field setup for FileStash entity
 			modelBuilder.Entity<Gravitybox.gFileSystem.EFDAL.Entity.FileStash>().Property(d => d.ContainerId).IsOptional();
 			modelBuilder.Entity<Gravitybox.gFileSystem.EFDAL.Entity.FileStash>().Property(d => d.CrcPlain).IsRequired().HasMaxLength(32).HasColumnType("VARCHAR");
+			modelBuilder.Entity<Gravitybox.gFileSystem.EFDAL.Entity.FileStash>().Property(d => d.FileCreatedTime).IsRequired();
+			modelBuilder.Entity<Gravitybox.gFileSystem.EFDAL.Entity.FileStash>().Property(d => d.FileModifiedTime).IsRequired();
 			modelBuilder.Entity<Gravitybox.gFileSystem.EFDAL.Entity.FileStash>().Property(d => d.FileStashID).IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
 			modelBuilder.Entity<Gravitybox.gFileSystem.EFDAL.Entity.FileStash>().Property(d => d.IsCompressed).IsRequired();
 			modelBuilder.Entity<Gravitybox.gFileSystem.EFDAL.Entity.FileStash>().Property(d => d.Path).IsRequired().HasMaxLength(450);

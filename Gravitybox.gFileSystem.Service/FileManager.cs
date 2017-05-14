@@ -345,7 +345,7 @@ namespace Gravitybox.gFileSystem.Service
         /// <param name="dataFile">If the data is in a different file then specify it here</param>
         /// <returns></returns>
         public bool SaveFile(Guid tenantID, string container, string fileKey, string dataFile, 
-            byte[] dataKey, string crc, long fileLen)
+            byte[] dataKey, string crc, long fileLen, DateTime createdDate, DateTime modifiedDate)
         {
             if (string.IsNullOrEmpty(container))
                 throw new Exception("The container must be set");
@@ -358,6 +358,8 @@ namespace Gravitybox.gFileSystem.Service
             {
                 using (var q = new WriterLock(tenantID, container + "|" + fileKey))
                 {
+                    this.RemoveFile(tenant.UniqueKey, container, fileKey);
+
                     //Create engine
                     var tenantKey = tenant.Key.Decrypt(_masterKey, _iv);
                     using (var engine = new FileEngine(_masterKey, tenantKey, tenantID, _iv))
@@ -365,23 +367,6 @@ namespace Gravitybox.gFileSystem.Service
                         engine.WorkingFolder = ConfigHelper.WorkFolder;
                         using (var context = new gFileSystemEntities(ConfigHelper.ConnectionString))
                         {
-                            //Delete the old file if one exists
-                            var stash = context.FileStash
-                                .Include(x => x.Container)
-                                .Where(x =>
-                                    x.TenantID == tenant.TenantID &&
-                                    x.Path == fileKey &&
-                                    x.Container.Name == container)
-                                    .FirstOrDefault();
-                            if (stash != null)
-                            {
-                                var existingFile = GetFilePath(tenant.UniqueKey, stash.Container.UniqueKey, stash);
-                                if (File.Exists(existingFile))
-                                    File.Delete(existingFile);
-                                context.DeleteItem(stash);
-                                context.SaveChanges();
-                            }
-
                             //Determine if should compress
                             var isCompressed = false;
                             //var fi = new FileInfo(dataFile);
@@ -425,7 +410,7 @@ namespace Gravitybox.gFileSystem.Service
                                 Directory.CreateDirectory(Path.Combine(ConfigHelper.StorageFolder, tenantID.ToString(), containerItem.UniqueKey.ToString()));
                             }
 
-                            stash = new FileStash
+                            var stash = new FileStash
                             {
                                 Path = fileKey,
                                 TenantID = tenant.TenantID,
@@ -434,6 +419,8 @@ namespace Gravitybox.gFileSystem.Service
                                 ContainerId = containerItem.ContainerId,
                                 CrcPlain = crc,
                                 IsCompressed = isCompressed,
+                                FileCreatedTime = createdDate,
+                                FileModifiedTime = modifiedDate,
                             };
                             context.AddItem(stash);
                             context.SaveChanges();

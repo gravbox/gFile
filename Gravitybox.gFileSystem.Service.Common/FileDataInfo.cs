@@ -11,6 +11,8 @@ namespace Gravitybox.gFileSystem.Service.Common
     {
         public Guid Token { get; set; }
         public long Size { get; set; }
+        public DateTime CreatedTime { get; set; }
+        public DateTime ModifiedTime { get; set; }
     }
 
 }

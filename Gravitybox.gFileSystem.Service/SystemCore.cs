@@ -60,6 +60,8 @@ namespace Gravitybox.gFileSystem.Service
                 CRC = block.CRC,
                 Size = block.Size,
                 Index = 0,
+                CreatedTime = block.CreatedTime,
+                ModifiedTime = block.ModifiedTime,
             };
 
             lock (_fileUploadCache)
@@ -69,6 +71,11 @@ namespace Gravitybox.gFileSystem.Service
                     throw new Exception("File concurrency error");
                 try
                 {
+                    using (var fm = new FileManager(new byte[32]))
+                    {
+                        fm.RemoveFile(block.TenantID, block.Container, block.FileName);
+                    }
+
                     _fileUploadCache.Add(cache.Key);
                     _fileUploadPartCache.Add(cache.ID, cache);
 
@@ -88,6 +95,8 @@ namespace Gravitybox.gFileSystem.Service
                     {
                         Token = cache.ID,
                         Size = cache.Size,
+                        CreatedTime = block.CreatedTime,
+                        ModifiedTime = block.ModifiedTime,
                     };
                 }
                 catch (Exception ex)
@@ -185,6 +194,11 @@ namespace Gravitybox.gFileSystem.Service
             }
         }
 
+        /// <summary>
+        /// Handles the actual copying of the temp file to real storage
+        /// </summary>
+        /// <param name="_masterKey"></param>
+        /// <param name="cache"></param>
         private void SendFileEndPostProcess(byte[] _masterKey, FilePartCache cache)
         {
             bool retval;
@@ -228,7 +242,9 @@ namespace Gravitybox.gFileSystem.Service
                             dataFile: outFile,
                             dataKey: cache.OneTimeKey,
                             crc: cache.CRC,
-                            fileLen: cache.Size);
+                            fileLen: cache.Size,
+                            createdDate: cache.CreatedTime,
+                            modifiedDate: cache.ModifiedTime);
                     }
                     Common.FileUtilities.WipeFile(outFile);
                     Directory.Delete(cache.DataFolder, true);
@@ -279,6 +295,9 @@ namespace Gravitybox.gFileSystem.Service
 
                     retval.Token = token;
                     retval.Size = info.Size;
+                    retval.CreatedTime = info.FileCreatedTime;
+                    retval.ModifiedTime = info.FileModifiedTime;
+
                     return retval;
                 }
             }
@@ -575,5 +594,7 @@ namespace Gravitybox.gFileSystem.Service
         /// The decrypted stream to use when downloading a file
         /// </summary>
         public System.IO.Stream DecryptStream { get; set; }
+        public DateTime CreatedTime { get; set; }
+        public DateTime ModifiedTime { get; set; }
     }
 }

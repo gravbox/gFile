@@ -52,6 +52,8 @@ CREATE TABLE [dbo].[FileStash] (
 	[IsCompressed] [Bit] NOT NULL CONSTRAINT [DF__FILESTASH_ISCOMPRESSED] DEFAULT (0),
 	[StorageSize] [BigInt] NOT NULL CONSTRAINT [DF__FILESTASH_STORAGESIZE] DEFAULT (0),
 	[ContainerId] [BigInt] NULL ,
+	[FileCreatedTime] [DateTime] NOT NULL ,
+	[FileModifiedTime] [DateTime] NOT NULL ,
 	[ModifiedBy] [NVarchar] (50) NULL,
 	[ModifiedDate] [DateTime2] CONSTRAINT [DF__FILESTASH_MODIFIEDDATE] DEFAULT sysdatetime() NULL,
 	[CreatedBy] [NVarchar] (50) NULL,
@@ -123,6 +125,10 @@ if exists(select * from sys.objects where name = 'FileStash' and type = 'U') AND
 ALTER TABLE [dbo].[FileStash] ADD [StorageSize] [BigInt] NOT NULL CONSTRAINT [DF__FILESTASH_STORAGESIZE] DEFAULT (0)
 if exists(select * from sys.objects where name = 'FileStash' and type = 'U') AND not exists (select * from syscolumns c inner join sysobjects o on c.id = o.id where c.name = 'ContainerId' and o.name = 'FileStash')
 ALTER TABLE [dbo].[FileStash] ADD [ContainerId] [BigInt] NULL 
+if exists(select * from sys.objects where name = 'FileStash' and type = 'U') AND not exists (select * from syscolumns c inner join sysobjects o on c.id = o.id where c.name = 'FileCreatedTime' and o.name = 'FileStash')
+ALTER TABLE [dbo].[FileStash] ADD [FileCreatedTime] [DateTime] NOT NULL 
+if exists(select * from sys.objects where name = 'FileStash' and type = 'U') AND not exists (select * from syscolumns c inner join sysobjects o on c.id = o.id where c.name = 'FileModifiedTime' and o.name = 'FileStash')
+ALTER TABLE [dbo].[FileStash] ADD [FileModifiedTime] [DateTime] NOT NULL 
 GO
 --TABLE [Tenant] ADD FIELDS
 if exists(select * from sys.objects where name = 'Tenant' and type = 'U') AND not exists (select * from syscolumns c inner join sysobjects o on c.id = o.id where c.name = 'TenantID' and o.name = 'Tenant')
@@ -481,6 +487,12 @@ SET @defaultName = (SELECT d.name FROM sys.columns c inner join sys.default_cons
 if @defaultName IS NOT NULL
 exec('ALTER TABLE [FileStash] DROP CONSTRAINT ' + @defaultName)
 SET @defaultName = (SELECT d.name FROM sys.columns c inner join sys.default_constraints d on c.column_id = d.parent_column_id and c.object_id = d.parent_object_id inner join sys.objects o on d.parent_object_id = o.object_id where o.name = 'FileStash' and c.name = 'CrcPlain')
+if @defaultName IS NOT NULL
+exec('ALTER TABLE [FileStash] DROP CONSTRAINT ' + @defaultName)
+SET @defaultName = (SELECT d.name FROM sys.columns c inner join sys.default_constraints d on c.column_id = d.parent_column_id and c.object_id = d.parent_object_id inner join sys.objects o on d.parent_object_id = o.object_id where o.name = 'FileStash' and c.name = 'FileCreatedTime')
+if @defaultName IS NOT NULL
+exec('ALTER TABLE [FileStash] DROP CONSTRAINT ' + @defaultName)
+SET @defaultName = (SELECT d.name FROM sys.columns c inner join sys.default_constraints d on c.column_id = d.parent_column_id and c.object_id = d.parent_object_id inner join sys.objects o on d.parent_object_id = o.object_id where o.name = 'FileStash' and c.name = 'FileModifiedTime')
 if @defaultName IS NOT NULL
 exec('ALTER TABLE [FileStash] DROP CONSTRAINT ' + @defaultName)
 SET @defaultName = (SELECT d.name FROM sys.columns c inner join sys.default_constraints d on c.column_id = d.parent_column_id and c.object_id = d.parent_object_id inner join sys.objects o on d.parent_object_id = o.object_id where o.name = 'FileStash' and c.name = 'FileStashID')

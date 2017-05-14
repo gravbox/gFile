@@ -8,6 +8,12 @@
 				<field id="94a49039-d177-44ef-bf6a-ba8876dce601" name="CrcPlain" nullable="0" datatype="VarChar" identity="None" codefacade="" dataformatstring="" default="" defaultisfunc="0" formula="" isgenerated="1" isindexed="0" isprimarykey="0" Iscalculated="0" isunique="0" length="32" scale="0" sortorder="8" isreadonly="0" category="" collate="" friendlyname="" isbrowsable="1" max="NaN" min="NaN" validationexpression="" obsolete="0">
 						<summary><![CDATA[]]></summary>
 				</field>
+				<field id="ad3687c5-fda4-4df8-bf87-8bdcbc7a83db" name="FileCreatedTime" nullable="0" datatype="DateTime" identity="None" codefacade="" dataformatstring="" default="" defaultisfunc="0" formula="" isgenerated="1" isindexed="0" isprimarykey="0" Iscalculated="0" isunique="0" length="8" scale="0" sortorder="12" isreadonly="0" category="" collate="" friendlyname="" isbrowsable="1" max="NaN" min="NaN" validationexpression="" obsolete="0">
+						<summary><![CDATA[]]></summary>
+				</field>
+				<field id="f1a0acae-5dd6-4259-a714-b6a41d3999c7" name="FileModifiedTime" nullable="0" datatype="DateTime" identity="None" codefacade="" dataformatstring="" default="" defaultisfunc="0" formula="" isgenerated="1" isindexed="0" isprimarykey="0" Iscalculated="0" isunique="0" length="8" scale="0" sortorder="13" isreadonly="0" category="" collate="" friendlyname="" isbrowsable="1" max="NaN" min="NaN" validationexpression="" obsolete="0">
+						<summary><![CDATA[]]></summary>
+				</field>
 				<field id="67411304-477c-430b-86df-6609e6a0422d" name="FileStashID" nullable="0" datatype="BigInt" identity="Database" codefacade="" dataformatstring="" default="" defaultisfunc="0" formula="" isgenerated="1" isindexed="1" isprimarykey="1" Iscalculated="0" isunique="1" length="8" scale="0" sortorder="1" isreadonly="0" category="" collate="" friendlyname="" isbrowsable="1" max="NaN" min="NaN" validationexpression="" obsolete="0">
 						<summary><![CDATA[]]></summary>
 				</field>

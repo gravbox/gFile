@@ -185,6 +185,18 @@ namespace Gravitybox.gFileSystem.EFDAL
 		[System.Diagnostics.DebuggerNonUserCode()]
 		public virtual string CrcPlain { get; set; }
 		/// <summary>
+		/// (Maps to the 'FileStash.FileCreatedTime' database field)
+		/// </summary>
+		[Column(Name = "FileCreatedTime", DbType = "DateTime", CanBeNull = false, IsPrimaryKey = false)]
+		[System.Diagnostics.DebuggerNonUserCode()]
+		public virtual DateTime FileCreatedTime { get; set; }
+		/// <summary>
+		/// (Maps to the 'FileStash.FileModifiedTime' database field)
+		/// </summary>
+		[Column(Name = "FileModifiedTime", DbType = "DateTime", CanBeNull = false, IsPrimaryKey = false)]
+		[System.Diagnostics.DebuggerNonUserCode()]
+		public virtual DateTime FileModifiedTime { get; set; }
+		/// <summary>
 		/// (Maps to the 'FileStash.FileStashID' database field)
 		/// </summary>
 		[Column(Name = "FileStashID", DbType = "BigInt", CanBeNull = false, IsPrimaryKey = true)]

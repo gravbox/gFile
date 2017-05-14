@@ -14,5 +14,7 @@ namespace Gravitybox.gFileSystem.Service.Common
         public string FileName { get; set; }
         public string CRC { get; set; }
         public long Size { get; set; }
+        public DateTime CreatedTime { get; set; }
+        public DateTime ModifiedTime { get; set; }
     }
 }
