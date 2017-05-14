@@ -243,12 +243,18 @@ namespace Gravitybox.gFileSystem.Service
                     if (info.Size <= ConfigHelper.MaxMemoryFileSize)
                     {
                         var data = fm.GetFileData(tenantId, container, fileName);
-                        _fileDownloadCache.Add(token, new FilePartCache { Data = data, InMem = true });
+                        _fileDownloadCache.Add(token, new FilePartCache
+                        {
+                            Data = data,
+                            InMem = true,
+                        });
                     }
                     else
                     {
-                        var tempfile = fm.GetFile(tenantId, container, fileName);
-                        _fileDownloadCache.Add(token, new FilePartCache { FileName = tempfile });
+                        _fileDownloadCache.Add(token, new FilePartCache
+                        {
+                            DecryptStream = fm.GetFile(tenantId, container, fileName),
+                        });
                     }
                     return token;
                 }
@@ -280,7 +286,9 @@ namespace Gravitybox.gFileSystem.Service
             }
             else
             {
-                if (!File.Exists(cache.FileName))
+                //if (!File.Exists(cache.FileName))
+                //    throw new Exception("Invalid token");
+                if (cache.DecryptStream == null)
                     throw new Exception("Invalid token");
             }
 
@@ -313,25 +321,22 @@ namespace Gravitybox.gFileSystem.Service
                 else
                 {
                     #region File System
-                    var fi = new FileInfo(cache.FileName);
-                    if (startIndex >= fi.Length)
+                    if (!cache.DecryptStream.CanRead)
                     {
-                        //EOF - Remove file
-                        File.Delete(cache.FileName);
+                        //EOF
                         _fileDownloadCache.Remove(token);
                         return null;
                     }
                     else
                     {
-                        using (var fs = File.Open(cache.FileName, FileMode.Open, FileAccess.Read))
+                        var arr = new byte[blockSize];
+                        var count = cache.DecryptStream.Read(arr, 0, arr.Length);
+                        if (count < arr.Length)
                         {
-                            var arr = new byte[blockSize];
-                            fs.Seek(startIndex, SeekOrigin.Begin);
-                            var count = fs.Read(arr, 0, arr.Length);
-                            if (count < arr.Length)
-                                arr = arr.Take(count).ToArray();
-                            return arr;
+                            arr = arr.Take(count).ToArray();
+                            cache.DecryptStream.Close();
                         }
+                        return arr;
                     }
                     #endregion
                 }
@@ -544,5 +549,9 @@ namespace Gravitybox.gFileSystem.Service
         /// File parts are stored on disk in the working area encrypted while the file is in transit
         /// </summary>
         public byte[] OneTimeKey = FileUtilities.GetNewKey();
+        /// <summary>
+        /// The decrypted stream to use when downloading a file
+        /// </summary>
+        public System.IO.Stream DecryptStream { get; set; }
     }
 }

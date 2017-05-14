@@ -110,6 +110,30 @@ namespace Gravitybox.gFileSystem.Service
             }
         }
 
+        internal static System.IO.Stream GetDecryptStream(this System.IO.Stream src, byte[] iv, FileHeader header)
+        {
+            try
+            {
+                //Get the data key
+                var vv = new byte[FileHeader.FileHeaderSize];
+                src.Read(vv, 0, vv.Length);
+                header.Load(vv);
+
+                header.DataKey = header.EncryptedDataKey.Decrypt(header.TenantKey, iv);
+
+                //Do not use "using" statement as the stream must stay open
+                var aes = CryptoProvider(header.DataKey, iv);
+                var decryptor = aes.CreateDecryptor();
+                src.Seek(FileHeader.FileHeaderSize, SeekOrigin.Begin);
+                var cryptoStream = new CryptoStream(src, decryptor, CryptoStreamMode.Read);
+                return cryptoStream;
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
         internal static void WriteFileHeader(string cryptFileName, FileHeader header)
         {
             try

@@ -493,7 +493,7 @@ namespace Gravitybox.gFileSystem.Service
         /// <param name="container"></param>
         /// <param name="fileName"></param>
         /// <returns></returns>
-        public string GetFile(Guid tenantID, string container, string fileName)
+        public System.IO.Stream GetFile(Guid tenantID, string container, string fileName)
         {
             if (string.IsNullOrEmpty(container))
                 throw new Exception("The container must be set");
@@ -524,31 +524,30 @@ namespace Gravitybox.gFileSystem.Service
                     //Create engine
                     var tenantKey = tenant.Key.Decrypt(_masterKey, _iv);
                     string cipherFile = null;
-                    string plainText = null;
                     using (var engine = new FileEngine(_masterKey, tenantKey, tenantID, _iv))
                     {
                         engine.WorkingFolder = ConfigHelper.WorkFolder;
                         cipherFile = GetFilePath(tenant.UniqueKey, stash.Container.UniqueKey, stash);
-                        plainText = engine.GetFile(cipherFile);
+                        return engine.GetFileStream(cipherFile);
                     }
 
-                    if (stash.IsCompressed)
-                    {
-                        var unzipFile = plainText + ".uz";
-                        if (FileUtilities.UnzipFile(plainText, unzipFile))
-                        {
-                            FileUtilities.WipeFile(plainText);
-                            File.Move(unzipFile, plainText);
-                        }
-                    }
+                    //if (stash.IsCompressed)
+                    //{
+                    //    var unzipFile = plainText + ".uz";
+                    //    if (FileUtilities.UnzipFile(plainText, unzipFile))
+                    //    {
+                    //        FileUtilities.WipeFile(plainText);
+                    //        File.Move(unzipFile, plainText);
+                    //    }
+                    //}
 
-                    var crc = FileUtilities.FileCRC(plainText);
+                    //var crc = FileUtilities.FileCRC(plainText);
 
-                    //Verify that the file is the same as when it was saved
-                    if (crc != stash.CrcPlain)
-                        throw new Exception("The file is corrupted!");
+                    ////Verify that the file is the same as when it was saved
+                    //if (crc != stash.CrcPlain)
+                    //    throw new Exception("The file is corrupted!");
 
-                    return plainText;
+                    //return plainText;
                 }
             }
             catch (Exception ex)

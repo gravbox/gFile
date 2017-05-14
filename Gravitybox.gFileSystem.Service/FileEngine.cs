@@ -135,6 +135,29 @@ namespace Gravitybox.gFileSystem.Service
             }
         }
 
+        /// <summary>
+        /// Given a file, this will decrypt it from storage and 
+        /// return a temporary file in the working storage area
+        /// For security, you need to call WipeFile when done.
+        /// </summary>
+        public System.IO.Stream GetFileStream(string cryptFileName)
+        {
+            try
+            {
+                if (!File.Exists(cryptFileName))
+                    return null;
+
+                var header = new FileHeader { TenantKey = _tenantKey };
+                var fs = File.Open(cryptFileName, FileMode.Open, FileAccess.Read);
+                return fs.GetDecryptStream(_iv, header);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex);
+                throw;
+            }
+        }
+
         public byte[] GetFileData(string cryptFileName)
         {
             try
