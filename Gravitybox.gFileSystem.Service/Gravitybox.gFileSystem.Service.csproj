@@ -72,6 +72,7 @@
     <Compile Include="FileEngine.cs" />
     <Compile Include="FileHeader.cs" />
     <Compile Include="FileManager.cs" />
+    <Compile Include="FilePartCache.cs" />
     <Compile Include="Locking.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="PersistentService.cs">
