@@ -45,8 +45,7 @@ namespace TestHarness
                 var tenantId = service.GetOrAddTenant(TenantName);
 
                 //This is the plain text file to test
-                //var plainFile = @"c:\temp\test.txt";
-                var plainFile = @"d:\temp\bigfile.iso";
+                var plainFile = @"c:\temp\test.txt";
 
                 //Save the file
                 var timer = Stopwatch.StartNew();

@@ -62,28 +62,6 @@ namespace Gravitybox.gFileSystem.Service
         /// <summary>
         /// Given a file, this will encrypt it and put it in storage
         /// </summary>
-        public string SaveFile(System.IO.Stream fs)
-        {
-            try
-            {
-                var newFile = Path.Combine(this.WorkingFolder, Guid.NewGuid().ToString() + ".crypt");
-                var header = new FileHeader { DataKey = FileUtilities.GetNewKey() };
-                header.EncryptedDataKey = header.DataKey.Encrypt(TenantKey, IV);
-                header.TenantKey = TenantKey;
-
-                fs.EncryptStream(newFile, IV, header);
-                return newFile;
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(ex);
-                throw;
-            }
-        }
-
-        /// <summary>
-        /// Given a file, this will encrypt it and put it in storage
-        /// </summary>
         public string SaveFile(byte[] data)
         {
             try
@@ -96,36 +74,6 @@ namespace Gravitybox.gFileSystem.Service
                 using (var fs = new MemoryStream(data))
                 {
                     fs.EncryptStream(newFile, IV, header);
-                }
-                return newFile;
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(ex);
-                throw;
-            }
-        }
-
-        /// <summary>
-        /// Given a file, this will decrypt it from storage and 
-        /// return a temporary file in the working storage area
-        /// For security, you need to call WipeFile when done.
-        /// </summary>
-        public string GetFile(string cryptFileName)
-        {
-            try
-            {
-                if (!File.Exists(cryptFileName))
-                    return null;
-
-                var header = new FileHeader { TenantKey = TenantKey };
-                var newFile = Path.Combine(this.WorkingFolder, Guid.NewGuid().ToString() + ".decrypt");
-                using (var ts = File.OpenWrite(newFile))
-                {
-                    using (var fs = File.Open(cryptFileName, FileMode.Open, FileAccess.Read))
-                    {
-                        fs.DecryptStream(ts, IV, header);
-                    }
                 }
                 return newFile;
             }

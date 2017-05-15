@@ -156,11 +156,6 @@ namespace Gravitybox.gFileSystem.Service
 
         public static int Port => GetValue("Port", 1900);
 
-        /// <summary>
-        /// This is the max file size on which we will do all operations in memory and never touch disk
-        /// </summary>
-        public static int MaxMemoryFileSize => GetValue("MaxMemoryFileSize", 50 * 1024 * 1024);
-
         #endregion
 
     }

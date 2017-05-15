@@ -46,15 +46,6 @@ namespace Gravitybox.gFileSystem.Service
         /// </summary>
         public string Key => (this.TenantID + "|" + this.Container + "|" + this.FileName).ToLower();
         /// <summary>
-        /// Determine if this operation stores the data in memory or on disk
-        /// </summary>
-        public bool InMem { get; set; }
-        /// <summary>
-        /// When using memory for smaller files and not using the working area
-        /// This is the data block used to store the file contents
-        /// </summary>
-        public byte[] Data { get; set; }
-        /// <summary>
         /// This is a one time key used to encrypt files parts as they are uploaded/downloaded.
         /// File parts are stored on disk in the working area encrypted while the file is in transit
         /// </summary>
