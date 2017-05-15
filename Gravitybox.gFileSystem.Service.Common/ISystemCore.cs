@@ -15,7 +15,7 @@ namespace Gravitybox.gFileSystem.Service.Common
         Guid GetOrAddTenant(byte[] _masterKey, string name);
 
         [OperationContract]
-        FileDataInfo SendFileStart(FileInformation block);
+        FileDataInfo SendFileStart(byte[] masterKey, FileInformation block);
 
         [OperationContract]
         bool SendFileData(Guid token, byte[] data, int index);

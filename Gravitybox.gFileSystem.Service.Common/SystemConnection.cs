@@ -119,7 +119,7 @@ namespace Gravitybox.gFileSystem.Service.Common
                             using (var factory = GetFactory(_server, _port))
                             {
                                 var service = factory.CreateChannel();
-                                fileInfo = service.SendFileStart(block);
+                                fileInfo = service.SendFileStart(_masterKey, block);
                             }
                         });
 
@@ -236,8 +236,8 @@ namespace Gravitybox.gFileSystem.Service.Common
                 }
 
                 var fi = new FileInfo(tempfile);
-                fi.CreationTime = fileInfo.CreatedTime;
-                fi.LastWriteTime = fileInfo.ModifiedTime;
+                fi.CreationTime = fileInfo.CreatedTime.Date.ToLocalTime();
+                fi.LastWriteTime = fileInfo.ModifiedTime.ToLocalTime();
 
                 return tempfile;
             }

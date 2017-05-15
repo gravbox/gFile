@@ -18,9 +18,6 @@ namespace Gravitybox.gFileSystem.Service
     public class FileEngine : IDisposable
     {
         #region Locals
-        private byte[] _masterKey = null;
-        private byte[] _iv = null;
-        private byte[] _tenantKey = null;
         public static readonly byte[] DefaultIVector = Encoding.UTF8.GetBytes("@2CdcëD45F6%d7H");
         #endregion
 
@@ -45,11 +42,15 @@ namespace Gravitybox.gFileSystem.Service
 
             this.TenantID = tenantId;
 
-            _masterKey = masterKey;
-            _iv = iv;
-            _tenantKey = tenantKey;
+            this.MasterKey = masterKey;
+            this.IV = iv;
+            this.TenantKey = tenantKey;
             this.WorkingFolder = Path.GetTempPath();
         }
+
+        public byte[] MasterKey { get; private set; }
+        public byte[] IV { get; private set; }
+        public byte[] TenantKey { get; private set; }
 
         /// <summary>
         /// The folder where files will be copied temporarily when encrypting and decrypting
@@ -67,10 +68,10 @@ namespace Gravitybox.gFileSystem.Service
             {
                 var newFile = Path.Combine(this.WorkingFolder, Guid.NewGuid().ToString() + ".crypt");
                 var header = new FileHeader { DataKey = FileUtilities.GetNewKey() };
-                header.EncryptedDataKey = header.DataKey.Encrypt(_tenantKey, _iv);
-                header.TenantKey = _tenantKey;
+                header.EncryptedDataKey = header.DataKey.Encrypt(TenantKey, IV);
+                header.TenantKey = TenantKey;
 
-                fs.EncryptStream(newFile, _iv, header);
+                fs.EncryptStream(newFile, IV, header);
                 return newFile;
             }
             catch (Exception ex)
@@ -89,12 +90,12 @@ namespace Gravitybox.gFileSystem.Service
             {
                 var newFile = Path.Combine(this.WorkingFolder, Guid.NewGuid().ToString() + ".crypt");
                 var header = new FileHeader { DataKey = FileUtilities.GetNewKey() };
-                header.EncryptedDataKey = header.DataKey.Encrypt(_tenantKey, _iv);
-                header.TenantKey = _tenantKey;
+                header.EncryptedDataKey = header.DataKey.Encrypt(TenantKey, IV);
+                header.TenantKey = TenantKey;
 
                 using (var fs = new MemoryStream(data))
                 {
-                    fs.EncryptStream(newFile, _iv, header);
+                    fs.EncryptStream(newFile, IV, header);
                 }
                 return newFile;
             }
@@ -117,13 +118,13 @@ namespace Gravitybox.gFileSystem.Service
                 if (!File.Exists(cryptFileName))
                     return null;
 
-                var header = new FileHeader { TenantKey = _tenantKey };
+                var header = new FileHeader { TenantKey = TenantKey };
                 var newFile = Path.Combine(this.WorkingFolder, Guid.NewGuid().ToString() + ".decrypt");
                 using (var ts = File.OpenWrite(newFile))
                 {
                     using (var fs = File.Open(cryptFileName, FileMode.Open, FileAccess.Read))
                     {
-                        fs.DecryptStream(ts, _iv, header);
+                        fs.DecryptStream(ts, IV, header);
                     }
                 }
                 return newFile;
@@ -147,9 +148,9 @@ namespace Gravitybox.gFileSystem.Service
                 if (!File.Exists(cryptFileName))
                     return null;
 
-                var header = new FileHeader { TenantKey = _tenantKey };
+                var header = new FileHeader { TenantKey = TenantKey };
                 var fs = File.Open(cryptFileName, FileMode.Open, FileAccess.Read);
-                return fs.GetDecryptStream(_iv, header);
+                return fs.GetDecryptStream(IV, header);
             }
             catch (Exception ex)
             {
@@ -165,12 +166,12 @@ namespace Gravitybox.gFileSystem.Service
                 if (!File.Exists(cryptFileName))
                     return null;
 
-                var header = new FileHeader { TenantKey = _tenantKey };
+                var header = new FileHeader { TenantKey = TenantKey };
                 using (var ts = new MemoryStream())
                 {
                     using (var fs = File.Open(cryptFileName, FileMode.Open, FileAccess.Read))
                     {
-                        fs.DecryptStream(ts, _iv, header);
+                        fs.DecryptStream(ts, IV, header);
                     }
                     return ts.ToArray();
                 }
@@ -199,7 +200,7 @@ namespace Gravitybox.gFileSystem.Service
                     var vv = new byte[FileHeader.FileHeaderSize];
                     fs.Read(vv, 0, vv.Length);
                     header.Load(vv);
-                    var dataKey = header.EncryptedDataKey.Decrypt(_tenantKey, _iv);
+                    var dataKey = header.EncryptedDataKey.Decrypt(TenantKey, IV);
                     if (dataKey == null)
                     {
                         Logger.LogWarning("File could not be decrypted: " + cryptFileName);
@@ -209,7 +210,7 @@ namespace Gravitybox.gFileSystem.Service
                     //Create new file pad with data key encrypted with new tenant key
                     header.TenantKey = newTenantKey;
                     header.DataKey = dataKey;
-                    header.EncryptedDataKey = dataKey.Encrypt(newTenantKey, _iv);
+                    header.EncryptedDataKey = dataKey.Encrypt(newTenantKey, IV);
                 }
                 Extensions.WriteFileHeader(cryptFileName, header);
 

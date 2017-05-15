@@ -39,7 +39,7 @@ namespace Gravitybox.gFileSystem.Service
         /// Initialize a file for upload
         /// </summary>
         /// <returns>Token that is used to append data in chunk</returns>
-        public FileDataInfo SendFileStart(FileInformation block)
+        public FileDataInfo SendFileStart(byte[] masterKey, FileInformation block)
         {
             if (block == null)
                 throw new Exception("Fie information not set");
@@ -52,6 +52,13 @@ namespace Gravitybox.gFileSystem.Service
             if (block.Size < 0)
                 throw new Exception("Invalid file size");
 
+            byte[] tenantKey = null;
+            using (var fm = new FileManager(masterKey))
+            {
+                var tenant = fm.GetTenant(block.TenantID);
+                tenantKey = tenant.Key.Decrypt(fm.MasterKey, fm.IV);
+            }
+
             var cache = new FilePartCache
             {
                 TenantID = block.TenantID,
@@ -62,6 +69,7 @@ namespace Gravitybox.gFileSystem.Service
                 Index = 0,
                 CreatedTime = block.CreatedTime,
                 ModifiedTime = block.ModifiedTime,
+                TenantKey = tenantKey,
             };
 
             lock (_fileUploadCache)
@@ -71,7 +79,7 @@ namespace Gravitybox.gFileSystem.Service
                     throw new Exception("File concurrency error");
                 try
                 {
-                    using (var fm = new FileManager(new byte[32]))
+                    using (var fm = new FileManager(masterKey))
                     {
                         fm.RemoveFile(block.TenantID, block.Container, block.FileName);
                     }
@@ -142,8 +150,8 @@ namespace Gravitybox.gFileSystem.Service
                         var header = new FileHeader
                         {
                             DataKey = cache.OneTimeKey,
-                            EncryptedDataKey = cache.OneTimeKey.Encrypt(cache.OneTimeKey, FileEngine.DefaultIVector),
-                            TenantKey = cache.OneTimeKey,
+                            EncryptedDataKey = cache.OneTimeKey.Encrypt(cache.TenantKey, FileEngine.DefaultIVector),
+                            TenantKey = cache.TenantKey,
                         };
                         ms.EncryptStream(tempFile, FileEngine.DefaultIVector, header);
                     }
@@ -178,7 +186,7 @@ namespace Gravitybox.gFileSystem.Service
                 {
                     SendFileEndPostProcess(_masterKey, cache);
                 });
-                
+
                 return true;
             }
             catch (Exception ex)
@@ -227,24 +235,14 @@ namespace Gravitybox.gFileSystem.Service
                 var partFolder = Path.Combine(ConfigHelper.WorkFolder, cache.ID.ToString());
 
                 var outFile = Path.Combine(cache.DataFolder, "out");
-                this.CombineAndWipe(cache.DataFolder, outFile, cache.OneTimeKey);
-
                 var crc = cache.CRC;
                 if (crc == cache.CRC)
                 {
                     //Write to file system
                     using (var fm = new FileManager(_masterKey))
                     {
-                        retval = fm.SaveFile(
-                            tenantID: cache.TenantID,
-                            container: cache.Container,
-                            fileKey: cache.FileName,
-                            dataFile: outFile,
-                            dataKey: cache.OneTimeKey,
-                            crc: cache.CRC,
-                            fileLen: cache.Size,
-                            createdDate: cache.CreatedTime,
-                            modifiedDate: cache.ModifiedTime);
+                        this.CombineAndWipe(cache.DataFolder, outFile, cache, fm);
+                        retval = fm.SaveEncryptedFile(cache, outFile);
                     }
                     Common.FileUtilities.WipeFile(outFile);
                     Directory.Delete(cache.DataFolder, true);
@@ -476,7 +474,7 @@ namespace Gravitybox.gFileSystem.Service
         /// <summary>
         /// Combine many temp files into one complete file
         /// </summary>
-        private void CombineAndWipe(string folder, string outFile, byte[] key)
+        private void CombineAndWipe(string folder, string outFile, FilePartCache cache, FileManager manager)
         {
             try
             {
@@ -484,11 +482,25 @@ namespace Gravitybox.gFileSystem.Service
                             .OrderBy(x => x)
                             .ToList();
 
-                var aes = Extensions.CryptoProvider(key, FileEngine.DefaultIVector);
+                var tenant = manager.GetTenant(cache.TenantID);
+                var tenantKey = tenant.Key.Decrypt(manager.MasterKey, manager.IV);
+
+                var aes = Extensions.CryptoProvider(cache.OneTimeKey, FileEngine.DefaultIVector);
                 using (var encryptor = aes.CreateEncryptor())
                 {
                     using (var outputStream = File.Create(outFile))
                     {
+                        var header = new FileHeader
+                        {
+                            DataKey = cache.OneTimeKey,
+                            EncryptedDataKey = cache.OneTimeKey.Encrypt(tenantKey, FileEngine.DefaultIVector),
+                            TenantKey = tenantKey,
+                        };
+
+                        //Write blank header. It will be filled in later
+                        var padBytes = header.ToArray();
+                        outputStream.Write(padBytes, 0, padBytes.Length);
+
                         using (var cryptoStream = new CryptoStream(outputStream, encryptor, CryptoStreamMode.Write))
                         {
                             //Take the encrypted file parts and combine into an encrypted OUT file
@@ -498,13 +510,6 @@ namespace Gravitybox.gFileSystem.Service
                                 {
                                     using (var ms = new MemoryStream())
                                     {
-                                        var header = new FileHeader
-                                        {
-                                            DataKey = key,
-                                            EncryptedDataKey = key.Encrypt(key, FileEngine.DefaultIVector),
-                                            TenantKey = key,
-                                        };
-
                                         //The OUT file is encrypted
                                         inputStream.DecryptStream(ms, FileEngine.DefaultIVector, header);
                                         ms.Seek(0, SeekOrigin.Begin);
@@ -540,6 +545,7 @@ namespace Gravitybox.gFileSystem.Service
 
     internal class FilePartCache
     {
+        public DateTime ObjectCreation { get; set; } = DateTime.Now;
         /// <summary>
         /// The unique token used in multi-part file upload/download to identify the file
         /// </summary>
@@ -589,12 +595,13 @@ namespace Gravitybox.gFileSystem.Service
         /// This is a one time key used to encrypt files parts as they are uploaded/downloaded.
         /// File parts are stored on disk in the working area encrypted while the file is in transit
         /// </summary>
-        public byte[] OneTimeKey = FileUtilities.GetNewKey();
+        public byte[] OneTimeKey = new byte[32];// FileUtilities.GetNewKey();
         /// <summary>
         /// The decrypted stream to use when downloading a file
         /// </summary>
         public System.IO.Stream DecryptStream { get; set; }
         public DateTime CreatedTime { get; set; }
         public DateTime ModifiedTime { get; set; }
+        public byte[] TenantKey { get; set; }
     }
 }

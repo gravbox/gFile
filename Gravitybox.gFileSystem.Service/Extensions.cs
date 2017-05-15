@@ -65,7 +65,7 @@ namespace Gravitybox.gFileSystem.Service
                     using (var newFile = File.Create(targetFile))
                     {
                         //Write blank header. It will be filled in later
-                        var padBytes = new byte[FileHeader.FileHeaderSize];
+                        var padBytes = header.ToArray();
                         newFile.Write(padBytes, 0, padBytes.Length);
 
                         //Write encrypted data

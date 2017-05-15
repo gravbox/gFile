@@ -21,8 +21,9 @@ namespace TestHarness
             var testFolder = @"C:\Program Files (x86)\Notepad++";
 
             Test1();
-            Test2(testFolder);
-            TestAsync(testFolder);
+            //Test2(testFolder);
+            //TestAsyncUpload(testFolder);
+            //TestAsyncDownload(testFolder);
             //TestManyTenants(testFolder);
             //TestRekeyTenant();
             //TestMultipleTenants();
@@ -45,6 +46,7 @@ namespace TestHarness
 
                 //This is the plain text file to test
                 var plainFile = @"c:\temp\test.txt";
+                //var plainFile = @"d:\temp\bigfile.iso";
 
                 //Save the file
                 var timer = Stopwatch.StartNew();
@@ -107,8 +109,35 @@ namespace TestHarness
             }
         }
 
-        private static void TestAsync(string folderName)
+        private static void TestAsyncUpload(string folderName)
         {
+            //Create the manager object
+            using (var service = new SystemConnection(MasterKey))
+            {
+                //Get/create tenant
+                const string TenantName = "Test1";
+                var tenantId = service.GetOrAddTenant(TenantName);
+
+                //Encrypt all files in Notepad++ folder
+                var allFiles = Directory.GetFiles(folderName, "*.*", SearchOption.AllDirectories);
+                var timer = Stopwatch.StartNew();
+                var index = 0;
+                Parallel.ForEach(allFiles, (file) =>
+                {
+                    service.SaveFile(tenantId, Container, file);
+                    index++;
+                    Console.WriteLine(string.Format("Saved file {0} / {1}", index, allFiles.Length));
+                });
+                timer.Stop();
+                Console.WriteLine(string.Format("Load {0} files in {1} ms", allFiles.Length, timer.ElapsedMilliseconds));
+            }
+        }
+
+        private static void TestAsyncDownload(string folderName)
+        {
+            //Wait for all files to post process on server
+            System.Threading.Thread.Sleep(2000);
+
             //Create the manager object
             using (var service = new SystemConnection(MasterKey))
             {
