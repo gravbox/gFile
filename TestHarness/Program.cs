@@ -45,8 +45,8 @@ namespace TestHarness
                 var tenantId = service.GetOrAddTenant(TenantName);
 
                 //This is the plain text file to test
-                var plainFile = @"c:\temp\test.txt";
-                //var plainFile = @"d:\temp\bigfile.iso";
+                //var plainFile = @"c:\temp\test.txt";
+                var plainFile = @"d:\temp\bigfile.iso";
 
                 //Save the file
                 var timer = Stopwatch.StartNew();
@@ -54,15 +54,11 @@ namespace TestHarness
                 timer.Stop();
                 Console.WriteLine("Write file: Elapsed=" + timer.ElapsedMilliseconds);
 
-                //Get the saved file by name
-                //Big files are processed on the server async so 
-                //Loop and until the file is available
-                string newFile = null;
-                do
-                {
-                    newFile = service.GetFile(MasterKey, tenantId, Container, plainFile);
-                    System.Threading.Thread.Sleep(500);
-                } while (newFile == null);
+                timer.Reset();
+                timer.Start();
+                var newFile = service.GetFile(MasterKey, tenantId, Container, plainFile);
+                timer.Stop();
+                Console.WriteLine("Read file: Elapsed=" + timer.ElapsedMilliseconds);
 
                 //Compare the 2 plain text files
                 var isEqual = FileUtilities.FilesAreEqual(plainFile, newFile);

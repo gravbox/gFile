@@ -59,21 +59,21 @@ namespace Gravitybox.gFileSystem.Service
                 tenantKey = tenant.Key.Decrypt(fm.MasterKey, fm.IV);
             }
 
-            var cache = new FilePartCache
-            {
-                TenantID = block.TenantID,
-                Container = block.Container,
-                FileName = block.FileName,
-                CRC = block.CRC,
-                Size = block.Size,
-                Index = 0,
-                CreatedTime = block.CreatedTime,
-                ModifiedTime = block.ModifiedTime,
-                TenantKey = tenantKey,
-            };
-
             lock (_fileUploadCache)
             {
+                var cache = new FilePartCache
+                {
+                    TenantID = block.TenantID,
+                    Container = block.Container,
+                    FileName = block.FileName,
+                    CRC = block.CRC,
+                    Size = block.Size,
+                    Index = 0,
+                    CreatedTime = block.CreatedTime,
+                    ModifiedTime = block.ModifiedTime,
+                    TenantKey = tenantKey,
+                };
+
                 //Add to part cache
                 if (_fileUploadCache.Contains(cache.Key))
                     throw new Exception("File concurrency error");
@@ -95,9 +95,21 @@ namespace Gravitybox.gFileSystem.Service
                     }
                     else
                     {
-                        //Create the data folder
-                        cache.DataFolder = Path.Combine(ConfigHelper.WorkFolder, cache.ID.ToString());
-                        Directory.CreateDirectory(cache.DataFolder);
+                        using (var fm = new FileManager(masterKey))
+                        {
+                            var header = new FileHeader
+                            {
+                                DataKey = cache.OneTimeKey,
+                                EncryptedDataKey = cache.OneTimeKey.Encrypt(cache.TenantKey, FileEngine.DefaultIVector),
+                                TenantKey = cache.TenantKey,
+                            };
+
+                            //Create the data folder
+                            var dataPath = Path.Combine(ConfigHelper.WorkFolder, cache.ID.ToString());
+                            Directory.CreateDirectory(dataPath);
+                            cache.TempDataFile = Path.Combine(dataPath, "out");
+                            cache.EncryptStream = Extensions.OpenEncryptStream(cache.TempDataFile, fm.IV, header);
+                        }
                     }
                     return new FileDataInfo
                     {
@@ -141,20 +153,8 @@ namespace Gravitybox.gFileSystem.Service
                 }
                 else
                 {
-                    //Get temp folder to store parts
-                    var tempFile = Path.Combine(cache.DataFolder, cache.Index.ToString("0000000000"));
-
                     //Write part
-                    using (var ms = new MemoryStream(data))
-                    {
-                        var header = new FileHeader
-                        {
-                            DataKey = cache.OneTimeKey,
-                            EncryptedDataKey = cache.OneTimeKey.Encrypt(cache.TenantKey, FileEngine.DefaultIVector),
-                            TenantKey = cache.TenantKey,
-                        };
-                        ms.EncryptStream(tempFile, FileEngine.DefaultIVector, header);
-                    }
+                    cache.EncryptStream.Write(data, 0, data.Length);
                 }
 
                 cache.Index++;
@@ -182,10 +182,10 @@ namespace Gravitybox.gFileSystem.Service
                 var cache = _fileUploadPartCache[token];
 
                 //Do all the post processing like disk copy and DB update async
-                Task.Factory.StartNew(() =>
-                {
+                //Task.Factory.StartNew(() =>
+                //{
                     SendFileEndPostProcess(_masterKey, cache);
-                });
+                //});
 
                 return true;
             }
@@ -231,26 +231,22 @@ namespace Gravitybox.gFileSystem.Service
             else
             {
                 #region Disk Processing
-                //Get temp folder to store parts
-                var partFolder = Path.Combine(ConfigHelper.WorkFolder, cache.ID.ToString());
+                cache.EncryptStream.Close();
 
-                var outFile = Path.Combine(cache.DataFolder, "out");
+                //var outFile = Path.Combine(cache.DataFolder, "out");
                 var crc = cache.CRC;
                 if (crc == cache.CRC)
                 {
                     //Write to file system
                     using (var fm = new FileManager(_masterKey))
                     {
-                        this.CombineAndWipe(cache.DataFolder, outFile, cache, fm);
-                        retval = fm.SaveEncryptedFile(cache, outFile);
+                        var b = fm.SaveEncryptedFile(cache, cache.TempDataFile);
                     }
-                    Common.FileUtilities.WipeFile(outFile);
-                    Directory.Delete(cache.DataFolder, true);
                 }
                 else
                 {
-                    Common.FileUtilities.WipeFile(outFile);
-                    Directory.Delete(cache.DataFolder, true);
+                    Common.FileUtilities.WipeFile(cache.TempDataFile);
+                    Directory.Delete(cache.TempDataFile, true);
                     throw new Exception("File upload failed due to CRC check");
                 }
                 #endregion

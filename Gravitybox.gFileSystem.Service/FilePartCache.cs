@@ -40,7 +40,7 @@ namespace Gravitybox.gFileSystem.Service
         /// <summary>
         /// The temp data folder in the working area used to store the file contents while in transit
         /// </summary>
-        public string DataFolder { get; set; }
+        public string TempDataFile { get; set; }
         /// <summary>
         /// Locking key used for synchronization
         /// </summary>
@@ -66,5 +66,6 @@ namespace Gravitybox.gFileSystem.Service
         public DateTime CreatedTime { get; set; }
         public DateTime ModifiedTime { get; set; }
         public byte[] TenantKey { get; set; }
+        public System.IO.Stream EncryptStream { get; set; }
     }
 }

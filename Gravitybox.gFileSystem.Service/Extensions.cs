@@ -83,6 +83,28 @@ namespace Gravitybox.gFileSystem.Service
             }
         }
 
+        internal static System.IO.Stream OpenEncryptStream(string targetFile, byte[] iv, FileHeader header)
+        {
+            try
+            {
+                var aes = CryptoProvider(header.DataKey, iv);
+                var encryptor = aes.CreateEncryptor();
+                var newFile = File.Create(targetFile);
+
+                //Write blank header. It will be filled in later
+                var padBytes = header.ToArray();
+                newFile.Write(padBytes, 0, padBytes.Length);
+
+                //Create encrypted stream
+                var cryptoStream = new CryptoStream(newFile, encryptor, CryptoStreamMode.Write);
+                return cryptoStream;
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
         internal static void DecryptStream(this System.IO.Stream src, System.IO.Stream dest, byte[] iv, FileHeader header)
         {
             try
