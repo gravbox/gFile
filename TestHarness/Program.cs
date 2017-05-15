@@ -35,7 +35,7 @@ namespace TestHarness
 
         private static void Test1()
         {
-            using (var service = new SystemConnection(MasterKey))
+            using (var service = new SystemConnection())
             {
                 service.FileUpload += (object sender, FileProgressEventArgs e) => Console.WriteLine("Upload " + e.ChunkIndex + " of " + e.TotalChunks);
                 service.FileDownload += (object sender, FileProgressEventArgs e) => Console.WriteLine("Download " + e.ChunkIndex);
@@ -55,7 +55,7 @@ namespace TestHarness
 
                 timer.Reset();
                 timer.Start();
-                var newFile = service.GetFile(MasterKey, tenantId, Container, plainFile);
+                var newFile = service.GetFile(tenantId, Container, plainFile);
                 timer.Stop();
                 Console.WriteLine("Read file: Elapsed=" + timer.ElapsedMilliseconds);
 
@@ -76,7 +76,7 @@ namespace TestHarness
         private static void Test2(string folderName)
         {
             //Create the manager object
-            using (var service = new SystemConnection(MasterKey))
+            using (var service = new SystemConnection())
             {
                 //Get/create tenant
                 const string TenantName = "Test1";
@@ -99,7 +99,7 @@ namespace TestHarness
                 System.Threading.Thread.Sleep(2000);
 
                 //Compare total count of disk vs storage
-                var arr = service.GetFileList(MasterKey, tenantId, folderName);
+                var arr = service.GetFileList(tenantId, folderName);
                 Debug.Assert(allFiles.Length == arr.Count);
             }
         }
@@ -107,7 +107,7 @@ namespace TestHarness
         private static void TestAsyncUpload(string folderName)
         {
             //Create the manager object
-            using (var service = new SystemConnection(MasterKey))
+            using (var service = new SystemConnection())
             {
                 //Get/create tenant
                 const string TenantName = "Test1";
@@ -134,7 +134,7 @@ namespace TestHarness
             System.Threading.Thread.Sleep(2000);
 
             //Create the manager object
-            using (var service = new SystemConnection(MasterKey))
+            using (var service = new SystemConnection())
             {
                 //Get/create tenant
                 const string TenantName = "Test1";
@@ -158,7 +158,7 @@ namespace TestHarness
         private static void TestRemoveAll()
         {
             var timer = Stopwatch.StartNew();
-            using (var service = new SystemConnection(MasterKey))
+            using (var service = new SystemConnection())
             {
                 //Get/create tenant
                 const string TenantName = "Test1";
@@ -180,7 +180,7 @@ namespace TestHarness
             };
 
             //Create the manager object
-            using (var service = new SystemConnection(MasterKey))
+            using (var service = new SystemConnection())
             {
                 foreach(var tenantName in tenantList)
                 {
@@ -201,7 +201,7 @@ namespace TestHarness
                     Console.WriteLine(string.Format("Tenant: " + tenantName + ", Load {0} files in {1} ms", allFiles.Length, timer.ElapsedMilliseconds));
 
                     //Compare total count of disk vs storage
-                    var arr = service.GetFileList(MasterKey, tenantId, folderName);
+                    var arr = service.GetFileList(tenantId, folderName);
                     Debug.Assert(allFiles.Length == arr.Count);
                 }
             }
@@ -210,7 +210,7 @@ namespace TestHarness
         private static void TestRekeyTenant()
         {
             //Create the manager object
-            using (var service = new SystemConnection(MasterKey))
+            using (var service = new SystemConnection())
             {
                 //Get/create tenant
                 const string TenantName = "Test1";
@@ -231,7 +231,7 @@ namespace TestHarness
             var plainFile = @"c:\temp\test.txt";
 
             //Create multiple tenants
-            using (var service = new SystemConnection(MasterKey))
+            using (var service = new SystemConnection())
             {
                 for (var ii = 1; ii <= 10; ii++)
                 {
@@ -249,7 +249,7 @@ namespace TestHarness
                 for (var ii = 1; ii <= 10; ii++)
                 {
                     var tid = service.GetOrAddTenant("Tenant " + ii);
-                    var arr = service.GetFileList(MasterKey, tid);
+                    var arr = service.GetFileList(tid);
                     foreach (var item in arr)
                     {
                         service.RemoveFile(tid, "Default", item);
@@ -258,9 +258,5 @@ namespace TestHarness
             }
         }
 
-        /// <summary>
-        /// DO A MUCH BETTER JOB OF STORING YOUR MASTER KEY THAN THIS EXAMPLE!!!
-        /// </summary>
-        private static byte[] MasterKey => System.Text.Encoding.UTF8.GetBytes("MY 32 BYTE KEY!! with padding...");
     }
 }

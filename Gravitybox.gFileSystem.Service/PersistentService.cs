@@ -43,6 +43,10 @@ namespace Gravitybox.gFileSystem.Service
                     throw new Exception("Invalid StorageFolder");
                 if (string.IsNullOrEmpty(ConfigHelper.WorkFolder) || !Directory.Exists(ConfigHelper.WorkFolder))
                     throw new Exception("Invalid WorkFolder");
+                if (ConfigHelper.MasterKey == null)
+                    throw new Exception("Invalid MasterKey");
+                else
+                    Logger.LogInfo("MasterKey is valid");
 
                 //Test if have permission to add/delete folders in storage area
                 var testFolder = Path.Combine(ConfigHelper.StorageFolder, Guid.NewGuid().ToString());

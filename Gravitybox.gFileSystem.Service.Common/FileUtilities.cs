@@ -274,5 +274,15 @@ namespace Gravitybox.gFileSystem.Service.Common
             }
         }
 
+        public static AesCryptoServiceProvider CryptoProvider(byte[] key, byte[] iv)
+        {
+            var aes = new AesCryptoServiceProvider();
+            aes.IV = iv;
+            aes.Key = key;
+            aes.Mode = CipherMode.CBC;
+            aes.Padding = PaddingMode.PKCS7;
+            return aes;
+        }
+
     }
 }

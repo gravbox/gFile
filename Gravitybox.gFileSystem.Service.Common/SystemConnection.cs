@@ -14,7 +14,6 @@ namespace Gravitybox.gFileSystem.Service.Common
     /// </summary>
     public class SystemConnection : IDisposable
     {
-        protected byte[] _masterKey = null;
         protected string _server = null;
         protected int _port = 0;
 
@@ -35,14 +34,10 @@ namespace Gravitybox.gFileSystem.Service.Common
                 this.FileDownload(this, e);
         }
 
-        public SystemConnection(byte[] masterKey, string server = "localhost", int port = 1900)
+        public SystemConnection(string server = "localhost", int port = 1900)
         {
-            if (masterKey == null || masterKey.Length != 32)
-                throw new Exception("Invalid master key");
-
             _server = server;
             _port = port;
-            _masterKey = masterKey;
         }
 
         /// <summary>
@@ -81,7 +76,7 @@ namespace Gravitybox.gFileSystem.Service.Common
                     using (var factory = GetFactory(_server, _port))
                     {
                         var service = factory.CreateChannel();
-                        retval = service.GetOrAddTenant(_masterKey, name);
+                        retval = service.GetOrAddTenant(name);
                     }
                 });
             return retval;
@@ -119,7 +114,7 @@ namespace Gravitybox.gFileSystem.Service.Common
                             using (var factory = GetFactory(_server, _port))
                             {
                                 var service = factory.CreateChannel();
-                                fileInfo = service.SendFileStart(_masterKey, block);
+                                fileInfo = service.SendFileStart(block);
                             }
                         });
 
@@ -158,7 +153,7 @@ namespace Gravitybox.gFileSystem.Service.Common
                             using (var factory = GetFactory(_server, _port))
                             {
                                 var service = factory.CreateChannel();
-                                retval = service.SendFileEnd(_masterKey, fileInfo.Token);
+                                retval = service.SendFileEnd(fileInfo.Token);
                             }
                         });
                     return retval;
@@ -173,12 +168,7 @@ namespace Gravitybox.gFileSystem.Service.Common
         /// <summary>
         /// Get a file from storage for a tenant in the specified container
         /// </summary>
-        /// <param name="_masterKey"></param>
-        /// <param name="tenantId"></param>
-        /// <param name="container"></param>
-        /// <param name="fileName"></param>
-        /// <returns></returns>
-        public string GetFile(byte[] _masterKey, Guid tenantId, string container, string fileName)
+        public string GetFile(Guid tenantId, string container, string fileName)
         {
             try
             {
@@ -189,7 +179,7 @@ namespace Gravitybox.gFileSystem.Service.Common
                             using (var factory = GetFactory(_server, _port))
                             {
                                 var service = factory.CreateChannel();
-                                fileInfo = service.GetFileStart(_masterKey, tenantId, container, fileName);
+                                fileInfo = service.GetFileStart(tenantId, container, fileName);
                             }
                         });
 
@@ -259,7 +249,7 @@ namespace Gravitybox.gFileSystem.Service.Common
                     using (var factory = GetFactory(_server, _port))
                     {
                         var service = factory.CreateChannel();
-                        retval = service.RemoveFile(_masterKey, tenantId, container, fileName);
+                        retval = service.RemoveFile(tenantId, container, fileName);
                     }
                 });
             return retval;
@@ -277,7 +267,7 @@ namespace Gravitybox.gFileSystem.Service.Common
                     using (var factory = GetFactory(_server, _port))
                     {
                         var service = factory.CreateChannel();
-                        retval = service.RemoveAll(_masterKey, tenantId, container);
+                        retval = service.RemoveAll(tenantId, container);
                     }
                 });
             return retval;
@@ -286,7 +276,7 @@ namespace Gravitybox.gFileSystem.Service.Common
         /// <summary>
         /// Gets a list of existing files in storage for a tenant
         /// </summary>
-        public List<string> GetFileList(byte[] _masterKey, Guid tenantID, string startPattern = null)
+        public List<string> GetFileList(Guid tenantID, string startPattern = null)
         {
             List<string> retval = null;
             RetryHelper.DefaultRetryPolicy(3)
@@ -295,7 +285,7 @@ namespace Gravitybox.gFileSystem.Service.Common
                     using (var factory = GetFactory(_server, _port))
                     {
                         var service = factory.CreateChannel();
-                        retval = service.GetFileList(_masterKey, tenantID, startPattern);
+                        retval = service.GetFileList(tenantID, startPattern);
                     }
                 });
             return retval;
@@ -313,7 +303,7 @@ namespace Gravitybox.gFileSystem.Service.Common
                     using (var factory = GetFactory(_server, _port))
                     {
                         var service = factory.CreateChannel();
-                        retval = service.RekeyTenant(_masterKey, tenantID);
+                        retval = service.RekeyTenant(tenantID);
                     }
                 });
             return retval;

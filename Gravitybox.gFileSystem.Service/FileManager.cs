@@ -26,20 +26,15 @@ namespace Gravitybox.gFileSystem.Service
             ".pak",".png",".jpg",".jpeg",".wav",".rar"
         };
 
-        public FileManager(byte[] masterKey)
-            : this(masterKey, FileEngine.DefaultIVector)
-        {
-        }
-
-        public FileManager(byte[] masterKey, byte[] iv)
+        public FileManager()
         {
             if (!Directory.Exists(ConfigHelper.StorageFolder))
                 throw new Exception("The 'StorageFolder' does not exist.");
             if (!Directory.Exists(ConfigHelper.WorkFolder))
                 throw new Exception("The 'WorkFolder' does not exist.");
 
-            this.MasterKey = masterKey;
-            this.IV = iv;
+           this.MasterKey = ConfigHelper.MasterKey;
+            this.IV = FileEngine.DefaultIVector;
         }
 
         public byte[] MasterKey { get; private set; }

@@ -15,7 +15,7 @@ namespace Gravitybox.gFileSystem.Service
         {
             try
             {
-                var aes = CryptoProvider(masterKey, iv);
+                var aes = FileUtilities.CryptoProvider(masterKey, iv);
                 using (var encrypt = aes.CreateEncryptor())
                 {
                     byte[] dest = encrypt.TransformFinalBlock(src, 0, src.Length);
@@ -32,7 +32,7 @@ namespace Gravitybox.gFileSystem.Service
         {
             try
             {
-                var aes = CryptoProvider(masterKey, iv);
+                var aes = FileUtilities.CryptoProvider(masterKey, iv);
                 using (var decrypt = aes.CreateDecryptor())
                 {
                     byte[] dest = decrypt.TransformFinalBlock(src, 0, src.Length);
@@ -45,21 +45,11 @@ namespace Gravitybox.gFileSystem.Service
             }
         }
 
-        internal static AesCryptoServiceProvider CryptoProvider(byte[] key, byte[] iv)
-        {
-            var aes = new AesCryptoServiceProvider();
-            aes.IV = iv;
-            aes.Key = key;
-            aes.Mode = CipherMode.CBC;
-            aes.Padding = PaddingMode.PKCS7;
-            return aes;
-        }
-
         internal static void EncryptStream(this System.IO.Stream stream, string targetFile, byte[] iv, FileHeader header)
         {
             try
             {
-                var aes = CryptoProvider(header.DataKey, iv);
+                var aes = FileUtilities.CryptoProvider(header.DataKey, iv);
                 using (var encryptor = aes.CreateEncryptor())
                 {
                     using (var newFile = File.Create(targetFile))
@@ -87,7 +77,7 @@ namespace Gravitybox.gFileSystem.Service
         {
             try
             {
-                var aes = CryptoProvider(header.DataKey, iv);
+                var aes = FileUtilities.CryptoProvider(header.DataKey, iv);
                 var encryptor = aes.CreateEncryptor();
                 var newFile = File.Create(targetFile);
 
@@ -116,7 +106,7 @@ namespace Gravitybox.gFileSystem.Service
 
                 header.DataKey = header.EncryptedDataKey.Decrypt(header.TenantKey, iv);
 
-                var aes = CryptoProvider(header.DataKey, iv);
+                var aes = FileUtilities.CryptoProvider(header.DataKey, iv);
                 using (var decryptor = aes.CreateDecryptor())
                 {
                     src.Seek(FileHeader.FileHeaderSize, SeekOrigin.Begin);
@@ -144,7 +134,7 @@ namespace Gravitybox.gFileSystem.Service
                 header.DataKey = header.EncryptedDataKey.Decrypt(header.TenantKey, iv);
 
                 //Do not use "using" statement as the stream must stay open
-                var aes = CryptoProvider(header.DataKey, iv);
+                var aes = FileUtilities.CryptoProvider(header.DataKey, iv);
                 var decryptor = aes.CreateDecryptor();
                 src.Seek(FileHeader.FileHeaderSize, SeekOrigin.Begin);
                 var cryptoStream = new CryptoStream(src, decryptor, CryptoStreamMode.Read);

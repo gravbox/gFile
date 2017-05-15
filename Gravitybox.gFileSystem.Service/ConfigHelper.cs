@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -138,6 +139,31 @@ namespace Gravitybox.gFileSystem.Service
         #endregion
 
         #region Properties
+
+        private static string MasterKeyFile
+        {
+            get { return GetValue("MasterKeyFile", string.Empty); }
+        }
+
+        public static byte[] MasterKey
+        {
+            get
+            {
+                var fileName = MasterKeyFile;
+                if (string.IsNullOrEmpty(fileName))
+                    fileName = "master.key";
+
+                if (!File.Exists(fileName))
+                    throw new Exception();
+
+                var lines = File.ReadAllLines(fileName);
+                var full = string.Join(string.Empty, lines.Where(x => !x.StartsWith("-"))).Replace(" ", string.Empty).Replace("-", string.Empty);
+                var key = Utilities.ConvertHexStringToByteArray(full);
+                if (key != null && key.Length != 32)
+                    key = null;
+                return key;
+            }
+        }
 
         public static string WorkFolder
         {

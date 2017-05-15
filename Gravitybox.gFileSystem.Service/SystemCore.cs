@@ -26,10 +26,10 @@ namespace Gravitybox.gFileSystem.Service
         /// <summary>
         /// Adds the tenant if not exists and returns its unqiue ID
         /// </summary>
-        public Guid GetOrAddTenant(byte[] _masterKey, string name)
+        public Guid GetOrAddTenant(string name)
         {
             //Create the manager object
-            using (var fm = new FileManager(_masterKey))
+            using (var fm = new FileManager())
             {
                 return fm.GetOrAddTenant(name);
             }
@@ -39,7 +39,7 @@ namespace Gravitybox.gFileSystem.Service
         /// Initialize a file for upload
         /// </summary>
         /// <returns>Token that is used to append data in chunk</returns>
-        public FileDataInfo SendFileStart(byte[] masterKey, FileInformation block)
+        public FileDataInfo SendFileStart(FileInformation block)
         {
             if (block == null)
                 throw new Exception("Fie information not set");
@@ -53,7 +53,7 @@ namespace Gravitybox.gFileSystem.Service
                 throw new Exception("Invalid file size");
 
             byte[] tenantKey = null;
-            using (var fm = new FileManager(masterKey))
+            using (var fm = new FileManager())
             {
                 var tenant = fm.GetTenant(block.TenantID);
                 tenantKey = tenant.Key.Decrypt(fm.MasterKey, fm.IV);
@@ -79,7 +79,7 @@ namespace Gravitybox.gFileSystem.Service
                     throw new Exception("File concurrency error");
                 try
                 {
-                    using (var fm = new FileManager(masterKey))
+                    using (var fm = new FileManager())
                     {
                         fm.RemoveFile(block.TenantID, block.Container, block.FileName);
                     }
@@ -87,7 +87,7 @@ namespace Gravitybox.gFileSystem.Service
                     _fileUploadCache.Add(cache.Key);
                     _fileUploadPartCache.Add(cache.ID, cache);
 
-                    using (var fm = new FileManager(masterKey))
+                    using (var fm = new FileManager())
                     {
                         var header = new FileHeader
                         {
@@ -155,7 +155,7 @@ namespace Gravitybox.gFileSystem.Service
         /// <summary>
         /// Called to end file upload and finialize the writting to storage
         /// </summary>
-        public bool SendFileEnd(byte[] _masterKey, Guid token)
+        public bool SendFileEnd(Guid token)
         {
             //If not in cache then nothing to do
             if (!_fileUploadPartCache.ContainsKey(token))
@@ -166,11 +166,24 @@ namespace Gravitybox.gFileSystem.Service
                 //We know the file part if valid here
                 var cache = _fileUploadPartCache[token];
 
-                //Do all the post processing like disk copy and DB update async
-                //Task.Factory.StartNew(() =>
-                //{
-                    SendFileEndPostProcess(_masterKey, cache);
-                //});
+                cache.EncryptStream.Close();
+
+                //var outFile = Path.Combine(cache.DataFolder, "out");
+                var crc = cache.CRC;
+                if (crc == cache.CRC)
+                {
+                    //Write to file system
+                    using (var fm = new FileManager())
+                    {
+                        var b = fm.SaveEncryptedFile(cache, cache.TempDataFile);
+                    }
+                }
+                else
+                {
+                    Common.FileUtilities.WipeFile(cache.TempDataFile);
+                    Directory.Delete(cache.TempDataFile, true);
+                    throw new Exception("File upload failed due to CRC check");
+                }
 
                 return true;
             }
@@ -188,42 +201,15 @@ namespace Gravitybox.gFileSystem.Service
         }
 
         /// <summary>
-        /// Handles the actual copying of the temp file to real storage
-        /// </summary>
-        /// <param name="_masterKey"></param>
-        /// <param name="cache"></param>
-        private void SendFileEndPostProcess(byte[] _masterKey, FilePartCache cache)
-        {
-            cache.EncryptStream.Close();
-
-            //var outFile = Path.Combine(cache.DataFolder, "out");
-            var crc = cache.CRC;
-            if (crc == cache.CRC)
-            {
-                //Write to file system
-                using (var fm = new FileManager(_masterKey))
-                {
-                    var b = fm.SaveEncryptedFile(cache, cache.TempDataFile);
-                }
-            }
-            else
-            {
-                Common.FileUtilities.WipeFile(cache.TempDataFile);
-                Directory.Delete(cache.TempDataFile, true);
-                throw new Exception("File upload failed due to CRC check");
-            }
-        }
-
-        /// <summary>
         /// Initialize a file for download
         /// </summary>
         /// <returns>Token that is used to get file chunks</returns>
-        public FileDataInfo GetFileStart(byte[] _masterKey, Guid tenantId, string container, string fileName)
+        public FileDataInfo GetFileStart(Guid tenantId, string container, string fileName)
         {
             try
             {
                 var retval = new FileDataInfo();
-                using (var fm = new FileManager(_masterKey))
+                using (var fm = new FileManager())
                 {
                     var info = fm.GetFileInfo(tenantId, container, fileName);
                     if (info == null) return retval;
@@ -302,11 +288,11 @@ namespace Gravitybox.gFileSystem.Service
         /// <param name="container"></param>
         /// <param name="fileName"></param>
         /// <returns></returns>
-        public int RemoveFile(byte[] _masterKey, Guid tenantId, string container, string fileName)
+        public int RemoveFile(Guid tenantId, string container, string fileName)
         {
             try
             {
-                using (var fm = new FileManager(_masterKey))
+                using (var fm = new FileManager())
                 {
                     return fm.RemoveFile(tenantId, container, fileName);
                 }
@@ -321,11 +307,11 @@ namespace Gravitybox.gFileSystem.Service
         /// <summary>
         /// Gets a list of existing files in storage for a tenant
         /// </summary>
-        public List<string> GetFileList(byte[] _masterKey, Guid tenantID, string startPattern = null)
+        public List<string> GetFileList(Guid tenantID, string startPattern = null)
         {
             try
             {
-                using (var fm = new FileManager(_masterKey))
+                using (var fm = new FileManager())
                 {
                     return fm.GetFileList(tenantID, startPattern);
                 }
@@ -343,11 +329,11 @@ namespace Gravitybox.gFileSystem.Service
         /// <param name="tenantID"></param>
         /// <param name="container"></param>
         /// <returns></returns>
-        public int RemoveAll(byte[] _masterKey, Guid tenantID, string container)
+        public int RemoveAll(Guid tenantID, string container)
         {
             try
             {
-                using (var fm = new FileManager(_masterKey))
+                using (var fm = new FileManager())
                 {
                     return fm.RemoveAll(tenantID, container);
                 }
@@ -362,11 +348,11 @@ namespace Gravitybox.gFileSystem.Service
         /// <summary>
         /// Resets a tenant key and resets all files for the tenant
         /// </summary>
-        public int RekeyTenant(byte[] _masterKey, Guid tenantID)
+        public int RekeyTenant(Guid tenantID)
         {
             try
             {
-                using (var fm = new FileManager(_masterKey))
+                using (var fm = new FileManager())
                 {
                     return fm.RekeyTenant(tenantID);
                 }
