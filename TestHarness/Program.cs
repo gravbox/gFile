@@ -51,31 +51,27 @@ namespace TestHarness
                 //This is the plain text file to test
                 var plainFile = @"c:\temp\test.txt";
 
-                //Save the file
-                var timer = Stopwatch.StartNew();
+                //Save the file (the name is the key)
                 service.SaveFile(tenantId, Container, plainFile);
-                timer.Stop();
-                Console.WriteLine("Write file: Elapsed=" + timer.ElapsedMilliseconds);
 
-                timer.Reset();
-                timer.Start();
+                //Retrieve the file from storage (file name is just the key)
                 var newFile = service.GetFile(tenantId, Container, plainFile);
-                timer.Stop();
-                Console.WriteLine("Read file: Elapsed=" + timer.ElapsedMilliseconds);
 
-                //Write to text file
+                //Write to decrypted file
+                //In the real world you could work with the stream in memory
+                //such that the plaintext fiel never touches disk
                 var tempFile = newFile.ToFile();
 
-                //Compare the 2 plain text files
+                //Compare the original and download file
                 var isEqual = FileUtilities.FilesAreEqual(plainFile, tempFile);
                 if (isEqual) Console.WriteLine("Files match");
                 else Console.WriteLine("ERROR: Files do not match!");
                 Debug.Assert(isEqual);
 
-                //Remove the file from storage
+                //Remove the file from storage (the file name is the key)
                 service.RemoveFile(tenantId, Container, plainFile);
 
-                //Remove the retrieved file
+                //Remove the plaintext temp file
                 FileUtilities.WipeFile(tempFile);
             }
         }
@@ -94,31 +90,27 @@ namespace TestHarness
                 //This is the plain text file to test
                 var plainFile = @"c:\temp\test.txt";
 
-                //Save the file
-                var timer = Stopwatch.StartNew();
+                //Save the file (the file name is the key)
                 service.SaveFile(plainFile);
-                timer.Stop();
-                Console.WriteLine("Write file: Elapsed=" + timer.ElapsedMilliseconds);
 
-                timer.Reset();
-                timer.Start();
+                //Retrieve the file from storage (file name is just the key)
                 var newFile = service.GetFile(plainFile);
-                timer.Stop();
-                Console.WriteLine("Read file: Elapsed=" + timer.ElapsedMilliseconds);
 
-                //Write to text file
+                //Write to decrypted file
+                //In the real world you could work with the stream in memory
+                //such that the plaintext fiel never touches disk
                 var tempFile = newFile.ToFile();
 
-                //Compare the 2 plain text files
+                //Compare the original and download file
                 var isEqual = FileUtilities.FilesAreEqual(plainFile, tempFile);
                 if (isEqual) Console.WriteLine("Files match");
                 else Console.WriteLine("ERROR: Files do not match!");
                 Debug.Assert(isEqual);
 
-                //Remove the file from storage
+                //Remove the file from storage (the file name is the key)
                 service.RemoveFile(plainFile);
 
-                //Remove the retrieved file
+                //Remove the plaintext temp file
                 FileUtilities.WipeFile(tempFile);
             }
         }
