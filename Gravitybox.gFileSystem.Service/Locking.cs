@@ -47,8 +47,6 @@ namespace Gravitybox.gFileSystem.Service
     {
         private DatastoreLock m_Lock = null;
         private bool m_Disposed = false;
-        private static long _counter = 0;
-        private long _lockIndex = 0;
         private DateTime _initTime = DateTime.Now;
         private const int TimeOut = 60000;
         private bool _inError = false;
@@ -80,9 +78,6 @@ namespace Gravitybox.gFileSystem.Service
             }
 
             this.LockTime = (int)DateTime.Now.Subtract(_initTime).TotalMilliseconds;
-            Interlocked.Increment(ref _counter);
-            _lockIndex = _counter;
-            m_Lock.HeldReads.AddOrUpdate(_lockIndex, DateTime.Now, (key, value) => DateTime.Now);
             m_Lock.TraceInfo = traceInfo;
             m_Lock.HoldingThreadId = System.Threading.Thread.CurrentThread.ManagedThreadId;
         }
@@ -116,15 +111,10 @@ namespace Gravitybox.gFileSystem.Service
                     var totalTime = DateTime.Now.Subtract(_initTime);
                     if (!_inError)
                     {
-                        DateTime dt;
-                        if (!m_Lock.HeldReads.TryRemove(_lockIndex, out dt))
-                            Logger.LogWarning("HeldReads was not released. ObjectId=" + m_Lock.ObjectId + ", Index=" + _lockIndex + ", TraceInfo=" + m_Lock.TraceInfo + ", Elapsed=" + totalTime.TotalMilliseconds);
                         m_Lock.TraceInfo = null;
                         m_Lock.HoldingThreadId = null;
                     }
-
                     m_Lock.ExitReadLock();
-
                     if (totalTime.TotalSeconds > 60)
                         Logger.LogWarning("ReaderLock Long: Elapsed=" + totalTime.TotalSeconds);
                 }
@@ -214,6 +204,10 @@ namespace Gravitybox.gFileSystem.Service
                     m_Lock.WriteLockHeldTime = null;
                     m_Lock.TraceInfo = null;
                     m_Lock.HoldingThreadId = null;
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine("WriterLock Error");
                 }
 
                 m_Lock.ExitWriteLock();

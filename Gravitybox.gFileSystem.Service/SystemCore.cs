@@ -1,5 +1,6 @@
 ﻿using Gravitybox.gFileSystem.Service.Common;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
@@ -19,9 +20,9 @@ namespace Gravitybox.gFileSystem.Service
     public class SystemCore : MarshalByRefObject, ISystemCore, IDisposable
     {
         //TODO: handle cache somewhere else
-        private static Dictionary<Guid, FilePartCache> _fileUploadPartCache = new Dictionary<Guid, FilePartCache>();
+        private static ConcurrentDictionary<Guid, FilePartCache> _fileUploadPartCache = new ConcurrentDictionary<Guid, FilePartCache>();
         private static HashSet<string> _fileUploadCache = new HashSet<string>();
-        private static Dictionary<Guid, FilePartCache> _fileDownloadCache = new Dictionary<Guid, FilePartCache>();
+        private static ConcurrentDictionary<Guid, FilePartCache> _fileDownloadCache = new ConcurrentDictionary<Guid, FilePartCache>();
 
         /// <summary>
         /// Adds the tenant if not exists and returns its unqiue ID
@@ -85,7 +86,7 @@ namespace Gravitybox.gFileSystem.Service
                     }
 
                     _fileUploadCache.Add(cache.Key);
-                    _fileUploadPartCache.Add(cache.ID, cache);
+                    _fileUploadPartCache.TryAdd(cache.ID, cache);
 
                     using (var fm = new FileManager())
                     {
@@ -196,7 +197,8 @@ namespace Gravitybox.gFileSystem.Service
             {
                 var cache = _fileUploadPartCache[token];
                 _fileUploadCache.Remove(cache.Key);
-                _fileUploadPartCache.Remove(token);
+                FilePartCache v;
+                _fileUploadPartCache.TryRemove(token, out v);
             }
         }
 
@@ -206,6 +208,7 @@ namespace Gravitybox.gFileSystem.Service
         /// <returns>Token that is used to get file chunks</returns>
         public FileDataInfo GetFileStart(Guid tenantId, string container, string fileName)
         {
+            Guid token;
             try
             {
                 var retval = new FileDataInfo();
@@ -214,8 +217,8 @@ namespace Gravitybox.gFileSystem.Service
                     var info = fm.GetFileInfo(tenantId, container, fileName);
                     if (info == null) return retval;
 
-                    var token = Guid.NewGuid();
-                    _fileDownloadCache.Add(token, new FilePartCache
+                    token = Guid.NewGuid();
+                    _fileDownloadCache.TryAdd(token, new FilePartCache
                     {
                         DecryptStream = fm.GetFile(tenantId, container, fileName),
                         Size = info.Size,
@@ -259,7 +262,8 @@ namespace Gravitybox.gFileSystem.Service
                 if (!cache.DecryptStream.CanRead)
                 {
                     //EOF
-                    _fileDownloadCache.Remove(token);
+                    FilePartCache v;
+                    _fileDownloadCache.TryRemove(token, out v);
                     return null;
                 }
                 else
