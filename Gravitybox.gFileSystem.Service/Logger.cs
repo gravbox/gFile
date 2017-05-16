@@ -6,7 +6,7 @@ using NLog.Targets;
 
 namespace Gravitybox.gFileSystem.Service
 {
-    public static class Logger
+    internal static class Logger
     {
         #region Class Members
 
