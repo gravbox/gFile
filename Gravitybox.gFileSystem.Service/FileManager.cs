@@ -56,7 +56,7 @@ namespace Gravitybox.gFileSystem.Service
                     //Add/get a tenant in a transaction
                     var parameters = new List<SqlParameter>();
                     parameters.Add(new SqlParameter { DbType = DbType.String, IsNullable = false, ParameterName = "@name", Value = name });
-                    parameters.Add(new SqlParameter { DbType = DbType.Binary, IsNullable = false, ParameterName = "@key", Value = FileUtilities.GetNewKey().Encrypt(MasterKey, IV) });
+                    parameters.Add(new SqlParameter { DbType = DbType.Binary, IsNullable = false, ParameterName = "@key", Value = FileUtilities.GenerateKey().Encrypt(MasterKey, IV) });
                     var tenantID = (Guid)SqlHelper.ExecuteWithReturn(ConfigHelper.ConnectionString, "[AddOrUpdateTenant] @name, @key", parameters);
 
                     //Create the tenant storage folder
@@ -194,7 +194,7 @@ namespace Gravitybox.gFileSystem.Service
 
                     //Create engine
                     var tenantKey = tenant.Key.Decrypt(MasterKey, IV);
-                    var newKey = FileUtilities.GetNewKey();
+                    var newKey = FileUtilities.GenerateKey();
                     using (var engine = new FileEngine(MasterKey, tenantKey, tenantID, IV))
                     {
                         engine.WorkingFolder = ConfigHelper.WorkFolder;

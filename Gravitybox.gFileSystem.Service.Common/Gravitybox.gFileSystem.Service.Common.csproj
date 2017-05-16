@@ -48,6 +48,7 @@
     <Compile Include="FileProgressEventArgs.cs" />
     <Compile Include="FileUtilities.cs" />
     <Compile Include="ISystemCore.cs" />
+    <Compile Include="OutfileItem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RetryHelper.cs" />
     <Compile Include="SystemConnection.cs" />

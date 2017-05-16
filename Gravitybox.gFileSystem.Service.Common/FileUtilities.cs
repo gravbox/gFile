@@ -161,12 +161,20 @@ namespace Gravitybox.gFileSystem.Service.Common
         /// <summary>
         /// Create a new encryption key with the specified key size
         /// </summary>
-        public static byte[] GetNewKey()
+        public static byte[] GenerateKey()
         {
             var aes = new System.Security.Cryptography.AesManaged();
             aes.KeySize = 256;
             aes.GenerateKey();
             return aes.Key;
+        }
+
+        public static byte[] GenerateIV()
+        {
+            var aes = new System.Security.Cryptography.AesManaged();
+            aes.KeySize = 256;
+            aes.GenerateIV();
+            return aes.IV;
         }
 
         /// <summary>
@@ -282,6 +290,20 @@ namespace Gravitybox.gFileSystem.Service.Common
             aes.Mode = CipherMode.CBC;
             aes.Padding = PaddingMode.PKCS7;
             return aes;
+        }
+
+        public static System.IO.Stream OpenEncryptStream(string targetFile, AesCryptoServiceProvider aes)
+        {
+            try
+            {
+                var newfs = File.Create(targetFile);
+                var cryptoStream = new CryptoStream(newfs, aes.CreateEncryptor(), CryptoStreamMode.Write);
+                return cryptoStream;
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
         }
 
     }

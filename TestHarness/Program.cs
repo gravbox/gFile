@@ -59,8 +59,11 @@ namespace TestHarness
                 timer.Stop();
                 Console.WriteLine("Read file: Elapsed=" + timer.ElapsedMilliseconds);
 
+                //Write to text file
+                var tempFile = newFile.ToFile();
+
                 //Compare the 2 plain text files
-                var isEqual = FileUtilities.FilesAreEqual(plainFile, newFile);
+                var isEqual = FileUtilities.FilesAreEqual(plainFile, tempFile);
                 if (isEqual) Console.WriteLine("Files match");
                 else Console.WriteLine("ERROR: Files do not match!");
                 Debug.Assert(isEqual);
@@ -69,7 +72,7 @@ namespace TestHarness
                 service.RemoveFile(tenantId, Container, plainFile);
 
                 //Remove the retrieved file
-                FileUtilities.WipeFile(newFile);
+                FileUtilities.WipeFile(tempFile);
             }
         }
 
@@ -182,7 +185,7 @@ namespace TestHarness
             //Create the manager object
             using (var service = new SystemConnection())
             {
-                foreach(var tenantName in tenantList)
+                foreach (var tenantName in tenantList)
                 {
                     //Get/create tenant
                     var tenantId = service.GetOrAddTenant(tenantName);
@@ -195,7 +198,7 @@ namespace TestHarness
                     {
                         service.SaveFile(tenantId, Container, file);
                         index++;
-                        Console.WriteLine(string.Format("Tenant: "+ tenantName + ", Saved file {0} / {1}", index, allFiles.Length));
+                        Console.WriteLine(string.Format("Tenant: " + tenantName + ", Saved file {0} / {1}", index, allFiles.Length));
                     }
                     timer.Stop();
                     Console.WriteLine(string.Format("Tenant: " + tenantName + ", Load {0} files in {1} ms", allFiles.Length, timer.ElapsedMilliseconds));

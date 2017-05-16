@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Security.Cryptography;
 using System.ServiceModel;
 using System.Text;
 using System.Threading.Tasks;
@@ -168,7 +169,7 @@ namespace Gravitybox.gFileSystem.Service.Common
         /// <summary>
         /// Get a file from storage for a tenant in the specified container
         /// </summary>
-        public string GetFile(Guid tenantId, string container, string fileName)
+        public OutfileItem GetFile(Guid tenantId, string container, string fileName)
         {
             try
             {
@@ -189,7 +190,10 @@ namespace Gravitybox.gFileSystem.Service.Common
                 var index = 0;
                 var count = 0;
                 var tempfile = Path.Combine(this.WorkingFolder, Guid.NewGuid().ToString());
-                using (var fs = File.Open(tempfile, FileMode.CreateNew, FileAccess.Write))
+
+                var aes = FileUtilities.CryptoProvider(FileUtilities.GenerateKey(), FileUtilities.GenerateIV());
+                var newfs = File.Create(tempfile);
+                using (var cryptoStream = new CryptoStream(newfs, aes.CreateEncryptor(), CryptoStreamMode.Write))
                 {
                     do
                     {
@@ -219,17 +223,19 @@ namespace Gravitybox.gFileSystem.Service.Common
                         if (arr != null)
                         {
                             count = arr.Length;
-                            fs.Write(arr, 0, arr.Length);
+                            cryptoStream.Write(arr, 0, arr.Length);
                         }
                         index++;
                     } while (count > 0);
                 }
 
-                var fi = new FileInfo(tempfile);
-                fi.CreationTime = fileInfo.CreatedTime.Date.ToLocalTime();
-                fi.LastWriteTime = fileInfo.ModifiedTime.ToLocalTime();
-
-                return tempfile;
+                newfs = File.OpenRead(tempfile);
+                var outStream = new CryptoStream(newfs, aes.CreateDecryptor(), CryptoStreamMode.Read);
+                return new OutfileItem
+                {
+                    EncryptedFileName = tempfile,
+                    EncryptedStream = outStream,
+                };
             }
             catch (Exception ex)
             {

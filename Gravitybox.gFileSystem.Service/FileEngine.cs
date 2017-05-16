@@ -67,7 +67,7 @@ namespace Gravitybox.gFileSystem.Service
             try
             {
                 var newFile = Path.Combine(this.WorkingFolder, Guid.NewGuid().ToString() + ".crypt");
-                var header = new FileHeader { DataKey = FileUtilities.GetNewKey() };
+                var header = new FileHeader { DataKey = FileUtilities.GenerateKey() };
                 header.EncryptedDataKey = header.DataKey.Encrypt(TenantKey, IV);
                 header.TenantKey = TenantKey;
 
