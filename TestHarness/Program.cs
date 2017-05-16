@@ -21,18 +21,22 @@ namespace TestHarness
             var testFolder = @"C:\Program Files (x86)\Notepad++";
 
             Test1();
-            //Test2(testFolder);
-            //TestAsyncUpload(testFolder);
-            //TestAsyncDownload(testFolder);
-            //TestManyTenants(testFolder);
-            //TestRekeyTenant();
-            //TestMultipleTenants();
-            //TestRemoveAll();
+            Test2();
+            Test3(testFolder);
+            TestAsyncUpload(testFolder);
+            TestAsyncDownload(testFolder);
+            TestManyTenants(testFolder);
+            TestRekeyTenant();
+            TestMultipleTenants();
+            TestRemoveAll();
 
             Console.WriteLine("Complete...");
             Console.ReadLine();
         }
 
+        /// <summary>
+        /// Use a system connection to save a file and then load it from storage
+        /// </summary>
         private static void Test1()
         {
             using (var service = new SystemConnection())
@@ -76,7 +80,50 @@ namespace TestHarness
             }
         }
 
-        private static void Test2(string folderName)
+        /// <summary>
+        /// This saves and re-loads a file just like Test1 but it used a TenantConnection for simpler syntax
+        /// </summary>
+        private static void Test2()
+        {
+            const string TenantName = "Test1";
+            using (var service = new TenantConnection(TenantName, Container))
+            {
+                service.FileUpload += (object sender, FileProgressEventArgs e) => Console.WriteLine("Upload " + e.ChunkIndex + " of " + e.TotalChunks);
+                service.FileDownload += (object sender, FileProgressEventArgs e) => Console.WriteLine("Download " + e.ChunkIndex);
+
+                //This is the plain text file to test
+                var plainFile = @"c:\temp\test.txt";
+
+                //Save the file
+                var timer = Stopwatch.StartNew();
+                service.SaveFile(plainFile);
+                timer.Stop();
+                Console.WriteLine("Write file: Elapsed=" + timer.ElapsedMilliseconds);
+
+                timer.Reset();
+                timer.Start();
+                var newFile = service.GetFile(plainFile);
+                timer.Stop();
+                Console.WriteLine("Read file: Elapsed=" + timer.ElapsedMilliseconds);
+
+                //Write to text file
+                var tempFile = newFile.ToFile();
+
+                //Compare the 2 plain text files
+                var isEqual = FileUtilities.FilesAreEqual(plainFile, tempFile);
+                if (isEqual) Console.WriteLine("Files match");
+                else Console.WriteLine("ERROR: Files do not match!");
+                Debug.Assert(isEqual);
+
+                //Remove the file from storage
+                service.RemoveFile(plainFile);
+
+                //Remove the retrieved file
+                FileUtilities.WipeFile(tempFile);
+            }
+        }
+
+        private static void Test3(string folderName)
         {
             //Create the manager object
             using (var service = new SystemConnection())

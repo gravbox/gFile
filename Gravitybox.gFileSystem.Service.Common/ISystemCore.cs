@@ -36,6 +36,9 @@ namespace Gravitybox.gFileSystem.Service.Common
         List<string> GetFileList(Guid tenantID, string startPattern = null);
 
         [OperationContract]
+        List<string> GetContainerList(Guid tenantID, string startPattern = null);
+
+        [OperationContract]
         int RemoveAll(Guid tenantID, string container);
 
         [OperationContract]

@@ -13,62 +13,17 @@ namespace Gravitybox.gFileSystem.Service.Common
     /// <summary>
     /// This is a client side facade that acts as a native file system interface
     /// </summary>
-    public class SystemConnection : IDisposable
+    public class SystemConnection : ServiceConnectionBase, IDisposable
     {
-        protected string _server = null;
-        protected int _port = 0;
-
-        public delegate void FileUploadEventHandler(object sender, FileProgressEventArgs e);
-
-        public event FileUploadEventHandler FileUpload;
-        public event FileUploadEventHandler FileDownload;
-
-        protected virtual void OnFileUpload(FileProgressEventArgs e)
-        {
-            if (this.FileUpload != null)
-                this.FileUpload(this, e);
-        }
-
-        protected virtual void OnFileDownload(FileProgressEventArgs e)
-        {
-            if (this.FileDownload != null)
-                this.FileDownload(this, e);
-        }
-
         public SystemConnection(string server = "localhost", int port = 1900)
+            : base(server, port)
         {
-            _server = server;
-            _port = port;
-        }
-
-        /// <summary>
-        /// The folder where temp operations are performed
-        /// </summary>
-        public string WorkingFolder { get; set; } = Path.GetTempPath();
-
-        private ChannelFactory<ISystemCore> GetFactory(string serverName)
-        {
-            return GetFactory(serverName, 1900);
-        }
-
-        private ChannelFactory<ISystemCore> GetFactory(string serverName, int port)
-        {
-            //var myBinding = new CompressedNetTcpBinding() { MaxBufferSize = 10 * 1024 * 1024, MaxReceivedMessageSize = 10 * 1024 * 1024, MaxBufferPoolSize = 10 * 1024 * 1024 };
-            var myBinding = new NetTcpBinding() { MaxBufferSize = 10 * 1024 * 1024, MaxReceivedMessageSize = 10 * 1024 * 1024, MaxBufferPoolSize = 10 * 1024 * 1024 };
-            myBinding.ReaderQuotas.MaxStringContentLength = 10 * 1024 * 1024;
-            myBinding.ReaderQuotas.MaxBytesPerRead = 10 * 1024 * 1024;
-            myBinding.ReaderQuotas.MaxArrayLength = 10 * 1024 * 1024;
-            myBinding.ReaderQuotas.MaxDepth = 10 * 1024 * 1024;
-            myBinding.ReaderQuotas.MaxNameTableCharCount = 10 * 1024 * 1024;
-            myBinding.Security.Mode = SecurityMode.None;
-            var myEndpoint = new EndpointAddress("net.tcp://" + serverName + ":" + port + "/__gfile");
-            return new ChannelFactory<ISystemCore>(myBinding, myEndpoint);
         }
 
         /// <summary>
         /// Adds the tenant if not exists and returns its unqiue ID
         /// </summary>
-        public Guid GetOrAddTenant(string name)
+        public virtual Guid GetOrAddTenant(string name)
         {
             Guid retval = Guid.Empty;
             RetryHelper.DefaultRetryPolicy(3)
@@ -86,7 +41,7 @@ namespace Gravitybox.gFileSystem.Service.Common
         /// <summary>
         /// Saves a file to storage for a tenant in the specified container
         /// </summary>
-        public bool SaveFile(Guid tenantId, string container, string fileName)
+        public virtual bool SaveFile(Guid tenantId, string container, string fileName)
         {
             try
             {
@@ -169,7 +124,7 @@ namespace Gravitybox.gFileSystem.Service.Common
         /// <summary>
         /// Get a file from storage for a tenant in the specified container
         /// </summary>
-        public OutfileItem GetFile(Guid tenantId, string container, string fileName)
+        public virtual OutfileItem GetFile(Guid tenantId, string container, string fileName)
         {
             try
             {
@@ -246,7 +201,7 @@ namespace Gravitybox.gFileSystem.Service.Common
         /// <summary>
         /// Removes a file from storage for a tenant in the specified container
         /// </summary>
-        public int RemoveFile(Guid tenantId, string container, string fileName)
+        public virtual int RemoveFile(Guid tenantId, string container, string fileName)
         {
             var retval = 0;
             RetryHelper.DefaultRetryPolicy(3)
@@ -264,7 +219,7 @@ namespace Gravitybox.gFileSystem.Service.Common
         /// <summary>
         /// Removes all files for a tenant and container
         /// </summary>
-        public int RemoveAll(Guid tenantId, string container)
+        public virtual int RemoveAll(Guid tenantId, string container)
         {
             var retval = 0;
             RetryHelper.DefaultRetryPolicy(3)
@@ -282,7 +237,7 @@ namespace Gravitybox.gFileSystem.Service.Common
         /// <summary>
         /// Gets a list of existing files in storage for a tenant
         /// </summary>
-        public List<string> GetFileList(Guid tenantID, string startPattern = null)
+        public virtual List<string> GetFileList(Guid tenantID, string startPattern = null)
         {
             List<string> retval = null;
             RetryHelper.DefaultRetryPolicy(3)
@@ -297,10 +252,25 @@ namespace Gravitybox.gFileSystem.Service.Common
             return retval;
         }
 
+        public virtual List<string> GetContainerList(Guid tenantID, string startPattern = null)
+        {
+            List<string> retval = null;
+            RetryHelper.DefaultRetryPolicy(3)
+                .Execute(() =>
+                {
+                    using (var factory = GetFactory(_server, _port))
+                    {
+                        var service = factory.CreateChannel();
+                        retval = service.GetContainerList(tenantID, startPattern);
+                    }
+                });
+            return retval;
+        }
+
         /// <summary>
         /// Resets a tenant key and resets all files for the tenant
         /// </summary>
-        public int RekeyTenant(Guid tenantID)
+        public virtual int RekeyTenant(Guid tenantID)
         {
             var retval = 0;
             RetryHelper.DefaultRetryPolicy(3)

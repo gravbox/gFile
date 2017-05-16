@@ -323,6 +323,22 @@ namespace Gravitybox.gFileSystem.Service
             }
         }
 
+        public List<string> GetContainerList(Guid tenantID, string startPattern = null)
+        {
+            try
+            {
+                using (var fm = new FileManager())
+                {
+                    return fm.GetContainerList(tenantID, startPattern);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex);
+                throw;
+            }
+        }
+
         /// <summary>
         /// Removes all files for a tenant and container
         /// </summary>
