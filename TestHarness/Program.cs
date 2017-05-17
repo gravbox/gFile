@@ -21,14 +21,14 @@ namespace TestHarness
             var testFolder = @"C:\Program Files (x86)\Notepad++";
 
             Test1();
-            //Test2();
-            //Test3(testFolder);
-            //TestAsyncUpload(testFolder);
-            //TestAsyncDownload(testFolder);
-            //TestManyTenants(testFolder);
-            //TestRekeyTenant();
-            //TestMultipleTenants();
-            //TestRemoveAll();
+            Test2();
+            Test3(testFolder);
+            TestAsyncUpload(testFolder);
+            TestAsyncDownload(testFolder);
+            TestManyTenants(testFolder);
+            TestRekeyTenant();
+            TestMultipleTenants();
+            TestRemoveAll();
 
             Console.WriteLine("Complete...");
             Console.ReadLine();
@@ -49,8 +49,7 @@ namespace TestHarness
                 var tenantId = service.GetOrAddTenant(TenantName);
 
                 //This is the plain text file to test
-                //var plainFile = @"c:\temp\test.txt";
-                var plainFile = @"C:\Development\FOD\HP.Zeus.Web.UI\node_modules\gulp-less\node_modules\gulp-util\node_modules\dateformat\node_modules\meow\node_modules\normalize-package-data\node_modules\validate-npm-package-license\node_modules\spdx-correct\node_modules\spdx-license-ids\LICENSE";
+                var plainFile = @"c:\temp\test.txt";
 
                 //Save the file (the name is the key)
                 service.SaveFile(tenantId, Container, plainFile);
