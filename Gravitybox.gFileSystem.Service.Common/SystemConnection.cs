@@ -45,10 +45,25 @@ namespace Gravitybox.gFileSystem.Service.Common
         {
             try
             {
+                long fileLength = 0;
+                DateTime creationTime = DateTime.Now;
+                DateTime lastWriteTime = DateTime.Now;
+                if (fileName.Length > 260)
+                {
+                    NativeMethods.GetFileInfo(fileName, out creationTime, out lastWriteTime, out fileLength);
+                }
+                else
+                {
+                    var fi = new FileInfo(fileName);
+                    fileLength = fi.Length;
+                    creationTime = fi.CreationTime;
+                    lastWriteTime = fi.LastWriteTime;
+                }
+
                 //Save the file
-                var fi = new FileInfo(fileName);
+                
                 const int blockSize = 1024 * 1024;
-                var count = (int)Math.Ceiling((fi.Length * 1.0) / blockSize);
+                var count = (int)Math.Ceiling((fileLength * 1.0) / blockSize);
 
                 var block = new FileInformation
                 {
@@ -56,9 +71,9 @@ namespace Gravitybox.gFileSystem.Service.Common
                     FileName = fileName,
                     TenantID = tenantId,
                     CRC = FileUtilities.FileCRC(fileName),
-                    Size = fi.Length,
-                    CreatedTime = fi.CreationTime.ToUniversalTime(),
-                    ModifiedTime = fi.LastWriteTime.ToUniversalTime(),
+                    Size = fileLength,
+                    CreatedTime = creationTime.ToUniversalTime(),
+                    ModifiedTime = lastWriteTime.ToUniversalTime(),
                 };
 
                 using (var fs = File.Open(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))

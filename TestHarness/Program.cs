@@ -162,8 +162,12 @@ namespace TestHarness
                 Parallel.ForEach(allFiles, (file) =>
                 {
                     service.SaveFile(tenantId, Container, file);
+                    var results = service.GetFile(tenantId, Container, file);
+                    var tempFile = results.ToFile();
+                    var b = FileUtilities.FilesAreEqual(file, tempFile);
+                    Debug.Assert(b);
                     index++;
-                    Console.WriteLine(string.Format("Saved file {0} / {1}", index, allFiles.Length));
+                    Console.WriteLine(string.Format("Saved file {0} / {1}, Match=" + b, index, allFiles.Length));
                 });
                 timer.Stop();
                 Console.WriteLine(string.Format("Load {0} files in {1} ms", allFiles.Length, timer.ElapsedMilliseconds));
