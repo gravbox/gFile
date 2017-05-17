@@ -298,7 +298,6 @@ namespace Gravitybox.gFileSystem.Service
                 {
                     using (var context = new gFileSystemEntities(ConfigHelper.ConnectionString))
                     {
-                        var fi = new FileInfo(fileName);
                         return context.FileStash
                             .FirstOrDefault(x =>
                                 x.TenantID == tenant.TenantID &&
@@ -335,7 +334,6 @@ namespace Gravitybox.gFileSystem.Service
                     FileStash stash = null;
                     using (var context = new gFileSystemEntities(ConfigHelper.ConnectionString))
                     {
-                        var fi = new FileInfo(fileName);
                         stash = context.FileStash
                             .Include(x => x.Container)
                             .FirstOrDefault(x =>

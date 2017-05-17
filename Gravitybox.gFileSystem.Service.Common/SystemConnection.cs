@@ -76,7 +76,8 @@ namespace Gravitybox.gFileSystem.Service.Common
                     ModifiedTime = lastWriteTime.ToUniversalTime(),
                 };
 
-                using (var fs = File.Open(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                //using (var fs = File.Open(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                using (var fs = LongFile.GetFileStream(fileName, FileAccess.ReadWrite))
                 {
                     FileDataInfo fileInfo = null;
                     RetryHelper.DefaultRetryPolicy(3)

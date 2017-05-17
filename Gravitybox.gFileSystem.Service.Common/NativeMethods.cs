@@ -37,6 +37,22 @@ namespace Gravitybox.gFileSystem.Service.Common
             writeTime = fileData.ftLastWriteTime.ToDateTime();
         }
 
+        public static long GetFileLength(string path)
+        {
+            // Check path here
+
+            WIN32_FIND_DATA fileData;
+
+            // Append special suffix \\?\ to allow path lengths up to 32767
+            path = "\\\\?\\" + path;
+
+            if (!GetFileAttributesEx(path, GET_FILEEX_INFO_LEVELS.GetFileExInfoStandard, out fileData))
+            {
+                throw new System.ComponentModel.Win32Exception();
+            }
+            return (long)(((ulong)fileData.nFileSizeHigh << 32) + (ulong)fileData.nFileSizeLow);
+        }
+
         internal const int FILE_ATTRIBUTE_ARCHIVE = 0x20;
         internal const int INVALID_FILE_ATTRIBUTES = -1;
 

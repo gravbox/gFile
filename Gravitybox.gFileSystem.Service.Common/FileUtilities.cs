@@ -20,7 +20,9 @@ namespace Gravitybox.gFileSystem.Service.Common
             var sb = new StringBuilder();
             using (var md5 = MD5.Create())
             {
-                using (var stream = File.OpenRead(filename))
+                //This now supports long file names
+                //using (var stream = File.OpenRead(filename))
+                using (var stream = LongFile.GetFileStream(filename, FileAccess.ReadWrite))
                 {
                     byte[] hashBytes = md5.ComputeHash(stream);
                     foreach (byte bt in hashBytes)
@@ -128,20 +130,17 @@ namespace Gravitybox.gFileSystem.Service.Common
         /// </summary>
         public static bool FilesAreEqual(string firstName, string secondName)
         {
-            var first = new FileInfo(firstName);
-            var second = new FileInfo(secondName);
+            var firstSize = NativeMethods.GetFileLength(firstName);
+            var secondSize = NativeMethods.GetFileLength(secondName);
 
             const int BYTES_TO_READ = 1024 * 1024;
-            if (first.Length != second.Length)
+            if (firstSize != secondSize)
                 return false;
 
-            if (first.FullName == second.FullName)
-                return true;
+            int iterations = (int)Math.Ceiling((double)firstSize / BYTES_TO_READ);
 
-            int iterations = (int)Math.Ceiling((double)first.Length / BYTES_TO_READ);
-
-            using (FileStream fs1 = first.OpenRead())
-            using (FileStream fs2 = second.OpenRead())
+            using (FileStream fs1 = LongFile.GetFileStream(firstName, FileAccess.ReadWrite))
+            using (FileStream fs2 = LongFile.GetFileStream(secondName, FileAccess.ReadWrite))
             {
                 byte[] one = new byte[BYTES_TO_READ];
                 byte[] two = new byte[BYTES_TO_READ];
