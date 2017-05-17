@@ -44,7 +44,22 @@ namespace Gravitybox.gFileSystem.Service.Common
         /// <summary>
         /// The folder where temp operations are performed
         /// </summary>
-        public virtual string WorkingFolder { get; set; } = Path.GetTempPath();
+        public virtual string WorkingFolder
+        {
+            get
+            {
+                if (_workingFolder == null)
+                    _workingFolder = Path.Combine(Path.GetTempPath(), "xfs");
+                return _workingFolder;
+            }
+            set
+            {
+                if (!Directory.Exists(value))
+                    Directory.CreateDirectory(value);
+                _workingFolder = value;
+            }
+        }
+        private string _workingFolder = null;
 
         protected ChannelFactory<ISystemCore> GetFactory(string serverName)
         {

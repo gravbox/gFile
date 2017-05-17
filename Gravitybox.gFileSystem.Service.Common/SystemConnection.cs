@@ -206,6 +206,7 @@ namespace Gravitybox.gFileSystem.Service.Common
                 {
                     EncryptedFileName = tempfile,
                     EncryptedStream = outStream,
+                    WorkingFolder = this.WorkingFolder,
                 };
             }
             catch (Exception ex)

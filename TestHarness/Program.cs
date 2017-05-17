@@ -55,12 +55,12 @@ namespace TestHarness
                 service.SaveFile(tenantId, Container, plainFile);
 
                 //Retrieve the file from storage (file name is just the key)
-                var newFile = service.GetFile(tenantId, Container, plainFile);
+                var fileResults = service.GetFile(tenantId, Container, plainFile);
 
                 //Write to decrypted file
                 //In the real world you could work with the stream in memory
-                //such that the plaintext fiel never touches disk
-                var tempFile = newFile.ToFile();
+                //such that the plaintext file never touches disk
+                var tempFile = fileResults.ToFile();
 
                 //Compare the original and download file
                 var isEqual = FileUtilities.FilesAreEqual(plainFile, tempFile);
@@ -94,12 +94,12 @@ namespace TestHarness
                 service.SaveFile(plainFile);
 
                 //Retrieve the file from storage (file name is just the key)
-                var newFile = service.GetFile(plainFile);
+                var fileResults = service.GetFile(plainFile);
 
                 //Write to decrypted file
                 //In the real world you could work with the stream in memory
                 //such that the plaintext fiel never touches disk
-                var tempFile = newFile.ToFile();
+                var tempFile = fileResults.ToFile();
 
                 //Compare the original and download file
                 var isEqual = FileUtilities.FilesAreEqual(plainFile, tempFile);
@@ -162,10 +162,11 @@ namespace TestHarness
                 Parallel.ForEach(allFiles, (file) =>
                 {
                     service.SaveFile(tenantId, Container, file);
-                    var results = service.GetFile(tenantId, Container, file);
-                    var tempFile = results.ToFile();
+                    var fileResults = service.GetFile(tenantId, Container, file);
+                    var tempFile = fileResults.ToFile();
                     var b = FileUtilities.FilesAreEqual(file, tempFile);
                     Debug.Assert(b);
+                    FileUtilities.WipeFile(tempFile);
                     index++;
                     Console.WriteLine(string.Format("Saved file {0} / {1}, Match=" + b, index, allFiles.Length));
                 });

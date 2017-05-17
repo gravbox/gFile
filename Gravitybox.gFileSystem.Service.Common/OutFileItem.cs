@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Gravitybox.gFileSystem.Service.Common
 {
-    public class OutfileItem
+    public class OutfileItem : IDisposable
     {
         /// <summary>
         /// The temp file on disk that holds the encrypted file
@@ -20,13 +20,15 @@ namespace Gravitybox.gFileSystem.Service.Common
         /// </summary>
         public System.IO.Stream EncryptedStream { get; set; }
 
+        internal string WorkingFolder { get; set; }
+
         /// <summary>
         /// Convenience method that dumps the decrypted stream to a plaintext file
         /// </summary>
         public string ToFile(string outFile = null)
         {
             //Write to text file
-            var tempFile = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+            var tempFile = Path.Combine(this.WorkingFolder, Guid.NewGuid().ToString());
             using (var fileStream = File.Create(tempFile))
             {
                 this.EncryptedStream.CopyTo(fileStream);
@@ -35,5 +37,25 @@ namespace Gravitybox.gFileSystem.Service.Common
             return tempFile;
         }
 
+        void IDisposable.Dispose()
+        {
+            try
+            {
+                if (this.EncryptedStream != null && this.EncryptedStream.CanRead)
+                    this.EncryptedStream.Close();
+            }
+            catch { }
+
+            try
+            {
+                FileUtilities.WipeFile(this.EncryptedFileName);
+            }
+            catch { }
+        }
+
+        ~OutfileItem()
+        {
+            ((IDisposable)this).Dispose();
+        }
     }
 }

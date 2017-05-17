@@ -30,6 +30,7 @@ namespace Gravitybox.gFileSystem.Service
 
         static ConfigHelper()
         {
+            DefaultWorkingFolder = Path.Combine(System.IO.Path.GetTempPath(), "xfs");
         }
 
         private static void Refresh()
@@ -140,6 +141,8 @@ namespace Gravitybox.gFileSystem.Service
 
         #region Properties
 
+        private static string DefaultWorkingFolder { get; set; }
+
         private static string MasterKeyFile
         {
             get { return GetValue("MasterKeyFile", string.Empty); }
@@ -167,7 +170,7 @@ namespace Gravitybox.gFileSystem.Service
 
         public static string WorkFolder
         {
-            get { return GetValue("WorkFolder", System.IO.Path.GetTempPath()); }
+            get { return GetValue("WorkFolder", DefaultWorkingFolder); }
         }
 
         public static string StorageFolder

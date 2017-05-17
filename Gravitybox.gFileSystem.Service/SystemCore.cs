@@ -162,12 +162,13 @@ namespace Gravitybox.gFileSystem.Service
             if (!_fileUploadPartCache.ContainsKey(token))
                 throw new Exception("File upload error");
 
+            var tempFile = string.Empty;
             try
             {
                 //We know the file part if valid here
                 var cache = _fileUploadPartCache[token];
-
                 cache.EncryptStream.Close();
+                tempFile = cache.TempDataFile;
 
                 //var outFile = Path.Combine(cache.DataFolder, "out");
                 var crc = cache.CRC;
@@ -176,13 +177,11 @@ namespace Gravitybox.gFileSystem.Service
                     //Write to file system
                     using (var fm = new FileManager())
                     {
-                        var b = fm.SaveEncryptedFile(cache, cache.TempDataFile);
+                        var b = fm.SaveEncryptedFile(cache, tempFile);
                     }
                 }
                 else
                 {
-                    Common.FileUtilities.WipeFile(cache.TempDataFile);
-                    Directory.Delete(cache.TempDataFile, true);
                     throw new Exception("File upload failed due to CRC check");
                 }
 
@@ -195,6 +194,10 @@ namespace Gravitybox.gFileSystem.Service
             }
             finally
             {
+                var fi = new FileInfo(tempFile);
+                Common.FileUtilities.WipeFile(tempFile);
+                Directory.Delete(fi.DirectoryName, true);
+
                 var cache = _fileUploadPartCache[token];
                 _fileUploadCache.Remove(cache.Key);
                 FilePartCache v;

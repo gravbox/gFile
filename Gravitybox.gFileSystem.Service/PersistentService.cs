@@ -41,7 +41,7 @@ namespace Gravitybox.gFileSystem.Service
             {
                 if (string.IsNullOrEmpty(ConfigHelper.StorageFolder) || !Directory.Exists(ConfigHelper.StorageFolder))
                     throw new Exception("Invalid StorageFolder");
-                if (string.IsNullOrEmpty(ConfigHelper.WorkFolder) || !Directory.Exists(ConfigHelper.WorkFolder))
+                if (string.IsNullOrEmpty(ConfigHelper.WorkFolder))
                     throw new Exception("Invalid WorkFolder");
                 if (ConfigHelper.MasterKey == null)
                     throw new Exception("Invalid MasterKey");
